@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+line.link {
+	fill: none;
+	stroke: #aaa;
+	opacity: 0.6;
+	stroke-width: 2px;
+}
+
+.node {
+	fill: #ccc;
+	opacity: 0.3;
+	font: 9px sans-serif;
+}
+
+.node.important {
+	fill: gray;
+	opacity: 0.95;
+}
+
+.node.important.coding {
+	fill: #2D8677;
+	opacity: 0.95;
+}
+
+.node.important.promoter {
+	fill: #37588B;
+	opacity: 0.95;
+}
+
+.node.important.enhancer {
+	fill: #D3A047;
+	opacity: 0.95;
+}
+
+.node.important.lncrna {
+	fill: #D38047;
+	opacity: 0.95;
+}
+
+text {
+	font: 9px sans-serif;
+}
+
+text.shadow {
+	stroke: #fff;
+	stroke-width: 2px;
+	stroke-opacity: .8;
+}
+</style>
+<head>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+	<script src="http://d3js.org/d3.v3.js"></script>
+	<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+	<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+	<script src="http://code.jquery.com/color/jquery.color.plus-names-2.1.2.js"></script>
+</head>
+<body>
+	<div id="controls" style="width: 100%">
+		<div style="width: 800px;">
+		  <label for="showgenes">Genes:</label>
+		  <input type="text" id="showgenes" readonly style="border:0; color:#f6931f; font-weight:bold;">
+		  <div id="slider-range"></div>
+		</div>
+		<!--
+		<span>Start condition: </span>
+		<select></select>
+		<span>End condition: </span>
+		<select></select>
+		 -->
+	</div>
+	<div id="network" style="width: 100%; height: 1500px"></div>
+
+</body>
+<script>
+
+	var graph = {"edges":[{"source":"TP53","score":0,"target":"XRCC6"},{"source":"ERBB3","score":3.08113883008419,"target":"AKT1"},{"source":"PPP1CA","score":0,"target":"TGFBR1"},{"source":"CDC42","score":0,"target":"GRB2"},{"source":"SMAD4","score":0,"target":"CDKN1A"},{"source":"CRK","score":0,"target":"SOS1"},{"source":"MAX","score":0,"target":"ITGB1"},{"source":"AES","score":0,"target":"ATN1"},{"source":"ABL1","score":0,"target":"GRB2"},{"source":"CTNNB1","score":0,"target":"JUN"},{"source":"MYC","score":6.870539766709696,"target":"CCNB1"},{"source":"JUN","score":0,"target":"TP53"},{"source":"SP1","score":0,"target":"E2F1"},{"source":"IGF1R","score":6.721491615441943,"target":"RPS6KB1"},{"source":"FYN","score":0,"target":"SP1"},{"source":"AKT1","score":5.58113883008419,"target":"MCL1"},{"source":"GIT1","score":0,"target":"PLCG1"},{"source":"MAP3K7","score":0,"target":"TRAF6"},{"source":"TRAF2","score":0,"target":"TRAF6"},{"source":"NCK1","score":0,"target":"SOS1"},{"source":"AR","score":6.5,"target":"CCND1"},{"source":"CDKN1A","score":0,"target":"TCF4"},{"source":"IKBKB","score":0,"target":"NFKB1"},{"source":"FYN","score":0,"target":"CDH1"},{"source":"PIK3CA","score":8.83502283197903,"target":"PIK3R1"},{"source":"MTOR","score":0,"target":"GSK3B"},{"source":"MYC","score":6.957589490324617,"target":"TBP"},{"source":"PIK3CA","score":0,"target":"SRC"},{"source":"FYN","score":0,"target":"SOS1"},{"source":"ITGA2B","score":3.5,"target":"PIK3R1"},{"source":"ESR1","score":0,"target":"SMAD3"},{"source":"ESR1","score":0,"target":"SP1"},{"source":"SERPINB9","score":2.904014485616485,"target":"SETDB1"},{"source":"PAK1","score":0,"target":"RHOA"},{"source":"ERBB3","score":2.618033988749895,"target":"JAK2"},{"source":"SMARCA4","score":0,"target":"CDKN1A"},{"source":"GRB2","score":0,"target":"SMAD3"},{"source":"JAK2","score":7.830219542376498,"target":"PIK3CA"},{"source":"FOXO3","score":0,"target":"MAX"},{"source":"FOXA1","score":0,"target":"SP1"},{"source":"CDC42","score":0,"target":"RIF1"},{"source":"ITGA2B","score":8.48212002188447,"target":"PIK3CA"},{"source":"PIK3R1","score":4.605761236111537,"target":"PTEN"},{"source":"E2F1","score":0,"target":"TK1"},{"source":"CTNNB1","score":0,"target":"RHOA"},{"source":"CTNNB1","score":0,"target":"DLG1"},{"source":"GAB2","score":4.905124837953327,"target":"SOS1"},{"source":"MYC","score":7.156854249492381,"target":"SF3B1"},{"source":"ITGB1","score":0,"target":"JAK2"},{"source":"IKBKB","score":6.218191226119131,"target":"FOXO3"},{"source":"PAK1","score":6.031128874149275,"target":"PIK3R1"},{"source":"SMAD9","score":0,"target":"ZNF587"},{"source":"RPS6KB1","score":0,"target":"CRK"},{"source":"TP53","score":0,"target":"UBE2I"},{"source":"CTNNB1","score":0,"target":"TLE1"},{"source":"CTNNB1","score":0,"target":"VCAN"},{"source":"SOS1","score":5.031128874149275,"target":"PAK1"},{"source":"ATM","score":4.107802137960878,"target":"MDM2"},{"source":"ERBB3","score":0,"target":"SRC"},{"source":"MAP3K7","score":4.76831552862278,"target":"MAP3K1"},{"source":"GRB2","score":0,"target":"SP1"},{"source":"ATXN1","score":0,"target":"UBE2I"},{"source":"SP1","score":0,"target":"CCNB1"},{"source":"GIT1","score":0,"target":"RAC1"},{"source":"AES","score":0,"target":"GRB2"},{"source":"SMAD2","score":0,"target":"SMAD9"},{"source":"ZNF274","score":9.064396439549952,"target":"TP53"},{"source":"ABL1","score":0,"target":"FYN"},{"source":"JAK2","score":2.776346383927595,"target":"STAT3"},{"source":"CDH1","score":4.097026194660604,"target":"DLG1"},{"source":"BRCA1","score":7.516623588705078,"target":"MYC"},{"source":"BCL10","score":2.8058837014757785,"target":"MAP3K7"},{"source":"GIT1","score":0,"target":"ITGA2B"},{"source":"SERPINB9","score":0,"target":"TLE1"},{"source":"TRAF2","score":0,"target":"TRAF6"},{"source":"ESR1","score":0,"target":"SOS1"},{"source":"ABL1","score":2.118033988749895,"target":"PLCG1"},{"source":"SRC","score":0,"target":"STAT3"},{"source":"PLCG1","score":0,"target":"CDC42"},{"source":"PDPK1","score":0,"target":"TRAF6"},{"source":"MYC","score":0,"target":"SMAD4"},{"source":"GRB2","score":0,"target":"ZNF274"},{"source":"PIK3R1","score":6.387482193696061,"target":"RPS6KB1"},{"source":"GRB2","score":0,"target":"SOS1"},{"source":"XRCC6","score":0,"target":"SMAD3"},{"source":"FYN","score":0,"target":"PIK3CA"},{"source":"EGFR","score":3.0545256618536034,"target":"PLCG1"},{"source":"JUN","score":0,"target":"AFP"},{"source":"CCND1","score":0,"target":"CDKN1A"},{"source":"SP1","score":0,"target":"TP53"},{"source":"ERBB2","score":6.086747487343951,"target":"STAT3"},{"source":"MAP2K4","score":0,"target":"MAPK14"},{"source":"BRCA1","score":0,"target":"NCK1"},{"source":"MYC","score":0,"target":"PDGFRB"},{"source":"PAK1","score":7.369696567301937,"target":"MAP3K1"},{"source":"SMARCA4","score":7.7638746292343415,"target":"TP53"},{"source":"MAP3K7","score":4.414213562373095,"target":"MAP2K4"},{"source":"EGFR","score":0,"target":"RAC1"},{"source":"CTNNB1","score":0,"target":"IGF1R"},{"source":"REL","score":0,"target":"ATXN1"},{"source":"CTNNB1","score":0,"target":"TCF4"},{"source":"NFKB1","score":0,"target":"PIK3R1"},{"source":"EIF4EBP1","score":0,"target":"TCF4"},{"source":"GAB2","score":5.486263668037517,"target":"AKT1"},{"source":"EIF4EBP1","score":0,"target":"REL"},{"source":"FOXA1","score":0,"target":"TLE1"},{"source":"ERBB2","score":7.018643763880471,"target":"PIK3R1"},{"source":"PDPK1","score":0,"target":"TGFBR1"},{"source":"MTOR","score":5.801695756069156,"target":"RPS6KB1"},{"source":"AKT1","score":3.1622776601683795,"target":"MAP3K7"},{"source":"AR","score":7.6713009197786075,"target":"PIK3CA"},{"source":"SRC","score":0,"target":"FRS2"},{"source":"BCL10","score":4.872983346207417,"target":"IKBKB"},{"source":"ERBB2","score":0,"target":"GRB2"},{"source":"ESR1","score":0,"target":"SRC"},{"source":"PIK3CA","score":9.50472362841817,"target":"PTEN"},{"source":"TRAF6","score":0,"target":"NFKB1"},{"source":"ABL1","score":0,"target":"SRC"},{"source":"PIK3CA","score":11.256376505143091,"target":"RPS6KB1"},{"source":"FRS2","score":0,"target":"NCK1"},{"source":"SMAD2","score":0,"target":"TGFBR1"},{"source":"CCND1","score":7.779912447502957,"target":"RB1"},{"source":"PPP1CA","score":0,"target":"SMAD1"},{"source":"JAK2","score":3.118033988749895,"target":"PIK3R1"},{"source":"CTNNB1","score":0,"target":"SRC"},{"source":"GRB2","score":0,"target":"GIT1"},{"source":"PIK3CA","score":0,"target":"RHOA"},{"source":"CDH1","score":7.81605778654705,"target":"ERBB2"},{"source":"TRAF2","score":0,"target":"MAP2K4"},{"source":"MAX","score":0,"target":"SMAD4"},{"source":"RB1","score":7.870781812292112,"target":"MYC"},{"source":"ERBB2","score":6.574155422510668,"target":"ERBB3"},{"source":"ANXA7","score":0,"target":"SETDB1"},{"source":"PDPK1","score":0,"target":"RPS6KB1"},{"source":"CCND1","score":6.914213562373095,"target":"MYB"},{"source":"TGFBR1","score":0,"target":"SMAD3"},{"source":"ATM","score":8.26387462923434,"target":"TP53"},{"source":"AKT1","score":0,"target":"NFKB1"},{"source":"EGFR","score":6.867710453612412,"target":"ERBB2"},{"source":"CDKN1A","score":0,"target":"RB1"},{"source":"ERBB2","score":0,"target":"VAV2"},{"source":"CDC42","score":0,"target":"CTNNB1"},{"source":"USP7","score":0,"target":"TP53"},{"source":"STAT3","score":7.037824501974091,"target":"MYC"},{"source":"SERPINB9","score":8.363468813209458,"target":"TP53"},{"source":"TYK2","score":3,"target":"PIK3R1"},{"source":"TGFBR1","score":0,"target":"RPS6KB1"},{"source":"IGF1R","score":3.8284271247461903,"target":"SOS1"},{"source":"MAPK14","score":0,"target":"JUN"},{"source":"GIT1","score":0,"target":"PIK3CA"},{"source":"TP53","score":8.866689125175663,"target":"RB1"},{"source":"ATM","score":3.5948040682814084,"target":"BRCA1"},{"source":"SMAD1","score":0,"target":"PAK1"},{"source":"JUN","score":0,"target":"MYC"},{"source":"APC","score":0,"target":"SETDB1"},{"source":"CDC42","score":0,"target":"CDH1"},{"source":"GATA3","score":0,"target":"SMAD3"},{"source":"APC","score":0,"target":"RAC1"},{"source":"ABL1","score":3.345207879911715,"target":"RB1"},{"source":"CDH1","score":0,"target":"RHOA"},{"source":"JUN","score":0,"target":"SP1"},{"source":"NCOR1","score":0,"target":"SMAD2"},{"source":"ANXA7","score":0,"target":"APC"},{"source":"ANXA7","score":0,"target":"TP53"},{"source":"PIK3R1","score":3.291377624035248,"target":"MTOR"},{"source":"PLK1","score":0,"target":"RHOA"},{"source":"AES","score":0,"target":"CCND1"},{"source":"XRCC6","score":0,"target":"SERPINB9"},{"source":"TRAF6","score":0,"target":"ERC1"},{"source":"SMAD9","score":0,"target":"HUWE1"},{"source":"CDH1","score":9.03510407217138,"target":"PIK3CA"},{"source":"CDKN1A","score":0,"target":"SETDB1"},{"source":"AR","score":3,"target":"PIK3R1"},{"source":"USP7","score":0,"target":"MDM2"},{"source":"SMAD4","score":0,"target":"CDKN2B"},{"source":"FOXA1","score":3.2862976842004192,"target":"COL18A1"},{"source":"GSK3B","score":0,"target":"MAX"},{"source":"MAP3K1","score":6.312141857799492,"target":"MAP2K4"},{"source":"ESR1","score":0,"target":"JUN"},{"source":"GRB2","score":0,"target":"REL"},{"source":"UBE2I","score":0,"target":"CSDE1"},{"source":"EGFR","score":3.5948040682814084,"target":"STAT3"},{"source":"AES","score":0,"target":"TLE1"},{"source":"AR","score":0,"target":"SRC"},{"source":"PAK1","score":6,"target":"DYRK1B"},{"source":"PIK3CA","score":8.296038496022971,"target":"MTOR"},{"source":"GAB2","score":10.763100424553732,"target":"PIK3CA"},{"source":"CRK","score":0,"target":"SP1"},{"source":"ANXA7","score":0,"target":"TLE1"},{"source":"GIT1","score":0,"target":"PIK3R1"},{"source":"CDH1","score":0,"target":"SRC"},{"source":"TK1","score":0,"target":"SETDB1"},{"source":"CHGB","score":4.015458059099547,"target":"PTEN"},{"source":"RAC1","score":0,"target":"MAP3K1"},{"source":"FOXO3","score":7.7114902873091165,"target":"MYC"},{"source":"TRAF6","score":0,"target":"IKBKB"},{"source":"CRK","score":0,"target":"ATXN1"},{"source":"TK1","score":0,"target":"TP53"},{"source":"MYC","score":6.881599120883969,"target":"CSDE1"},{"source":"MAX","score":0,"target":"TP53"},{"source":"PRKDC","score":7.98861950062593,"target":"TP53"},{"source":"PDGFRB","score":0,"target":"PIK3R1"},{"source":"GSK3B","score":0,"target":"MAPK14"},{"source":"MTOR","score":3.072525957550795,"target":"STAT3"},{"source":"ESR1","score":0,"target":"SMAD4"},{"source":"CRK","score":0,"target":"EGFR"},{"source":"E2F1","score":0,"target":"MCL1"},{"source":"EGFR","score":3.0545256618536034,"target":"JAK2"},{"source":"RIPK1","score":5.0494773867403335,"target":"MAP3K1"},{"source":"TGFBR1","score":0,"target":"CTNNB1"},{"source":"TP53","score":8.317235622737929,"target":"EGFR"},{"source":"SMAD1","score":0,"target":"SMAD3"},{"source":"CCNB1","score":0,"target":"PLK1"},{"source":"CRK","score":0,"target":"RHOA"},{"source":"SP1","score":0,"target":"CDKN2B"},{"source":"PIK3R1","score":3.224744871391589,"target":"CSDE1"},{"source":"NCK1","score":0,"target":"SP1"},{"source":"ESR1","score":0,"target":"PIK3CA"},{"source":"PAK1","score":0,"target":"PLK1"},{"source":"AKT1","score":0,"target":"GSK3B"},{"source":"PIK3CA","score":0,"target":"RAC1"},{"source":"PIK3CA","score":0,"target":"VAV2"},{"source":"TP53","score":9.502487416760172,"target":"PRDM1"},{"source":"SMAD3","score":0,"target":"CDKN1A"},{"source":"AKT1","score":2.8058837014757785,"target":"BCL10"},{"source":"TYK2","score":0,"target":"NFKB1"},{"source":"AR","score":3.449489742783178,"target":"MDM2"},{"source":"PDGFRB","score":0,"target":"AKT1"},{"source":"PDGFRB","score":0,"target":"PIK3CA"},{"source":"ERBB3","score":2.323763377495764,"target":"SOS1"},{"source":"ZFP36L1","score":2.8228756555322954,"target":"TBP"},{"source":"GAB2","score":0,"target":"PDPK1"},{"source":"FYN","score":0,"target":"ATXN1"},{"source":"PDGFRB","score":0,"target":"PTPN22"},{"source":"ERBB2","score":6.830352611572001,"target":"PTPN22"},{"source":"PLCG1","score":2.118033988749895,"target":"SOS1"},{"source":"TP53","score":0,"target":"APC"},{"source":"TRAF2","score":0,"target":"BCL10"},{"source":"GRB2","score":0,"target":"GAB2"},{"source":"CDC42","score":0,"target":"PAK1"},{"source":"PLCG1","score":0,"target":"SRC"},{"source":"RAC1","score":0,"target":"MYC"},{"source":"MCL1","score":10.782329983125269,"target":"TP53"},{"source":"CDH1","score":4.786930235851553,"target":"PIK3R1"},{"source":"AES","score":0,"target":"MYC"},{"source":"PIK3R1","score":0,"target":"RAC1"},{"source":"CCND1","score":0,"target":"CDKN1A"},{"source":"BCL10","score":0,"target":"TRAF6"},{"source":"PAK1","score":7.0155946010522525,"target":"MAP2K4"},{"source":"MAP3K7","score":0,"target":"RAC1"},{"source":"TCF4","score":0,"target":"TLE1"},{"source":"CRK","score":0,"target":"PIK3R1"},{"source":"TK1","score":0,"target":"RIF1"},{"source":"MYB","score":3.914213562373095,"target":"YEATS4"},{"source":"PAK1","score":7.586870176698864,"target":"CCND1"},{"source":"ESR1","score":0,"target":"IGF1R"},{"source":"ABL1","score":3,"target":"PIK3R1"},{"source":"SP1","score":0,"target":"SRC"},{"source":"MYC","score":0,"target":"CDKN1A"},{"source":"SMAD1","score":0,"target":"SMAD4"},{"source":"VAV2","score":0,"target":"RHOA"},{"source":"TRAF6","score":0,"target":"ZNF274"},{"source":"APC","score":0,"target":"GSK3B"},{"source":"MAX","score":0,"target":"CDKN1A"},{"source":"FOXA1","score":0,"target":"JUN"},{"source":"APC","score":0,"target":"CDC42"},{"source":"SETDB1","score":2.5476205269238843,"target":"RIF1"},{"source":"PRKDC","score":0,"target":"XRCC6"},{"source":"AR","score":2.414213562373095,"target":"PRKDC"},{"source":"APC","score":0,"target":"CTNNB1"},{"source":"BCAR3","score":0,"target":"CDC42"},{"source":"ERBB3","score":0,"target":"NCK1"},{"source":"SMAD2","score":0,"target":"PAK1"},{"source":"SMAD4","score":0,"target":"TGFBR1"},{"source":"ITGB1","score":0,"target":"RPS6KB1"},{"source":"MYC","score":0,"target":"TK1"},{"source":"CRK","score":0,"target":"MAP2K4"},{"source":"MYB","score":4.980060365114244,"target":"GATA3"},{"source":"TK1","score":0,"target":"TLE1"},{"source":"NEDD9","score":3.09557356477856,"target":"BCAR3"},{"source":"SP1","score":0,"target":"TBP"},{"source":"SRC","score":0,"target":"NFKB1"},{"source":"GAB2","score":0,"target":"TRAF6"},{"source":"ANXA7","score":0,"target":"CHGB"},{"source":"XRCC6","score":0,"target":"PDPK1"},{"source":"RIPK1","score":0,"target":"NFKB1"},{"source":"CDC42","score":0,"target":"VAV2"},{"source":"PDGFRB","score":0,"target":"PTEN"},{"source":"ABL1","score":0,"target":"NCK1"},{"source":"PDPK1","score":0,"target":"SRC"},{"source":"REL","score":0,"target":"ZNF417"},{"source":"TLE1","score":0,"target":"MYC"},{"source":"FRS2","score":6.23606797749979,"target":"PAK1"},{"source":"MYB","score":3.4757663751819257,"target":"NCOR1"},{"source":"BRCA1","score":0,"target":"GADD45A"},{"source":"SOS1","score":0,"target":"SRC"},{"source":"EGFR","score":3.4364916731037085,"target":"ERBB3"},{"source":"SMAD4","score":0,"target":"SMAD9"},{"source":"E2F1","score":0,"target":"RB1"},{"source":"ESR1","score":0,"target":"COL18A1"},{"source":"AR","score":3.0615528128088303,"target":"FOXA1"},{"source":"PDGFRB","score":0,"target":"PLCG1"},{"source":"GSK3B","score":0,"target":"TP53"},{"source":"AR","score":0,"target":"SMAD4"},{"source":"ADAMTSL4","score":6.10566470618695,"target":"ZNF417"},{"source":"PAK1","score":10.892217808627684,"target":"PIK3CA"},{"source":"RHOA","score":0,"target":"GAB2"},{"source":"TP53","score":8.894428935631675,"target":"AFP"},{"source":"PIK3CA","score":8.56325885196866,"target":"AKT1"},{"source":"MAPK14","score":0,"target":"AR"},{"source":"RHOA","score":0,"target":"FYN"},{"source":"RIPK1","score":0,"target":"MAPK14"},{"source":"MAP3K7","score":3.7605883018545265,"target":"ERC1"},{"source":"ZNF587","score":1.9039432764659772,"target":"ZNF417"},{"source":"PDPK1","score":0,"target":"PIK3CA"},{"source":"ERBB3","score":3.382715530876048,"target":"PIK3R1"},{"source":"PRDM1","score":0,"target":"ATXN1"},{"source":"MYC","score":10.095079772144516,"target":"ERBB2"},{"source":"AKT1","score":5.968621023780251,"target":"RPS6KB1"},{"source":"AKT1","score":6.4029642105806674,"target":"EIF4EBP1"},{"source":"GSK3B","score":0,"target":"TLE1"},{"source":"CDH1","score":0,"target":"CTNNB1"},{"source":"TLE1","score":0,"target":"CCND1"},{"source":"JAK2","score":0,"target":"NFKB1"},{"source":"MYC","score":7.803832340329811,"target":"CDKN2B"},{"source":"GIT1","score":0,"target":"ITGB1"},{"source":"MYC","score":0,"target":"SMAD3"},{"source":"MYC","score":0,"target":"ITGB1"},{"source":"GSK3B","score":0,"target":"MYC"},{"source":"UBE2I","score":0,"target":"MYB"},{"source":"MAP3K7","score":5.486263668037517,"target":"IKBKB"},{"source":"PIK3R1","score":3.58113883008419,"target":"AKT1"},{"source":"MYC","score":0,"target":"SP1"},{"source":"ABL1","score":0,"target":"SP1"},{"source":"EGFR","score":2.9364916731037085,"target":"SOS1"},{"source":"GATA3","score":0,"target":"JUN"},{"source":"NCOR1","score":7.71840706230121,"target":"MYC"},{"source":"MAP3K1","score":0,"target":"TRAF2"},{"source":"CTNNB1","score":0,"target":"MYC"},{"source":"MAPK14","score":0,"target":"STAT3"},{"source":"MYC","score":0,"target":"GADD45A"},{"source":"TCF4","score":0,"target":"ZNF417"},{"source":"ERBB2","score":6.290074205144196,"target":"JAK2"},{"source":"ERBB2","score":6.172040216394301,"target":"SOS1"},{"source":"TRAF6","score":0,"target":"TP53"},{"source":"CDC42","score":0,"target":"RAC1"},{"source":"STAT3","score":7.069763430109227,"target":"CCND1"},{"source":"AR","score":0,"target":"TCF4"},{"source":"PIK3R1","score":7.5,"target":"CCND1"},{"source":"ABL1","score":6.172040216394301,"target":"ERBB2"},{"source":"PIK3CA","score":8.536352701705967,"target":"RELN"},{"source":"IGF1R","score":0,"target":"CRK"},{"source":"JUN","score":0,"target":"RB1"},{"source":"GIT1","score":0,"target":"PAK1"},{"source":"CRK","score":0,"target":"ERBB3"},{"source":"MTOR","score":6.236038942869572,"target":"EIF4EBP1"},{"source":"FOXO3","score":0,"target":"PLK1"},{"source":"ITGB1","score":0,"target":"SRC"},{"source":"PDPK1","score":0,"target":"GIT1"},{"source":"SMAD9","score":0,"target":"SF3B1"},{"source":"CDKN1A","score":0,"target":"CHGB"},{"source":"AES","score":0,"target":"SMAD3"},{"source":"ERBB2","score":0,"target":"PTPN12"},{"source":"ESR1","score":0,"target":"PIK3R1"},{"source":"MAX","score":0,"target":"LIN28B"},{"source":"DLG1","score":8.091196829240571,"target":"PIK3CA"},{"source":"JAK2","score":1.9266855755642598,"target":"TYK2"},{"source":"TCF4","score":0,"target":"ZNF587"},{"source":"GIT1","score":0,"target":"CDC42"},{"source":"FRS2","score":4.345207879911715,"target":"PIK3R1"},{"source":"SOS1","score":0,"target":"RAC1"},{"source":"MTOR","score":0,"target":"NFKB1"},{"source":"MAP3K1","score":0,"target":"MAPK14"},{"source":"EGFR","score":0,"target":"NCK1"},{"source":"MAX","score":0,"target":"SP1"},{"source":"CDKN1A","score":0,"target":"TLE1"},{"source":"MYC","score":6.979729905024676,"target":"ZFP36L1"},{"source":"NFKB1","score":0,"target":"PIK3CA"},{"source":"VAV2","score":0,"target":"PAK1"},{"source":"MAX","score":0,"target":"GADD45A"},{"source":"PDPK1","score":0,"target":"PTPN12"},{"source":"CDKN1A","score":0,"target":"TP53"},{"source":"JAK2","score":4.509198980312529,"target":"MAP3K1"},{"source":"GADD45A","score":0,"target":"TP53"},{"source":"ERBB2","score":6.611262075065218,"target":"BCAR3"},{"source":"ESR1","score":0,"target":"FOXA1"},{"source":"ITGB1","score":0,"target":"PIK3CA"},{"source":"PIK3R1","score":0,"target":"SRC"},{"source":"AR","score":0,"target":"XRCC6"},{"source":"AES","score":0,"target":"TRAF2"},{"source":"PIK3CA","score":7.839188244275115,"target":"SOS1"},{"source":"TGFBR1","score":0,"target":"MAP3K7"},{"source":"SMAD1","score":0,"target":"SF3B1"},{"source":"JAK2","score":0,"target":"VAV2"},{"source":"SOS1","score":2.58113883008419,"target":"AKT1"},{"source":"PIK3CA","score":12.192589493050312,"target":"CCND1"},{"source":"SMAD3","score":0,"target":"SP1"},{"source":"SMAD2","score":0,"target":"SMAD3"},{"source":"GRB2","score":0,"target":"GAB2"},{"source":"MAX","score":0,"target":"TBP"},{"source":"MAX","score":0,"target":"CCNB1"},{"source":"E2F1","score":0,"target":"MYB"},{"source":"RHOA","score":0,"target":"RAC1"},{"source":"BRCA1","score":3.998044485912539,"target":"FOXA1"},{"source":"PAK1","score":5.398557925000402,"target":"STAT3"},{"source":"FRS2","score":9.327327901796185,"target":"PIK3CA"},{"source":"PIK3R1","score":3.6583123951777,"target":"STAT3"},{"source":"PPP1CA","score":0,"target":"RIF1"},{"source":"CTNNB1","score":0,"target":"PTPN12"},{"source":"AKT1","score":7.237993079576571,"target":"MYC"},{"source":"ITGB1","score":0,"target":"RAC1"},{"source":"VAV2","score":0,"target":"RAC1"},{"source":"SERPINB9","score":2.8058837014757785,"target":"RIF1"},{"source":"ESR1","score":0,"target":"MYC"},{"source":"IKBKB","score":0,"target":"TGFBR1"},{"source":"RB1","score":3.845207879911715,"target":"TBP"},{"source":"CRK","score":0,"target":"SRC"},{"source":"JUN","score":0,"target":"SMAD3"},{"source":"PDPK1","score":0,"target":"PIK3R1"},{"source":"FOXO3","score":3.7723653983154732,"target":"CCNB1"},{"source":"CDH1","score":4.808772996372722,"target":"EGFR"},{"source":"PDGFRB","score":0,"target":"PTPN12"},{"source":"AR","score":0,"target":"UBE2I"},{"source":"AES","score":0,"target":"MAPK14"},{"source":"PIK3CA","score":8.554301670574866,"target":"STAT3"},{"source":"PIK3R1","score":3.802775637731995,"target":"RELN"},{"source":"GRB2","score":0,"target":"RIF1"},{"source":"GAB2","score":5.905124837953327,"target":"PIK3R1"},{"source":"CRK","score":0,"target":"GIT1"},{"source":"EGFR","score":0,"target":"SRC"},{"source":"PAK1","score":0,"target":"RAC1"},{"source":"ADAMTSL4","score":6.3822601242836665,"target":"ZNF587"},{"source":"AR","score":0,"target":"SMAD3"},{"source":"NCK1","score":0,"target":"CSDE1"},{"source":"NEDD9","score":7.96419413859206,"target":"PIK3CA"},{"source":"TP53","score":7.73609679265374,"target":"VCAN"},{"source":"AKT1","score":0,"target":"CDKN1A"},{"source":"PAK1","score":5.6122677042334645,"target":"AKT1"},{"source":"MAX","score":0,"target":"SMAD3"},{"source":"PPP1CA","score":0,"target":"TP53"},{"source":"SRC","score":0,"target":"VAV2"},{"source":"MAX","score":0,"target":"ZFP36L1"},{"source":"PIK3R1","score":0,"target":"RHOA"},{"source":"MAPK14","score":0,"target":"TP53"},{"source":"JAK2","score":0,"target":"SRC"},{"source":"UBE2I","score":0,"target":"MDM2"},{"source":"NCK1","score":0,"target":"CDC42"},{"source":"CTNNB1","score":0,"target":"GSK3B"},{"source":"APC","score":0,"target":"PAK1"},{"source":"MDM2","score":9.171024353728392,"target":"TP53"},{"source":"ERBB3","score":0,"target":"VAV2"},{"source":"AKT1","score":0,"target":"PDPK1"},{"source":"BCL10","score":0,"target":"PDPK1"},{"source":"E2F1","score":0,"target":"CDKN1A"},{"source":"ESR1","score":0,"target":"AKT1"},{"source":"AES","score":0,"target":"TCF4"},{"source":"AR","score":0,"target":"CTNNB1"},{"source":"SRC","score":0,"target":"IGF1R"},{"source":"MYC","score":12.407822426864355,"target":"TP53"},{"source":"NFKB1","score":0,"target":"REL"},{"source":"CTNNB1","score":0,"target":"EGFR"},{"source":"PIK3R1","score":3,"target":"SOS1"},{"source":"GRB2","score":0,"target":"PIK3R1"},{"source":"ATXN1","score":0,"target":"TRAF2"},{"source":"ATN1","score":0,"target":"TLE1"},{"source":"NCK1","score":0,"target":"PAK1"},{"source":"MYC","score":7.60133912560202,"target":"LIN28B"},{"source":"MYB","score":7.0710678118654755,"target":"MYC"},{"source":"MAX","score":0,"target":"ERBB2"},{"source":"MAX","score":0,"target":"MYC"},{"source":"CHGB","score":0,"target":"TK1"},{"source":"ERBB3","score":2.618033988749895,"target":"PLCG1"},{"source":"GRB2","score":0,"target":"JAK2"},{"source":"CDC42","score":0,"target":"MTOR"},{"source":"AKT1","score":0,"target":"TRAF6"},{"source":"TYK2","score":2.6583123951777,"target":"STAT3"},{"source":"JAK2","score":2.23606797749979,"target":"PLCG1"},{"source":"PDPK1","score":0,"target":"PTPN22"},{"source":"ITGB1","score":0,"target":"PAK1"},{"source":"FYN","score":0,"target":"GAB2"},{"source":"TP53","score":9.124727785193215,"target":"PTEN"},{"source":"SMAD1","score":0,"target":"NEDD9"},{"source":"TK1","score":0,"target":"TYK2"},{"source":"AKT1","score":4.030628572867368,"target":"MDM2"},{"source":"RIPK1","score":0,"target":"TRAF2"},{"source":"SMAD3","score":0,"target":"CDKN2B"},{"source":"MAX","score":0,"target":"CDKN2B"},{"source":"BRCA1","score":3.9364916731037085,"target":"PIK3R1"},{"source":"CTNNB1","score":0,"target":"SMARCA4"},{"source":"BCL10","score":5.129869709344916,"target":"GAB2"},{"source":"RELN","score":2.6337923567508073,"target":"ABL1"},{"source":"MYB","score":2.7370892179053907,"target":"CCNB1"},{"source":"EGFR","score":3.9364916731037085,"target":"PIK3R1"},{"source":"FOXA1","score":4.150581316760657,"target":"AFP"},{"source":"GIT1","score":0,"target":"RIF1"},{"source":"FYN","score":0,"target":"PIK3R1"},{"source":"EIF4EBP1","score":0,"target":"GSK3B"},{"source":"MAPK14","score":0,"target":"NFKB1"},{"source":"MAP3K7","score":0,"target":"TRAF2"},{"source":"PAK1","score":0,"target":"TGFBR1"},{"source":"HUWE1","score":0,"target":"MAX"},{"source":"RHOA","score":0,"target":"SOS1"},{"source":"FRS2","score":3.345207879911715,"target":"SOS1"},{"source":"CDC42","score":0,"target":"RPS6KB1"},{"source":"AR","score":0,"target":"REL"},{"source":"MAX","score":0,"target":"CSDE1"},{"source":"ITGB1","score":0,"target":"EGFR"},{"source":"CRK","score":0,"target":"PAK1"},{"source":"BRCA1","score":0,"target":"MAX"},{"source":"ABL1","score":2.5,"target":"ERBB3"},{"source":"ERBB3","score":3.3708286933869704,"target":"BCAR3"},{"source":"SP1","score":0,"target":"CDKN1A"},{"source":"FYN","score":0,"target":"RELN"},{"source":"RHOA","score":0,"target":"TGFBR1"},{"source":"ZFP36L1","score":0,"target":"MAPK14"},{"source":"EGFR","score":0,"target":"GRB2"},{"source":"AKT1","score":5.486263668037517,"target":"IKBKB"},{"source":"SMAD2","score":0,"target":"HUWE1"},{"source":"CRK","score":0,"target":"ERBB2"},{"source":"SMAD4","score":0,"target":"UBE2I"},{"source":"TP53","score":7.754628043053148,"target":"NLRC4"},{"source":"HUWE1","score":7.156854249492381,"target":"MYC"},{"source":"MAX","score":0,"target":"TK1"},{"source":"NCOR1","score":0,"target":"SMAD4"},{"source":"EGFR","score":3.2268189319982725,"target":"MTOR"},{"source":"ATM","score":0,"target":"E2F1"},{"source":"TRAF2","score":0,"target":"NFKB1"},{"source":"SMAD3","score":0,"target":"SMAD9"},{"source":"RAC1","score":0,"target":"CDH1"},{"source":"PIK3R1","score":0,"target":"VAV2"},{"source":"TP53","score":7.620653446837586,"target":"COL18A1"},{"source":"RAC1","score":0,"target":"CTNNB1"},{"source":"GIT1","score":0,"target":"NCK1"},{"source":"PRKDC","score":2.995352392457285,"target":"AKT1"},{"source":"SMAD4","score":0,"target":"SP1"},{"source":"SRC","score":0,"target":"AKT1"},{"source":"CRK","score":0,"target":"PIK3CA"},{"source":"GSK3B","score":0,"target":"AR"},{"source":"MAX","score":0,"target":"PDGFRB"},{"source":"CDH1","score":5.700708448015204,"target":"IGF1R"},{"source":"GRB2","score":0,"target":"ZNF587"},{"source":"UBE2I","score":0,"target":"SETDB1"},{"source":"JAK2","score":0,"target":"NCK1"},{"source":"FYN","score":0,"target":"SRC"},{"source":"NEDD9","score":0,"target":"REL"},{"source":"AR","score":2.7699686802504155,"target":"BRCA1"},{"source":"CRK","score":0,"target":"RAC1"},{"source":"CTNNB1","score":0,"target":"CCND1"},{"source":"SMAD4","score":0,"target":"PAK1"},{"source":"CRK","score":0,"target":"ITGB1"},{"source":"FOXA1","score":8.773108592072033,"target":"TP53"},{"source":"NFKB1","score":0,"target":"MYC"},{"source":"TRAF2","score":0,"target":"RIPK1"},{"source":"SMAD2","score":0,"target":"SMAD4"},{"source":"AES","score":0,"target":"CTNNB1"},{"source":"SMAD3","score":0,"target":"SMAD4"},{"source":"ITGB1","score":0,"target":"PIK3R1"},{"source":"AKT1","score":2.995352392457285,"target":"MTOR"},{"source":"JUN","score":0,"target":"SMAD4"},{"source":"SP1","score":0,"target":"APC"},{"source":"MAP3K1","score":0,"target":"SMAD2"},{"source":"AES","score":0,"target":"REL"},{"source":"AR","score":0,"target":"JUN"},{"source":"ABL1","score":2.7699686802504155,"target":"EGFR"},{"source":"SP1","score":0,"target":"TK1"},{"source":"AKT1","score":4.030628572867368,"target":"FOXO3"},{"source":"BRCA1","score":3.318156838839072,"target":"TBP"},{"source":"ATXN1","score":0,"target":"TRAF2"},{"source":"BRCA1","score":8.317235622737929,"target":"TP53"},{"source":"APC","score":0,"target":"DLG1"},{"source":"ABL1","score":3.449489742783178,"target":"MDM2"},{"source":"GATA3","score":0,"target":"SMAD4"},{"source":"EGFR","score":5.716395170196185,"target":"PAK1"},{"source":"RELN","score":0,"target":"ITGB1"},{"source":"RELN","score":3.3839144678161843,"target":"AKT1"},{"source":"ATXN1","score":0,"target":"NCOR1"},{"source":"SOS1","score":2.414213562373095,"target":"MTOR"},{"source":"ERC1","score":6.010407640085654,"target":"IKBKB"},{"source":"CDC42","score":0,"target":"TP53"},{"source":"RHOA","score":0,"target":"AKT1"},{"source":"CDC42","score":0,"target":"MAP3K1"},{"source":"ERC1","score":0,"target":"NFKB1"},{"source":"RPS6KB1","score":0,"target":"E2F1"},{"source":"TP53","score":9.073617830603188,"target":"SESN1"},{"source":"MAP3K7","score":3.23945122526189,"target":"RIPK1"},{"source":"TYK2","score":7.455213871621778,"target":"PIK3CA"},{"source":"ABL1","score":0,"target":"CRK"},{"source":"ERBB2","score":6.290074205144196,"target":"PLCG1"},{"source":"FOXO3","score":0,"target":"GADD45A"},{"source":"TP53","score":7.997853463463622,"target":"CCNB1"},{"source":"DLG1","score":3.224744871391589,"target":"PIK3R1"},{"source":"GADD45A","score":0,"target":"TLE1"}],"nodes":[{"selected":true,"name":"TP53","origin":"coding","pvalue":13.564659966250536},{"selected":true,"name":"PIK3CA","origin":"coding","pvalue":13.96424004376894},{"selected":true,"name":"MYC","origin":"coding","pvalue":11.313708498984761},{"selected":true,"name":"PIK3R1","origin":"coding","pvalue":4},{"selected":true,"name":"PAK1","origin":"coding","pvalue":8.06225774829855},{"selected":true,"name":"ERBB2","origin":"coding","pvalue":10.344080432788601},{"selected":true,"name":"CCND1","origin":"coding","pvalue":11},{"selected":true,"name":"AKT1","origin":"coding","pvalue":3.1622776601683795},{"selected":true,"name":"SESN1","origin":"coding","pvalue":4.58257569495584},{"selected":true,"name":"MAX","origin":"coding","pvalue":1.4142135623730951},{"selected":true,"name":"FOXA1","origin":"coding","pvalue":4.123105625617661},{"selected":true,"name":"PRDM1","origin":"coding","pvalue":5.656854249492381},{"selected":true,"name":"CTNNB1","origin":"unkown","pvalue":0},{"selected":true,"name":"MCL1","origin":"coding","pvalue":8},{"selected":true,"name":"RPS6KB1","origin":"coding","pvalue":8.774964387392123},{"selected":true,"name":"EGFR","origin":"coding","pvalue":3.872983346207417},{"selected":true,"name":"PTEN","origin":"coding","pvalue":5.385164807134504},{"selected":true,"name":"NLRC4","origin":"coding","pvalue":2.6457513110645907},{"selected":true,"name":"GAB2","origin":"coding","pvalue":7.810249675906654},{"selected":true,"name":"RB1","origin":"coding","pvalue":4.69041575982343},{"selected":true,"name":"MYB","origin":"coding","pvalue":2.8284271247461903},{"selected":true,"name":"BRCA1","origin":"coding","pvalue":3.872983346207417},{"selected":true,"name":"CDH1","origin":"coding","pvalue":5.744562646538029},{"selected":true,"name":"ATXN1","origin":"coding","pvalue":1.7320508075688772},{"selected":true,"name":"CRK","origin":"unkown","pvalue":0},{"selected":true,"name":"MDM2","origin":"coding","pvalue":4.898979485566356},{"selected":true,"name":"CDC42","origin":"unkown","pvalue":0},{"selected":true,"name":"IKBKB","origin":"coding","pvalue":7.810249675906654},{"selected":true,"name":"MAP3K1","origin":"coding","pvalue":6.782329983125268},{"selected":true,"name":"RAC1","origin":"unkown","pvalue":0},{"selected":true,"name":"GRB2","origin":"coding","pvalue":1},{"selected":true,"name":"ABL1","origin":"coding","pvalue":2},{"selected":true,"name":"APC","origin":"coding","pvalue":1.7320508075688772},{"selected":true,"name":"JUN","origin":"coding","pvalue":1},{"selected":true,"name":"EIF4EBP1","origin":"coding","pvalue":9.643650760992955},{"selected":true,"name":"STAT3","origin":"coding","pvalue":3.3166247903554},{"selected":true,"name":"COL18A1","origin":"coding","pvalue":2.449489742783178},{"selected":true,"name":"LIN28B","origin":"coding","pvalue":4.58257569495584},{"selected":true,"name":"AFP","origin":"coding","pvalue":4.358898943540674},{"selected":true,"name":"FYN","origin":"unkown","pvalue":0},{"selected":true,"name":"MTOR","origin":"coding","pvalue":2.8284271247461903},{"selected":true,"name":"VCAN","origin":"coding","pvalue":3},{"selected":true,"name":"ERBB3","origin":"coding","pvalue":3},{"selected":true,"name":"FOXO3","origin":"coding","pvalue":4.898979485566356},{"selected":true,"name":"GSK3B","origin":"unkown","pvalue":0},{"selected":true,"name":"CDKN1A","origin":"unkown","pvalue":0},{"selected":true,"name":"RHOA","origin":"coding","pvalue":1.4142135623730951},{"selected":true,"name":"ATM","origin":"coding","pvalue":3.3166247903554},{"selected":true,"name":"AR","origin":"coding","pvalue":2},{"selected":true,"name":"MAP2K4","origin":"coding","pvalue":6.082762530298219},{"selected":true,"name":"TBP","origin":"coding","pvalue":3},{"selected":true,"name":"VAV2","origin":"coding","pvalue":1},{"selected":true,"name":"SOS1","origin":"coding","pvalue":2},{"selected":true,"name":"CCNB1","origin":"coding","pvalue":2.6457513110645907},{"selected":true,"name":"MAP3K7","origin":"coding","pvalue":3.1622776601683795},{"selected":true,"name":"JAK2","origin":"coding","pvalue":2.23606797749979},{"selected":true,"name":"FRS2","origin":"coding","pvalue":4.69041575982343},{"selected":true,"name":"NEDD9","origin":"coding","pvalue":2.449489742783178},{"selected":true,"name":"ESR1","origin":"coding","pvalue":1.4142135623730951},{"selected":true,"name":"RELN","origin":"coding","pvalue":3.605551275463989},{"selected":true,"name":"MAPK14","origin":"coding","pvalue":1},{"selected":true,"name":"BCAR3","origin":"coding","pvalue":3.7416573867739413},{"selected":true,"name":"IGF1R","origin":"coding","pvalue":5.656854249492381},{"selected":true,"name":"SRC","origin":"unkown","pvalue":0},{"selected":true,"name":"NCK1","origin":"coding","pvalue":1},{"selected":true,"name":"SMAD4","origin":"coding","pvalue":1},{"selected":true,"name":"ZNF274","origin":"coding","pvalue":4.69041575982343},{"selected":true,"name":"E2F1","origin":"coding","pvalue":1.4142135623730951},{"selected":true,"name":"NCOR1","origin":"coding","pvalue":4.123105625617661},{"selected":true,"name":"DYRK1B","origin":"coding","pvalue":4.242640687119285},{"selected":true,"name":"ADAMTSL4","origin":"coding","pvalue":8},{"selected":true,"name":"PLCG1","origin":"coding","pvalue":2.23606797749979},{"selected":true,"name":"TK1","origin":"unkown","pvalue":0},{"selected":true,"name":"TLE1","origin":"unkown","pvalue":0},{"selected":true,"name":"SMAD3","origin":"coding","pvalue":1.4142135623730951},{"selected":true,"name":"ZNF417","origin":"coding","pvalue":4.358898943540674},{"selected":true,"name":"SERPINB9","origin":"coding","pvalue":3.1622776601683795},{"selected":true,"name":"REL","origin":"coding","pvalue":1},{"selected":true,"name":"ITGA2B","origin":"coding","pvalue":3},{"selected":true,"name":"GATA3","origin":"coding","pvalue":7.3484692283495345},{"selected":true,"name":"PPP1CA","origin":"unkown","pvalue":0},{"selected":true,"name":"SMAD1","origin":"unkown","pvalue":0},{"selected":true,"name":"GADD45A","origin":"unkown","pvalue":0},{"selected":true,"name":"CHGB","origin":"coding","pvalue":2.6457513110645907},{"selected":true,"name":"UBE2I","origin":"unkown","pvalue":0},{"selected":true,"name":"SMAD2","origin":"coding","pvalue":1.7320508075688772},{"selected":true,"name":"SP1","origin":"coding","pvalue":1.4142135623730951},{"selected":true,"name":"DLG1","origin":"coding","pvalue":2.449489742783178},{"selected":true,"name":"SMAD9","origin":"coding","pvalue":1.4142135623730951},{"selected":true,"name":"ATN1","origin":"coding","pvalue":2.8284271247461903},{"selected":true,"name":"CDKN2B","origin":"coding","pvalue":5.291502622129181},{"selected":true,"name":"TGFBR1","origin":"coding","pvalue":1.4142135623730951},{"selected":true,"name":"TRAF6","origin":"coding","pvalue":1.4142135623730951},{"selected":true,"name":"XRCC6","origin":"coding","pvalue":1.4142135623730951},{"selected":true,"name":"BCL10","origin":"coding","pvalue":2.449489742783178},{"selected":true,"name":"PLK1","origin":"coding","pvalue":1.4142135623730951},{"selected":true,"name":"PDGFRB","origin":"coding","pvalue":1.4142135623730951},{"selected":true,"name":"ZFP36L1","origin":"coding","pvalue":2.6457513110645907},{"selected":true,"name":"ITGB1","origin":"coding","pvalue":1.4142135623730951},{"selected":true,"name":"PDPK1","origin":"unkown","pvalue":0},{"selected":true,"name":"USP7","origin":"coding","pvalue":1},{"selected":true,"name":"TRAF2","origin":"unkown","pvalue":0},{"selected":true,"name":"SF3B1","origin":"coding","pvalue":3},{"selected":true,"name":"TCF4","origin":"coding","pvalue":1.7320508075688772},{"selected":true,"name":"PRKDC","origin":"coding","pvalue":2.8284271247461903},{"selected":true,"name":"TYK2","origin":"coding","pvalue":2},{"selected":true,"name":"RIF1","origin":"coding","pvalue":2.449489742783178},{"selected":true,"name":"HUWE1","origin":"coding","pvalue":3},{"selected":true,"name":"CSDE1","origin":"coding","pvalue":2.449489742783178},{"selected":true,"name":"PTPN12","origin":"coding","pvalue":1.7320508075688772},{"selected":true,"name":"SETDB1","origin":"coding","pvalue":2.6457513110645907},{"selected":true,"name":"GIT1","origin":"coding","pvalue":1},{"selected":true,"name":"ERC1","origin":"coding","pvalue":4.358898943540674},{"selected":true,"name":"AES","origin":"unkown","pvalue":0},{"selected":true,"name":"RIPK1","origin":"coding","pvalue":3.3166247903554},{"selected":true,"name":"ANXA7","origin":"unkown","pvalue":0},{"selected":true,"name":"SMARCA4","origin":"coding","pvalue":2.449489742783178},{"selected":true,"name":"NFKB1","origin":"coding","pvalue":1},{"selected":true,"name":"PTPN22","origin":"coding","pvalue":3.3166247903554},{"selected":true,"name":"ZNF587","origin":"coding","pvalue":4.898979485566356},{"selected":true,"name":"YEATS4","origin":"coding","pvalue":5}]}
+
+	$( "#slider-range" ).slider({
+	      range: true,
+	      min: 0,
+	      max: graph.nodes.length,
+	      values: [ 0, Math.min(25, graph.nodes.length) ],
+	      change: function( event, ui ) {
+			console.log("*******************************")
+			circles.style("opacity", function(d) {
+					return geneOpacity(d.name, ui)
+				})
+			text.style("opacity", function(d) {
+					return geneOpacity(d.name, ui)
+				})
+
+			path.style("opacity", function(d) {
+				return Math.min(geneOpacity(d.source.name, ui), geneOpacity(d.target.name, ui)) * 0.3
+			})
+
+			$( "#showgenes" ).val( ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+	      }
+	    });
+
+	function geneOpacity(name, ui) {
+		var node = nodeMap[name]
+		if (ui.values[0] <= node.rank && node.rank <= ui.values[1]) {
+			console.log(node.name)
+			return 0.95
+		} else {
+			return 0.3
+		}
+	}
+	$( "#showgenes" ).val( $( "#slider-range" ).slider( "values", 0 ) + " - " + $( "#slider-range" ).slider( "values", 1 ) );
+
+	var w = 1200, h = 800;
+
+	var nodeMap = {};
+	var count = 0
+	graph.nodes.forEach(function(node) {
+		node["rank"] = count++
+		nodeMap[node.name] = node;
+	});
+
+	var nodeNames = {};
+	var maxScore = 0;
+	graph.edges.forEach(function(link) {
+		link.source = nodeNames[link.source] || (nodeNames[link.source] = {
+			name : link.source
+		});
+		link.target = nodeNames[link.target] || (nodeNames[link.target] = {
+			name : link.target
+		});
+		maxScore = Math.max(maxScore, link.score);
+	});
+
+	var svg = d3.select("#network").append("svg:svg").attr("width", w).attr("height", h);
+
+	var force = d3.layout.force()
+					.nodes(d3.values(nodeNames))
+					.links(graph.edges)
+					.size([ w, h ])
+					.linkDistance(50)
+					.charge(-500)
+					.gravity(0.5)
+					.on("tick", tick)
+					.start();
+
+	var node_drag = d3.behavior.drag().on("dragstart", dragstart).on("drag", dragmove).on("dragend", dragend);
+
+	function dragstart(d, i) {
+		force.stop() // stops the force auto positioning before you start dragging
+	}
+
+	function dragmove(d, i) {
+		d.px += d3.event.dx;
+		d.py += d3.event.dy;
+		d.x += d3.event.dx;
+		d.y += d3.event.dy;
+		tick(); // this is the key to make it work together with updating both px,py,x,y on d !
+	}
+
+	function dragend(d, i) {
+		d.fixed = true; // of course set the node to fixed so the force doesn't include the node in its auto positioning stuff
+		tick();
+		force.resume();
+	}
+
+	var svgs = svg.append("svg:g")
+
+	var interpolatorImportant = d3.interpolateRgb("#eee", "green");
+	var interpolatorNoImportant = d3.interpolateRgb("#eee", "#aaa");
+
+	var path = svgs.selectAll("line")
+		.data(force.links())
+			.enter()
+				.append("svg:line")
+				.attr("class", "link")
+				.style("stroke", "#000")
+				.style("opacity", 0.3)
+				.style("stroke-width", "4px");
+				/*
+				.style("stroke", function(d) {
+					var source = nodeMap[d.source.name]
+					var target = nodeMap[d.target.name]
+					if (source.selected && target.selected) {
+						return interpolatorImportant(d.score);
+					} else {
+						return interpolatorNoImportant(d.score);
+					}
+				}).style("opacity", function(d) {
+					var source = nodeMap[d.source.name]
+					var target = nodeMap[d.target.name]
+					if (source.selected && target.selected) {
+						return 0.3 + 0.1 * d.score / maxScore;
+					} else {
+						return 0.3
+					}
+				}).style("stroke-width", function(d) {
+					var source = nodeMap[d.source.name]
+					var target = nodeMap[d.target.name]
+					if (source.selected && target.selected) {
+						return "4px";
+					} else {
+						return "2px";
+					}
+				})*/
+
+	var circles = svgs.selectAll("svg")
+		.data(force.nodes())
+		.enter().append("svg:circle")
+				.attr("r", function(d) {
+					var node = nodeMap[d.name];
+					return Math.max(4, node.pvalue)
+				}).attr("class", function(d) {
+					var node = nodeMap[d.name];
+					if (node.selected) {
+						return "node important "+node.origin;
+					}
+					return "node";
+				}).attr("id", function(d) {
+					return d.name;
+				}).call(node_drag);
+
+	var text = svgs.selectAll("g").data(force.nodes()).enter().append("svg:g");
+
+	//A copy of the text with a thick white stroke for legibility.
+	text.append("svg:text")
+		.attr("x", 2)
+		.attr("y", -5)
+		.attr("class", "shadow")
+		.text(function(d) {
+			return d.name;
+		});
+
+	text.append("svg:text")
+		.attr("x", 2)
+		.attr("y", -5)
+		.attr("target", "_blank")
+		.attr("class", function(d) {
+			var node = nodeMap[d.name];
+			if (node.selected) {
+				return "node important "+node.origin;
+			}
+			return "node";
+
+		}).text(function(d) { return d.name;})
+		.on('dblclick', clickit, true);;
+
+	function clickit() {
+		var node = nodeMap[this.innerHTML];
+		if (node.selected) {
+			window.open("http://www.malacards.org/search/results/"+node.name, '_blank');
+		}
+	}
+
+	function tick() {
+		path.attr("x1", function(d) {
+			return d.source.x;
+		}).attr("y1", function(d) {
+			return d.source.y;
+		}).attr("x2", function(d) {
+			return d.target.x;
+		}).attr("y2", function(d) {
+			return d.target.y;
+		});
+
+		circles.attr("transform", function(d) {
+			return "translate(" + d.x + "," + d.y + ")";
+		});
+
+		text.attr("transform", function(d) {
+			return "translate(" + d.x + "," + d.y + ")";
+		});
+	}
+
+	jQuery.Color.hook("fill stroke");
+
+	$(document).ready(function() {
+		$("#network").hide();
+		for (var i = 0; i < 200; ++i) {
+			force.tick();
+		}
+		//force.stop();
+		$("#network").show();
+		console.log("done.");
+	});
+
+	// class, label
+	var colors = [ ["coding", "Coding"],
+	               ["promoter", "Promoter"],
+	               ["enhancer", "Enhancer"],
+	               ["lncrna", "lncRNA"],
+	               ["unknown", "NA" ] ];
+
+	var legend = svg.append("g")
+    .attr("class", "legend")
+    //.attr("x", w - 65)
+    //.attr("y", 50)
+    .attr("height", 100)
+    .attr("width", 100)
+    .attr('transform', 'translate(-20,50)');
+
+	var legendRect = legend.selectAll('rect').data(colors);
+
+	legendRect.enter()
+	    .append("rect")
+	    .attr("x", w - 65)
+	    .attr("width", 10)
+	    .attr("height", 10);
+
+	legendRect
+	    .attr("y", function(d, i) {
+	        return i * 20;
+	    })
+	    .attr("class", function(d) {
+			return "node important "+d[0];
+		});
+
+	var legendText = legend.selectAll('text').data(colors);
+
+	legendText.enter()
+	    .append("text")
+	    .attr("x", w - 52);
+
+	legendText
+	    .attr("y", function(d, i) {
+	        return i * 20 + 9;
+	    })
+	    .text(function(d) {
+	        return d[1];
+	    });
+</script>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+line.link {
+	fill: none;
+	stroke: #aaa;
+	opacity: 0.5;
+	stroke-width: 4px;
+}
+
+.node {
+	fill: #ccc;
+	opacity: 0.3;
+	font: 9px sans-serif;
+}
+
+.node.important {
+	fill: gray;
+	opacity: 0.95;
+}
+
+.node.important.cgc {
+	fill: #2D8677;
+	opacity: 0.95;
+}
+
+.node.important.malacard {
+	fill: #37588B;
+	opacity: 0.95;
+}
+
+.node.important.ncg {
+	fill: #D3A047;
+	opacity: 0.95;
+}
+
+.node.important.lncrna {
+	fill: #D38047;
+	opacity: 0.95;
+}
+
+text {
+	font: 9px sans-serif;
+}
+
+text.shadow {
+	stroke: #fff;
+	stroke-width: 2px;
+	stroke-opacity: .8;
+}
+</style>
+<head>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+	<script src="http://d3js.org/d3.v3.js"></script>
+	<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+	<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+	<script src="http://code.jquery.com/color/jquery.color.plus-names-2.1.2.js"></script>
+</head>
+<body>
+	<div id="controls" style="width: 100%">
+		<div style="width: 800px;">
+		  <label for="showgenes">Genes:</label>
+		  <input type="text" id="showgenes" readonly style="border:0; color:#f6931f; font-weight:bold;">
+		  <div id="slider-range"></div>
+		</div>
+		<!--
+		<span>Start condition: </span>
+		<select></select>
+		<span>End condition: </span>
+		<select></select>
+		 -->
+	</div>
+	<div id="network" style="width: 100%; height: 1500px"></div>
+
+</body>
+<script>
+
+	var graph = {"edges":[{"source":"CDC42","score":0,"target":"GRB2"},{"source":"CRK","score":0,"target":"SOS1"},{"source":"CTNNB1","score":0,"target":"JUN"},{"source":"MYC","score":6.870539766709696,"target":"CCNB1"},{"source":"JUN","score":7.282329983125268,"target":"TP53"},{"source":"AKT1","score":5.58113883008419,"target":"MCL1"},{"source":"AR","score":6.5,"target":"CCND1"},{"source":"PIK3CA","score":8.631025779605826,"target":"PIK3R1"},{"source":"MTOR","score":0,"target":"GSK3B"},{"source":"PAK1","score":4.5155946010522525,"target":"RHOA"},{"source":"JAK2","score":7.70342256937311,"target":"PIK3CA"},{"source":"FOXO3","score":3.1565965239697253,"target":"MAX"},{"source":"PIK3R1","score":4.516580004451561,"target":"PTEN"},{"source":"CTNNB1","score":0,"target":"RHOA"},{"source":"GAB2","score":4.905124837953327,"target":"SOS1"},{"source":"IKBKB","score":6.218191226119131,"target":"FOXO3"},{"source":"PAK1","score":5.9520862741559615,"target":"PIK3R1"},{"source":"RPS6KB1","score":0,"target":"CRK"},{"source":"SOS1","score":5.031128874149275,"target":"PAK1"},{"source":"ATM","score":4.004978758792355,"target":"MDM2"},{"source":"JAK2","score":2.620185174601965,"target":"STAT3"},{"source":"BRCA1","score":7.18247795568621,"target":"MYC"},{"source":"PIK3R1","score":6.229727636927644,"target":"RPS6KB1"},{"source":"GRB2","score":1.5,"target":"SOS1"},{"source":"TRRAP","score":3.4238399287081647,"target":"MDM2"},{"source":"CCND1","score":0,"target":"CDKN1A"},{"source":"CTNNB1","score":0,"target":"TRRAP"},{"source":"ERBB2","score":6.062114182829147,"target":"STAT3"},{"source":"MYC","score":6.3639610306789285,"target":"PDGFRB"},{"source":"PAK1","score":7.3166247903554,"target":"MAP3K1"},{"source":"EGFR","score":0,"target":"RAC1"},{"source":"GAB2","score":5.486263668037517,"target":"AKT1"},{"source":"ERBB2","score":6.745059882521651,"target":"PIK3R1"},{"source":"MTOR","score":5.696089576666271,"target":"RPS6KB1"},{"source":"AR","score":7.54450394677522,"target":"PIK3CA"},{"source":"ERBB2","score":5.6478150704935,"target":"GRB2"},{"source":"PIK3CA","score":9.377759898670224,"target":"PTEN"},{"source":"PIK3CA","score":10.896214217689693,"target":"RPS6KB1"},{"source":"CCND1","score":7.779912447502957,"target":"RB1"},{"source":"JAK2","score":3.118033988749895,"target":"PIK3R1"},{"source":"PIK3CA","score":7.562761381587592,"target":"RHOA"},{"source":"CDH1","score":7.672521993899426,"target":"ERBB2"},{"source":"RB1","score":7.733806423720555,"target":"MYC"},{"source":"CCND1","score":6.914213562373095,"target":"MYB"},{"source":"ATM","score":8.26387462923434,"target":"TP53"},{"source":"EGFR","score":6.757331908770484,"target":"ERBB2"},{"source":"CDKN1A","score":0,"target":"RB1"},{"source":"ERBB2","score":5.6478150704935,"target":"VAV2"},{"source":"CDC42","score":0,"target":"CTNNB1"},{"source":"STAT3","score":7.037824501974091,"target":"MYC"},{"source":"TP53","score":8.421594887698703,"target":"RB1"},{"source":"ATM","score":3.5948040682814084,"target":"BRCA1"},{"source":"JUN","score":6.156854249492381,"target":"MYC"},{"source":"CDC42","score":0,"target":"CDH1"},{"source":"APC","score":0,"target":"RAC1"},{"source":"CDH1","score":3.5793881044555618,"target":"RHOA"},{"source":"PIK3R1","score":3.291377624035248,"target":"MTOR"},{"source":"CDH1","score":8.906261495307191,"target":"PIK3CA"},{"source":"AR","score":3,"target":"PIK3R1"},{"source":"GSK3B","score":0,"target":"MAX"},{"source":"EGFR","score":3.5948040682814084,"target":"STAT3"},{"source":"PIK3CA","score":8.169407624346873,"target":"MTOR"},{"source":"GAB2","score":10.062305898749054,"target":"PIK3CA"},{"source":"RAC1","score":0,"target":"MAP3K1"},{"source":"FOXO3","score":7.7114902873091165,"target":"MYC"},{"source":"TK1","score":0,"target":"TP53"},{"source":"MAX","score":7.273108592072033,"target":"TP53"},{"source":"PDGFRB","score":2.7071067811865475,"target":"PIK3R1"},{"source":"MAX","score":1.2071067811865475,"target":"NFYC"},{"source":"MTOR","score":3.072525957550795,"target":"STAT3"},{"source":"CRK","score":0,"target":"EGFR"},{"source":"EGFR","score":3.0545256618536034,"target":"JAK2"},{"source":"TP53","score":7.5368574358476055,"target":"EGFR"},{"source":"CRK","score":0,"target":"RHOA"},{"source":"TP53","score":7.773108592072033,"target":"TRRAP"},{"source":"AKT1","score":0,"target":"GSK3B"},{"source":"PIK3CA","score":0,"target":"RAC1"},{"source":"PIK3CA","score":7.355654600401044,"target":"VAV2"},{"source":"AR","score":3.449489742783178,"target":"MDM2"},{"source":"PDGFRB","score":2.2882456112707374,"target":"AKT1"},{"source":"PDGFRB","score":7.346531968814577,"target":"PIK3CA"},{"source":"TP53","score":7.480215373258581,"target":"APC"},{"source":"GRB2","score":4.405124837953327,"target":"GAB2"},{"source":"CDC42","score":0,"target":"PAK1"},{"source":"RAC1","score":0,"target":"MYC"},{"source":"MCL1","score":9.816843568186883,"target":"TP53"},{"source":"CDH1","score":4.786930235851553,"target":"PIK3R1"},{"source":"PIK3R1","score":0,"target":"RAC1"},{"source":"CCND1","score":0,"target":"CDKN1A"},{"source":"CRK","score":0,"target":"PIK3R1"},{"source":"PAK1","score":7.524937810560445,"target":"CCND1"},{"source":"MYC","score":0,"target":"CDKN1A"},{"source":"VAV2","score":1.2071067811865475,"target":"RHOA"},{"source":"APC","score":0,"target":"GSK3B"},{"source":"MAX","score":0,"target":"CDKN1A"},{"source":"FOXA1","score":2.5615528128088303,"target":"JUN"},{"source":"APC","score":0,"target":"CDC42"},{"source":"APC","score":0,"target":"CTNNB1"},{"source":"NFYC","score":1.2071067811865475,"target":"PDGFRB"},{"source":"MYC","score":0,"target":"TK1"},{"source":"CDC42","score":0,"target":"VAV2"},{"source":"PDGFRB","score":3.3996891847537993,"target":"PTEN"},{"source":"FRS2","score":6.23606797749979,"target":"PAK1"},{"source":"MYB","score":3.4757663751819257,"target":"NCOR1"},{"source":"AR","score":3.0615528128088303,"target":"FOXA1"},{"source":"GSK3B","score":0,"target":"TP53"},{"source":"PAK1","score":10.297526237808281,"target":"PIK3CA"},{"source":"RHOA","score":4.389087296526011,"target":"GAB2"},{"source":"PIK3CA","score":8.346531968814578,"target":"AKT1"},{"source":"DDX5","score":7.282329983125268,"target":"TP53"},{"source":"MYC","score":6.156854249492381,"target":"NFYC"},{"source":"MYC","score":10.029643075816143,"target":"ERBB2"},{"source":"AKT1","score":5.873213921133975,"target":"RPS6KB1"},{"source":"CDH1","score":0,"target":"CTNNB1"},{"source":"GSK3B","score":0,"target":"MYC"},{"source":"PIK3CA","score":7.355654600401044,"target":"UFD1L"},{"source":"PIK3R1","score":3.58113883008419,"target":"AKT1"},{"source":"EGFR","score":2.9364916731037085,"target":"SOS1"},{"source":"NCOR1","score":7.57120550789603,"target":"MYC"},{"source":"CTNNB1","score":0,"target":"MYC"},{"source":"ERBB2","score":6.135659646043535,"target":"JAK2"},{"source":"ERBB2","score":6.001685049827973,"target":"SOS1"},{"source":"CDC42","score":0,"target":"RAC1"},{"source":"STAT3","score":7.069763430109227,"target":"CCND1"},{"source":"PIK3R1","score":7.348054268438632,"target":"CCND1"},{"source":"JUN","score":2.845207879911715,"target":"RB1"},{"source":"FRS2","score":4.254896296977634,"target":"PIK3R1"},{"source":"SOS1","score":0,"target":"RAC1"},{"source":"VAV2","score":4.531128874149275,"target":"PAK1"},{"source":"CDKN1A","score":0,"target":"TP53"},{"source":"JAK2","score":4.509198980312529,"target":"MAP3K1"},{"source":"TP53","score":6.773108592072033,"target":"UFD1L"},{"source":"PIK3CA","score":7.54450394677522,"target":"SOS1"},{"source":"JAK2","score":1.618033988749895,"target":"VAV2"},{"source":"SOS1","score":2.58113883008419,"target":"AKT1"},{"source":"PIK3CA","score":10.98074069840786,"target":"CCND1"},{"source":"GRB2","score":4.405124837953327,"target":"GAB2"},{"source":"MAX","score":2.029982436718843,"target":"CCNB1"},{"source":"RHOA","score":0,"target":"RAC1"},{"source":"BRCA1","score":3.998044485912539,"target":"FOXA1"},{"source":"PAK1","score":5.398557925000402,"target":"STAT3"},{"source":"FRS2","score":8.728030526706771,"target":"PIK3CA"},{"source":"PIK3R1","score":3.6583123951777,"target":"STAT3"},{"source":"AKT1","score":7.237993079576571,"target":"MYC"},{"source":"VAV2","score":0,"target":"RAC1"},{"source":"MAX","score":1.8251407699364424,"target":"TRRAP"},{"source":"FOXO3","score":3.7723653983154732,"target":"CCNB1"},{"source":"CDH1","score":4.808772996372722,"target":"EGFR"},{"source":"PIK3CA","score":8.427670798898767,"target":"STAT3"},{"source":"GAB2","score":5.82557896962972,"target":"PIK3R1"},{"source":"PAK1","score":0,"target":"RAC1"},{"source":"AKT1","score":0,"target":"CDKN1A"},{"source":"PAK1","score":5.5155946010522525,"target":"AKT1"},{"source":"PIK3R1","score":2.7071067811865475,"target":"RHOA"},{"source":"CTNNB1","score":0,"target":"GSK3B"},{"source":"APC","score":4.897154277933713,"target":"PAK1"},{"source":"MDM2","score":8.848132367096497,"target":"TP53"},{"source":"AR","score":0,"target":"CTNNB1"},{"source":"MYC","score":10.758762678815339,"target":"TP53"},{"source":"CTNNB1","score":0,"target":"EGFR"},{"source":"PIK3R1","score":3,"target":"SOS1"},{"source":"GRB2","score":2.5,"target":"PIK3R1"},{"source":"MYB","score":7.0710678118654755,"target":"MYC"},{"source":"MAX","score":5.635659646043535,"target":"ERBB2"},{"source":"MAX","score":6.3639610306789285,"target":"MYC"},{"source":"GRB2","score":1.618033988749895,"target":"JAK2"},{"source":"CDC42","score":0,"target":"MTOR"},{"source":"TP53","score":8.934948480986922,"target":"PTEN"},{"source":"AKT1","score":4.030628572867368,"target":"MDM2"},{"source":"BRCA1","score":3.9364916731037085,"target":"PIK3R1"},{"source":"MYB","score":2.7370892179053907,"target":"CCNB1"},{"source":"EGFR","score":3.9364916731037085,"target":"PIK3R1"},{"source":"RHOA","score":1.7071067811865475,"target":"SOS1"},{"source":"FRS2","score":3.1844300276583644,"target":"SOS1"},{"source":"CDC42","score":0,"target":"RPS6KB1"},{"source":"CRK","score":0,"target":"PAK1"},{"source":"BRCA1","score":2.643598454290256,"target":"MAX"},{"source":"EGFR","score":2.4364916731037085,"target":"GRB2"},{"source":"AKT1","score":5.486263668037517,"target":"IKBKB"},{"source":"MYC","score":6.7748882382422755,"target":"TRRAP"},{"source":"CRK","score":0,"target":"ERBB2"},{"source":"MAX","score":0,"target":"TK1"},{"source":"EGFR","score":3.2268189319982725,"target":"MTOR"},{"source":"RAC1","score":0,"target":"CDH1"},{"source":"NFYC","score":6.773108592072033,"target":"TP53"},{"source":"PIK3R1","score":2.5,"target":"VAV2"},{"source":"RAC1","score":0,"target":"CTNNB1"},{"source":"CRK","score":0,"target":"PIK3CA"},{"source":"DDX5","score":6.846531968814577,"target":"PIK3CA"},{"source":"GSK3B","score":0,"target":"AR"},{"source":"MAX","score":1.4142135623730951,"target":"PDGFRB"},{"source":"AR","score":2.7699686802504155,"target":"BRCA1"},{"source":"CRK","score":0,"target":"RAC1"},{"source":"CTNNB1","score":0,"target":"CCND1"},{"source":"FOXA1","score":8.385124418714554,"target":"TP53"},{"source":"AKT1","score":2.995352392457285,"target":"MTOR"},{"source":"AR","score":1.5,"target":"JUN"},{"source":"AKT1","score":4.030628572867368,"target":"FOXO3"},{"source":"BRCA1","score":8.131727983645296,"target":"TP53"},{"source":"EGFR","score":5.533985905294664,"target":"PAK1"},{"source":"SOS1","score":2.414213562373095,"target":"MTOR"},{"source":"CDC42","score":0,"target":"TP53"},{"source":"RHOA","score":2.2882456112707374,"target":"AKT1"},{"source":"CDC42","score":0,"target":"MAP3K1"},{"source":"TP53","score":7.611394185400459,"target":"CCNB1"}],"nodes":[{"selected":true,"knownCancerGene":"cgc","name":"PIK3CA","origin":"coding","pvalue":13.711309200802088},{"selected":true,"knownCancerGene":"cgc","name":"TP53","origin":"coding","pvalue":13.564659966250536},{"selected":true,"knownCancerGene":"cgc","name":"MYC","origin":"coding","pvalue":11.313708498984761},{"selected":true,"knownCancerGene":"cgc","name":"CCND1","origin":"coding","pvalue":11},{"selected":true,"knownCancerGene":"cgc","name":"ERBB2","origin":"coding","pvalue":10.295630140987},{"selected":true,"knownCancerGene":"ncg","name":"PAK1","origin":"coding","pvalue":8.06225774829855},{"selected":true,"knownCancerGene":"cgc","name":"PIK3R1","origin":"coding","pvalue":4},{"selected":true,"knownCancerGene":"ncg","name":"RPS6KB1","origin":"coding","pvalue":8.774964387392123},{"selected":true,"knownCancerGene":"cgc","name":"AKT1","origin":"coding","pvalue":3.1622776601683795},{"selected":true,"knownCancerGene":"cgc","name":"PTEN","origin":"coding","pvalue":5.385164807134504},{"selected":true,"knownCancerGene":"cgc","name":"RB1","origin":"coding","pvalue":4.69041575982343},{"selected":true,"knownCancerGene":"cgc","name":"CDH1","origin":"coding","pvalue":5.744562646538029},{"selected":true,"knownCancerGene":"unkown","name":"GAB2","origin":"coding","pvalue":7.810249675906654},{"selected":true,"knownCancerGene":"cgc","name":"STAT3","origin":"coding","pvalue":3.3166247903554},{"selected":true,"knownCancerGene":"cgc","name":"MYB","origin":"coding","pvalue":2.8284271247461903},{"selected":true,"knownCancerGene":"unkown","name":"MCL1","origin":"coding","pvalue":8},{"selected":true,"knownCancerGene":"cgc","name":"EGFR","origin":"coding","pvalue":3.872983346207417},{"selected":true,"knownCancerGene":"cgc","name":"DDX5","origin":"coding","pvalue":1},{"selected":true,"knownCancerGene":"cgc","name":"MDM2","origin":"coding","pvalue":4.898979485566356},{"selected":true,"knownCancerGene":"cgc","name":"BRCA1","origin":"coding","pvalue":3.872983346207417},{"selected":true,"knownCancerGene":"cgc","name":"MAX","origin":"coding","pvalue":1.4142135623730951},{"selected":true,"knownCancerGene":"malacard","name":"MAP3K1","origin":"coding","pvalue":6.782329983125268},{"selected":true,"knownCancerGene":"unkown","name":"UFD1L","origin":"coding","pvalue":1},{"selected":true,"knownCancerGene":"unkown","name":"CRK","origin":"unkown","pvalue":0},{"selected":true,"knownCancerGene":"unkown","name":"VAV2","origin":"coding","pvalue":1},{"selected":true,"knownCancerGene":"malacard","name":"AR","origin":"coding","pvalue":2},{"selected":true,"knownCancerGene":"unkown","name":"CCNB1","origin":"coding","pvalue":2.6457513110645907},{"selected":true,"knownCancerGene":"malacard","name":"MTOR","origin":"coding","pvalue":2.8284271247461903},{"selected":true,"knownCancerGene":"cgc","name":"FOXA1","origin":"coding","pvalue":4.123105625617661},{"selected":true,"knownCancerGene":"ncg","name":"CDC42","origin":"unkown","pvalue":0},{"selected":true,"knownCancerGene":"malacard","name":"CDKN1A","origin":"unkown","pvalue":0},{"selected":true,"knownCancerGene":"ncg","name":"FOXO3","origin":"coding","pvalue":4.898979485566356},{"selected":true,"knownCancerGene":"unkown","name":"TK1","origin":"unkown","pvalue":0},{"selected":true,"knownCancerGene":"cgc","name":"RAC1","origin":"unkown","pvalue":0},{"selected":true,"knownCancerGene":"cgc","name":"APC","origin":"coding","pvalue":1.7320508075688772},{"selected":true,"knownCancerGene":"cgc","name":"JAK2","origin":"coding","pvalue":2.23606797749979},{"selected":true,"knownCancerGene":"cgc","name":"ATM","origin":"coding","pvalue":3.3166247903554},{"selected":true,"knownCancerGene":"cgc","name":"TRRAP","origin":"coding","pvalue":2.23606797749979},{"selected":true,"knownCancerGene":"unkown","name":"IKBKB","origin":"coding","pvalue":7.810249675906654},{"selected":true,"knownCancerGene":"ncg","name":"SOS1","origin":"coding","pvalue":2},{"selected":true,"knownCancerGene":"unkown","name":"NFYC","origin":"coding","pvalue":1},{"selected":true,"knownCancerGene":"ncg","name":"RHOA","origin":"coding","pvalue":1.4142135623730951},{"selected":true,"knownCancerGene":"cgc","name":"PDGFRB","origin":"coding","pvalue":1.4142135623730951},{"selected":true,"knownCancerGene":"ncg","name":"GSK3B","origin":"unkown","pvalue":0},{"selected":true,"knownCancerGene":"cgc","name":"JUN","origin":"coding","pvalue":1},{"selected":true,"knownCancerGene":"ncg","name":"FRS2","origin":"coding","pvalue":4.69041575982343},{"selected":true,"knownCancerGene":"cgc","name":"CTNNB1","origin":"unkown","pvalue":0},{"selected":true,"knownCancerGene":"ncg","name":"NCOR1","origin":"coding","pvalue":4.123105625617661},{"selected":true,"knownCancerGene":"ncg","name":"GRB2","origin":"coding","pvalue":1}]}
+
+	$( "#slider-range" ).slider({
+	      range: true,
+	      min: 0,
+	      max: graph.nodes.length,
+	      values: [ 0, Math.min(25, graph.nodes.length) ],
+	      change: function( event, ui ) {
+			console.log("*******************************")
+			circles.style("opacity", function(d) {
+					return geneOpacity(d.name, ui)
+				})
+			text.style("opacity", function(d) {
+					return geneOpacity(d.name, ui)
+				})
+
+			path.style("opacity", function(d) {
+				return Math.min(geneOpacity(d.source.name, ui), geneOpacity(d.target.name, ui)) * 0.3
+			})
+
+			$( "#showgenes" ).val( ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+	      }
+	    });
+
+	function geneOpacity(name, ui) {
+		var node = nodeMap[name]
+		if (ui.values[0] <= node.rank && node.rank <= ui.values[1]) {
+			console.log(node.name)
+			return 0.95
+		} else {
+			return 0.3
+		}
+	}
+	$( "#showgenes" ).val( $( "#slider-range" ).slider( "values", 0 ) + " - " + $( "#slider-range" ).slider( "values", 1 ) );
+
+	var w = 1200, h = 800;
+
+	var nodeMap = {};
+	var count = 0
+	graph.nodes.forEach(function(node) {
+		node["rank"] = count++
+		nodeMap[node.name] = node;
+	});
+
+	var nodeNames = {};
+	var maxScore = 0;
+	graph.edges.forEach(function(link) {
+		link.source = nodeNames[link.source] || (nodeNames[link.source] = {
+			name : link.source
+		});
+		link.target = nodeNames[link.target] || (nodeNames[link.target] = {
+			name : link.target
+		});
+		maxScore = Math.max(maxScore, link.score);
+	});
+
+	var svg = d3.select("#network").append("svg:svg").attr("width", w).attr("height", h);
+
+	var force = d3.layout.force()
+					.nodes(d3.values(nodeNames))
+					.links(graph.edges)
+					.size([ w, h ])
+					.linkDistance(50)
+					.charge(-500)
+					.gravity(0.5)
+					.on("tick", tick)
+					.start();
+
+	var node_drag = d3.behavior.drag().on("dragstart", dragstart).on("drag", dragmove).on("dragend", dragend);
+
+	function dragstart(d, i) {
+		force.stop() // stops the force auto positioning before you start dragging
+	}
+
+	function dragmove(d, i) {
+		d.px += d3.event.dx;
+		d.py += d3.event.dy;
+		d.x += d3.event.dx;
+		d.y += d3.event.dy;
+		tick(); // this is the key to make it work together with updating both px,py,x,y on d !
+	}
+
+	function dragend(d, i) {
+		d.fixed = true; // of course set the node to fixed so the force doesn't include the node in its auto positioning stuff
+		tick();
+		force.resume();
+	}
+
+	var svgs = svg.append("svg:g")
+
+	var interpolatorImportant = d3.interpolateRgb("#eee", "green");
+	var interpolatorNoImportant = d3.interpolateRgb("#eee", "#aaa");
+
+	var path = svgs.selectAll("line")
+		.data(force.links())
+			.enter()
+				.append("svg:line")
+				.attr("class", "link")
+				.style("stroke", "#777")
+				.style("opacity", 0.3)
+				.style("stroke-width", "4px");
+				/*
+				.style("stroke", function(d) {
+					var source = nodeMap[d.source.name]
+					var target = nodeMap[d.target.name]
+					if (source.selected && target.selected) {
+						return interpolatorImportant(d.score);
+					} else {
+						return interpolatorNoImportant(d.score);
+					}
+				}).style("opacity", function(d) {
+					var source = nodeMap[d.source.name]
+					var target = nodeMap[d.target.name]
+					if (source.selected && target.selected) {
+						return 0.3 + 0.1 * d.score / maxScore;
+					} else {
+						return 0.3
+					}
+				}).style("stroke-width", function(d) {
+					var source = nodeMap[d.source.name]
+					var target = nodeMap[d.target.name]
+					if (source.selected && target.selected) {
+						return "4px";
+					} else {
+						return "2px";
+					}
+				})*/
+
+	var circles = svgs.selectAll("svg")
+		.data(force.nodes())
+		.enter().append("svg:circle")
+				.attr("r", function(d) {
+					var node = nodeMap[d.name];
+					return Math.max(4, node.pvalue)
+				}).attr("class", function(d) {
+					var node = nodeMap[d.name];
+					if (node.selected) {
+						return "node important "+node.knownCancerGene;
+					}
+					return "node";
+				}).attr("id", function(d) {
+					return d.name;
+				}).call(node_drag);
+
+	var text = svgs.selectAll("g").data(force.nodes()).enter().append("svg:g");
+
+	//A copy of the text with a thick white stroke for legibility.
+	text.append("svg:text")
+		.attr("x", 2)
+		.attr("y", -5)
+		.attr("class", "shadow")
+		.text(function(d) {
+			return d.name;
+		});
+
+	text.append("svg:text")
+		.attr("x", 2)
+		.attr("y", -5)
+		.attr("target", "_blank")
+		.attr("class", function(d) {
+			var node = nodeMap[d.name];
+			if (node.selected) {
+				return "node important "+node.knownCancerGene;
+			}
+			return "node";
+
+		}).text(function(d) { return d.name;})
+		.on('dblclick', clickit, true);;
+
+	function clickit() {
+		var node = nodeMap[this.innerHTML];
+		if (node.selected) {
+			window.open("http://www.malacards.org/search/results/"+node.name, '_blank');
+		}
+	}
+
+	function tick() {
+		path.attr("x1", function(d) {
+			return d.source.x;
+		}).attr("y1", function(d) {
+			return d.source.y;
+		}).attr("x2", function(d) {
+			return d.target.x;
+		}).attr("y2", function(d) {
+			return d.target.y;
+		});
+
+		circles.attr("transform", function(d) {
+			return "translate(" + d.x + "," + d.y + ")";
+		});
+
+		text.attr("transform", function(d) {
+			return "translate(" + d.x + "," + d.y + ")";
+		});
+	}
+
+	jQuery.Color.hook("fill stroke");
+
+	$(document).ready(function() {
+		$("#network").hide();
+		for (var i = 0; i < 200; ++i) {
+			force.tick();
+		}
+		//force.stop();
+		$("#network").show();
+		console.log("done.");
+	});
+
+	// class, label
+	var colors = [ ["coding", "Coding"],
+	               ["promoter", "Promoter"],
+	               ["enhancer", "Enhancer"],
+	               ["lncrna", "lncRNA"],
+	               ["unknown", "NA" ] ];
+
+	var legend = svg.append("g")
+    .attr("class", "legend")
+    //.attr("x", w - 65)
+    //.attr("y", 50)
+    .attr("height", 100)
+    .attr("width", 100)
+    .attr('transform', 'translate(-20,50)');
+
+	var legendRect = legend.selectAll('rect').data(colors);
+
+	legendRect.enter()
+	    .append("rect")
+	    .attr("x", w - 65)
+	    .attr("width", 10)
+	    .attr("height", 10);
+
+	legendRect
+	    .attr("y", function(d, i) {
+	        return i * 20;
+	    })
+	    .attr("class", function(d) {
+			return "node important "+d[0];
+		});
+
+	var legendText = legend.selectAll('text').data(colors);
+
+	legendText.enter()
+	    .append("text")
+	    .attr("x", w - 52);
+
+	legendText
+	    .attr("y", function(d, i) {
+	        return i * 20 + 9;
+	    })
+	    .text(function(d) {
+	        return d[1];
+	    });
+</script>
