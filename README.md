@@ -9,7 +9,7 @@ Lighweigth framework for Small Subnetwork Analysis (SSA)
 
 ### Generate the binary matrix input file
 
-Mutual exclusivity tool run using a genomic alteration matrix that is Zero is a gene is not altered in a sample and One if the gene is altered in that sample. Alterations can represent anything: single nucleotide mutations, INDELS, deletions, amplifications, methilation, etc.
+Mutual exclusivity tools run using a genomic alteration matrix that is Zero if a gene is not altered in a sample and One if the gene is altered in that sample. Alterations can represent anything: single nucleotide mutations, INDELS, deletions, amplifications, methilation, etc.
 
 ```
 java -jar SSA.jar ME_input -m <maf file> -e cnv_peaks=<file>,exp=<file>,cnv_thresholds=<file>
@@ -24,18 +24,18 @@ Usage: SSA.ME. [options]
   -e <value> | --expression <value>
         expression file and GISTIC files (... -e cnv_peaks=<file1>,exp=<file2>,cnv_thresholds=<file3> ...).
 ```
-We provide a binary alteration matrix generation sub-tool that uses somatic MAF files and expression profiles with amplication/deletion information (GISTIC output) to generate this matrix. 
+We provide a binary alteration matrix generation tool that uses somatic MAF files and expression profiles with amplication/deletion information (GISTIC output) to generate this matrix. 
 
 To generate the binary alteration matrix, for example, download the publicly available [TCGA Breast Cancer data from 2012](https://tcga-data.nci.nih.gov/docs/publications/brca_2012/) .maf file [Somatic MAF archive](http://tcga-data.nci.nih.gov/docs/publications/brca_2012/genome.wustl.edu_BRCA.IlluminaGA_DNASeq.Level_2.3.2.0.tar.gz) and run SSA.ME input creation step:
 ```
 java -jar SSA.jar ME_input -m genome.wustl.edu_BRCA.IlluminaGA_DNASeq.Level_2.3.2.0.somatic.maf
 ```
 
-It will create 2 files called SSAME_input.m2 and SSAME_input.glst. The m2 represent a binary matrix file containing which samples have each gene mutated. The gene list is a of all the mutated genes. This 2 files follow the *de facto* standard followed by other mutual exclusivity tools and can be used with them.
+It will create 2 files called SSAME_input.m2 and SSAME_input.glst. The m2 file represent a binary matrix containing which samples have which genes mutated. The gene list is a of all the mutated genes present in the matrix. This 2 files follow the *de facto* standard followed by other mutual exclusivity tools and can be used with them.
 
 ### Run SSA.ME
 
-SSA.ME uses the .m2 file as input for the Mutual Exclusivity (ME) step.
+SSA.ME uses the .m2 file as the input for the Mutual Exclusivity (ME) step.
 
 ```
 java -jar SSA.jar ME -m SSAME_input.m2 -s 5 -i 10000
@@ -54,7 +54,7 @@ The output contain 4 files:
 
 Do you want to program new applications using SSA?
 
-* Checkout the ''development'' branch.
+* Checkout using any git tool (e.g. [SourceTree](https://www.sourcetreeapp.com/), [GitHub Desktop](https://desktop.github.com/)) the ''develop'' branch.
 * Install [SBT](http://www.scala-sbt.org/0.13/tutorial/Setup.html)
 * To program using Eclipse, run the ''[eclipse](https://github.com/typesafehub/sbteclipse/wiki/Using-sbteclipse)'' sbt command
 * Follow the [Git Flow](http://nvie.com/posts/a-successful-git-branching-model/) to create your new biological applications.
