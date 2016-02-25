@@ -62,7 +62,7 @@ object PValueCalculator extends App {
 
   val outputFfile = new File(config.outputPrefix + "_pvalue.randomization.tsv")
 
-  val numberOfLines = if(outputFfile.exists) Source.fromFile(outputFfile).getLines.size else 0
+  val numberOfLines = if (outputFfile.exists) Source.fromFile(outputFfile).getLines.size else 0
 
   /**
    * Load results
@@ -72,6 +72,28 @@ object PValueCalculator extends App {
     .drop(1) // remove Header
     .map { fields => Gene(fields(0)) }.toList
 
+    /**
+     * For Coment 2 of Reviewer 1
+     */
+    {
+    val (interactions, network, genePatientMatrix, all_samples, geneList) = helper.loadData(config)
+    
+    val writer = new PrintWriter(config.outputPrefix + "_bla.tsv")
+    genePatientMatrix.filter { case (key, p) => rankedGenes.contains(key.gene) }
+      .keys.groupBy { x => x.gene }
+      //.filter(_._2.size > 0)
+      .foreach { case (gene, values) => writer.println(gene.name + "\t" + values.size)}
+    writer.close()
+    println("bla "+config.outputPrefix + "_bla.tsv")
+    } 
+    /*
+     * Done.
+     */
+    
+  
+  
+    
+    
   if (numberOfLines < config.pvalueExperiments) {
     /**
      * Load Original Data
@@ -89,7 +111,7 @@ object PValueCalculator extends App {
       .map { fields => GeneAnnotation(Gene(fields(0)), fields(1), fields(2).toInt, fields(3).toInt) }
 
     val annotationMap = geneAnnotations.map { ga =>
-      val closeGenes = geneAnnotations.filter { other => ga.chrm == other.chrm && (other.end > ga.start - config.randomDistance) && (other.start < ga.end + config.randomDistance) }
+      val closeGenes = geneAnnotations.filter { other => ga.chrm == other.chrm && (other.end > ga.start - config.randomDistance / 2) && (other.start < ga.end + config.randomDistance / 2) }
       val sumGenesSize = closeGenes.foldLeft(0)((x, y) => x + y.size)
 
       (ga.gene, AnnotationInfo(closeGenes, sumGenesSize))
@@ -111,7 +133,7 @@ object PValueCalculator extends App {
 
       val pvalNetworkManager = new MutualExclusivityNetworkManager(
         network = network,
-        genePatientMatrix = getRandomizedGenePatientMatrix(),
+        genePatientMatrix = helper.getRandomizedGenePatientMatrix(genePatientMatrix, annotationMap),
         minimumSamplesAltered = config.minMutPerGene,
         pheromone = config.reinforcement,
         evaporation = config.forgetfulness,
@@ -119,9 +141,9 @@ object PValueCalculator extends App {
         hypergeometricTest = config.hypergeometricTest)
 
       val walkers = helper.buildWalkers(geneList.view.toSet, pvalNetworkManager)
-      
+
       println("*****************************")
-      println("> rep: "+e)
+      println("> rep: " + e)
       println("*****************************")
 
       pvalNetworkManager.run(config.iterations, geneList.view.toSet, Runtime.getRuntime().availableProcessors() / 2, defwalkers = Some(walkers))
@@ -139,68 +161,38 @@ object PValueCalculator extends App {
       }
       *
       */
+      
     }
     writer.close()
 
-    def getRandomizedGenePatientMatrix(): Map[PolimorphismKey, Polimorphism] = {
+    val randomizationResults = new CSVReader(new FileReader(outputFfile), '\t').readAll()
 
-      val toReturn = new HashMap[PolimorphismKey, Polimorphism]
+    val statsByGene = {
 
-      genePatientMatrix.keys.map { key =>
+      val geneStatistics = randomizationResults.take(1).get(0).drop(1).map { gene => (Gene(gene), new LinkedList[Int]) }
 
-        if (annotationMap.contains(key.gene)) {
-          val annotationInfo = annotationMap(key.gene)
-          var newGene: Gene = annotationInfo.closeGenes(0).gene
-          var ran = random.nextInt(annotationInfo.sumGenesSize)
-
-          annotationInfo.closeGenes
-            .takeWhile(_ => ran > 0)
-            .foreach { annotation =>
-              ran -= annotation.size
-              newGene = annotation.gene
-            }
-
-          toReturn.put(PolimorphismKey(newGene, key.sample), Polimorphism(newGene.name))
-        }
+      randomizationResults.drop(1).foreach { fields =>
+        //if (geneStatistics.size == fields.size + 1) {
+        geneStatistics.zip(fields.drop(1).map(_.toInt)).foreach { x => x._1._2.add(x._2) }
+        //} else {
+        //throw new RuntimeException("ERROR: Number of genes in node file and randomization files are different.")
+        //}
       }
 
-      toReturn.view.toMap
+      geneStatistics.map {
+        case (gene, values) =>
+          val indexInRealData = rankedGenes.indexOf(gene)
+          (gene, values.count { x => x >= 0 && indexInRealData >= x }) // less than zero means not found
+      }.toMap
     }
-  }
-
-  val randomizationResults = new CSVReader(new FileReader(outputFfile), '\t').readAll()
-  
-  val statsByGene = {
-    
-    val geneStatistics = randomizationResults.take(1).get(0).drop(1).map { gene => (Gene(gene), new LinkedList[Int]) }
-
-    randomizationResults.drop(1).foreach { fields =>
-      //if (geneStatistics.size == fields.size + 1) {
-        geneStatistics.zip(fields.drop(1).map(_.toInt)).foreach { x => x._1._2.add(x._2) }
-      //} else {
-        //throw new RuntimeException("ERROR: Number of genes in node file and randomization files are different.")
-      //}
+    val writerPvalues = new PrintWriter(config.outputPrefix + "_nodes.pvalues.tsv")
+    rankedGenes.foreach { gene =>
+      println(gene.name + "\t" + (statsByGene.getOrElse(gene, 0).toDouble / numberOfLines))
+      writerPvalues.println(gene.name + "\t" + (statsByGene.getOrElse(gene, 0).toDouble / numberOfLines))
     }
-  
-    geneStatistics.map { case (gene, values) =>
-      val indexInRealData = rankedGenes.indexOf(gene)
-      (gene, values.count { x => x >= 0 && indexInRealData >= x}) // less than zero means not found
-    }.toMap
-  }
-  val writer = new PrintWriter(config.outputPrefix + "_nodes.pvalues.tsv")
-  rankedGenes.foreach { gene => 
-    println(gene.name + "\t" + (statsByGene.getOrElse(gene, 0).toDouble / numberOfLines))
-    writer.println(gene.name + "\t" + (statsByGene.getOrElse(gene, 0).toDouble / numberOfLines))
-  }
-  writer.close();
-  
-  class AnnotationInfo(geneAnn: GeneAnnotation) {
-    val closeGenes = new LinkedList[GeneAnnotation]
-  }
+    writerPvalues.close();
 
+  }
+  
 }
 
-case class GeneAnnotation(gene: Gene, chrm: String, start: Int, end: Int) {
-  lazy val size = end - start
-}
-case class AnnotationInfo(closeGenes: Seq[GeneAnnotation], sumGenesSize: Int)

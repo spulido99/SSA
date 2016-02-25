@@ -10,6 +10,7 @@ object MutualExclusivityPrepareInput extends App {
     maf: Option[File] = None,
     expression: Map[String, File] = Map(),
     seedGenesMutations: Int = 1,
+    acceptedCorrelationQVal: Double = 0.0,
     output: String = "SSAME_input")
 
   val helper = new CancerHelper
@@ -21,12 +22,18 @@ object MutualExclusivityPrepareInput extends App {
     opt[Int]('s', "seedGenesMutations") action { (x, c) =>
       c.copy(seedGenesMutations = x)
     } text ("The number of mutated samples required in a gene to be included (default: 1)")
-    opt[File]('m', "maf") required () action { (x, c) =>
+    opt[File]('m', "maf") action { (x, c) =>
       c.copy(maf = Some(x))
     } text ("Mutation .maf file")
     opt[Map[String, File]]('e', "expression") action { (x, c) =>
       c.copy(expression = x)
-    } text ("expression file and GISTIC files (... -e cnv_peaks=<file1>,exp=<file2>,cnv_thresholds=<file3> ...).")
+    } text ("expression file and GISTIC files (... -e corr=<file1>,cnv_thresholds=<file2> OR" +
+        " -e cnv_peaks=<file1>,exp=<file2>,cnv_thresholds=<file3> ...)." +
+        " Cnv Thresholds file should be a GISTIC output file. " +
+        " Correlation file should be tab delimited file (gene, corr, p-value, q-value).")
+    opt[Double]("acceptedCorrelationQVal") action { (x, c) =>
+        c.copy(acceptedCorrelationQVal = x)
+    } text ("q-value of the correlation to take into account")
   }
 
   parser.parse(args, InputConfig()) match {
@@ -35,15 +42,14 @@ object MutualExclusivityPrepareInput extends App {
        val genePatientMatrix = {
 
         val genePatientMatrix = new HashMap[PolimorphismKey, Polimorphism]
-        println("Loading mutation file...")        
-        helper.loadMaf(genePatientMatrix, config.maf.get)
+        if (config.maf.isDefined) {
+        	println("Loading mutation file...")        
+        	helper.loadMaf(genePatientMatrix, config.maf.get)
+        }
         
-        if (config.expression.size == 3) {
+        if (config.expression.size >= 2) {
           println("Loading expression...")
-          helper.loadExpression(genePatientMatrix,
-            config.expression("cnv_peaks"),
-            config.expression("exp"),
-            config.expression("cnv_thresholds"))
+          helper.loadExpression(genePatientMatrix, config.expression, config.acceptedCorrelationQVal)
         }
         
         genePatientMatrix.toMap

@@ -39,6 +39,22 @@ line.link {
 	opacity: 0.95;
 }
 
+.node.important.cgc {
+	fill: #2D8677;
+	opacity: 0.95;
+}
+
+.node.important.malacard {
+	fill: #37588B;
+	opacity: 0.95;
+}
+
+.node.important.ncg {
+	fill: #D3A047;
+	opacity: 0.95;
+}
+
+
 text {
 	font: 9px sans-serif;
 }
@@ -212,7 +228,7 @@ text.shadow {
 				}).attr("class", function(d) {
 					var node = nodeMap[d.name];
 					if (node.selected) {
-						return "node important "+node.origin;
+						return "node important "+node.knownCancerGene;
 					}
 					return "node";
 				}).attr("id", function(d) {
@@ -237,7 +253,7 @@ text.shadow {
 		.attr("class", function(d) {
 			var node = nodeMap[d.name];
 			if (node.selected) {
-				return "node important "+node.origin;
+				return "node important "+node.knownCancerGene;
 			}
 			return "node";
 
@@ -284,12 +300,18 @@ text.shadow {
 	});
 
 	// class, label
+	
+	var colors = [ ["cgc", "CGC"],
+	               ["malacard", "Malacard"],
+	               ["ncg", "NCG"],
+	               ["unknown", "NA" ] ];
+	/*
 	var colors = [ ["coding", "Coding"],
 	               ["promoter", "Promoter"],
 	               ["enhancer", "Enhancer"],
 	               ["lncrna", "lncRNA"],
 	               ["unknown", "NA" ] ];
-
+	*/
 	var legend = svg.append("g")
     .attr("class", "legend")
     //.attr("x", w - 65)

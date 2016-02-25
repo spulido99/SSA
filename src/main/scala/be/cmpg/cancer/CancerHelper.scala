@@ -23,6 +23,8 @@ import java.util.LinkedList
 import java.util.TreeMap
 import scala.collection.mutable.ListBuffer
 import scopt.OptionParser
+import scala.util.Random
+import scala.util.Try
 
 class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
 
@@ -104,11 +106,35 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
     toReturn
   }
 
-  def loadExpression(toAdd: HashMap[PolimorphismKey, Polimorphism], cnv_peaks: File, exp: File, cnv_thresholds: File) {
-    println("CNV: Calculating correlation")
-    val expressionR = {
-      val allcnvs = readFromGeneSampleMatrix(cnv_peaks)
-      val allexp = readFromGeneSampleMatrix(exp)
+  def loadExpression(toAdd: HashMap[PolimorphismKey, Polimorphism], cnvdata:Map[String,File], acceptedCorrelationQVal:Double=0.0) {
+    
+	  val thresholds = cnvdata.get("cnv_thresholds")
+    val peaks = cnvdata.get("cnv_peaks")
+    val expression = cnvdata.get("exp")
+    val correlation = cnvdata.get("corr")
+    
+    
+    if (thresholds.isEmpty) 
+      throw new RuntimeException("If using CNV cnv_thresholds file should exist.")
+    
+    val expressionR:Map[String, Double] = if (correlation.isDefined) {
+      println("CNV: loading correlation")
+
+      new CSVReader(new FileReader(correlation.get), '\t')
+        .readAll()
+        .filter { fields => Try { fields(3).toDouble }.getOrElse(1.0) <= acceptedCorrelationQVal } // Column (field) 3 is the qvalue
+        .map { fields =>
+          val gene = fields(0)
+          val corr = Try { fields(1).toDouble }.getOrElse(0.0)
+          (gene, corr)
+        }.toMap
+      
+    } else if (expression.isDefined && peaks.isDefined){
+    
+      println("CNV: Calculating correlation")
+      
+      val allcnvs = readFromGeneSampleMatrix(peaks.get)
+      val allexp = readFromGeneSampleMatrix(expression.get)
 
       val genes = allcnvs.keySet.map(_._1).toSet
       val samples = allcnvs.keySet.map(_._2).toSet
@@ -142,28 +168,43 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
       val max = expressionR.map(_._2).max
 
       expressionR.toList.filter(_._2 > 0.0).map { case (g, r) => (g, r / max) }.toMap // use only positive correlations abd scale so the max e
+      
+    } else {
+      throw new RuntimeException("No Correlation or files to calculate correlation available.")
     }
 
     println("CNV: Reading peaks")
 
     val genesAddedToThis = new HashSet[String]
 
-    var samples: LinkedList[String] = new LinkedList
-    new CSVReader(new FileReader(cnv_thresholds), '\t')
+    var samples: List[String] = List()
+    val nonsamples = List("Gene Symbol", "Locus ID", "Cytoband")
+    new CSVReader(new FileReader(thresholds.get), '\t')
       .readAll()
       .foreach(fields => {
         if (samples.isEmpty) {
-          samples ++= fields.toList
+          samples = fields
+                      .toList
+                      .filterNot { nonsamples contains _ } // remove those that are not samples
+                      .map {s => // change the names to sample size if they are TCGA samples
+                          var sample = s.replaceAll("\\.", "-")
+                          if (sample.startsWith("TCGA-") && sample.size > 15) {
+                            sample = sample.substring(0, 15)
+                          }
+                          sample
+                      } 
         } else {
-          var count = 1
+          var count = fields.size - samples.size
           val geneName = fields(0)
 
           samples.foreach(sample => {
-            val v = fields(count)
-            val value = if (v == "NA") 0.0 else v.toDouble
-            if (value.abs >= 2) {
-              genesAddedToThis += geneName
-              toAdd.put(PolimorphismKey(Gene(geneName), sample.replaceAll("\\.", "-")), Polimorphism(geneName, "cnv", expressionR.getOrElse(geneName, 0.0)))
+            if (!nonsamples.contains(sample)) {
+              val value = Try { fields(count).toDouble }.getOrElse(0.0)
+              val geneExpressionCorr = expressionR.get(geneName)
+              if (value.abs >= 2 && geneExpressionCorr.isDefined) {
+                genesAddedToThis += geneName
+                toAdd.put(PolimorphismKey(Gene(geneName), sample), Polimorphism(geneName, "cnv", geneExpressionCorr.get))
+              }
             }
             count += 1
           })
@@ -217,14 +258,13 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
 
     println("Reading TCGA 2012: Calculating CNV correlation with expression")
 
-    loadExpression(toReturn,
-      new File("src/test/resources/tcga/BRCA2012/TCGA_BRCApub_cnv_peaks.txt"),
-      new File("src/test/resources/tcga/BRCA2012/BRCA.exp.547.med.txt"),
-      new File("src/test/resources/tcga/BRCA2012/TCGA_BRCApub_cnv_peaks_th.txt"))
+    loadExpression(toReturn, Map(
+        "cnv_peaks" -> new File("src/test/resources/tcga/BRCA2012/TCGA_BRCApub_cnv_peaks.txt"),
+        "exp"-> new File("src/test/resources/tcga/BRCA2012/BRCA.exp.547.med.txt"),
+        "cnv_peaks"-> new File("src/test/resources/tcga/BRCA2012/TCGA_BRCApub_cnv_peaks_th.txt")))
 
     println("Reading TCGA 2012: Done.")
     toReturn.toMap
-
   }
 
   def readFromGeneSampleMatrix(file: File, dropFromHeader: Int = 0, dropFromFields: Int = 0, valueToIgnore: String = "NA") = {
@@ -661,6 +701,34 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
     walkers
   }
   
+  def getRandomizedGenePatientMatrix(genePatientMatrix:Map[PolimorphismKey, Polimorphism], annotationMap:Map[Gene, AnnotationInfo]): Map[PolimorphismKey, Polimorphism] = {
+
+      val random = new Random(System.nanoTime())
+    
+      val toReturn = new HashMap[PolimorphismKey, Polimorphism]
+
+      genePatientMatrix.keys.map { key =>
+
+        val annotation = annotationMap.get(key.gene)
+        if (annotation.isDefined) {
+          val annotationInfo = annotation.get
+          var newGene: Gene = annotationInfo.closeGenes(0).gene
+          var ran = random.nextInt(annotationInfo.sumGenesSize)
+
+          annotationInfo.closeGenes
+            .takeWhile(_ => ran > 0)
+            .foreach { annotation =>
+              ran -= annotation.size
+              newGene = annotation.gene
+            }
+
+          toReturn.put(PolimorphismKey(newGene, key.sample), Polimorphism(newGene.name))
+        }
+      }
+
+      toReturn.view.toMap
+    }
+  
 }
 
 case class Annotation(val geneSymbol: String, val impact: String)
@@ -668,7 +736,15 @@ case class Polimorphism(val geneSymbol: String, val source: String = "any", val 
 case class PolimorphismKey(val gene: Gene, val sample: String)
 case class SampleInfo(val sample: String, val subtype: String)
 
+case class GeneAnnotation(gene: Gene, chrm: String, start: Int, end: Int) {
+  lazy val size = end - start
+}
+case class AnnotationInfo(closeGenes: Seq[GeneAnnotation], sumGenesSize: Int)
+
 case class Config(
+  /*
+   * Base parameters
+   */
   iterations: Int,
   reinforcement: Double,
   forgetfulness: Double,
@@ -683,9 +759,15 @@ case class Config(
   subtype: Option[String] = None,
   subtypeFile: Option[File] = None,
   debug: Option[Seq[String]] = None,
-  //calculatePValue: Boolean = false,
+  
+  /*
+   * P-value calculation parameters
+   */
   pvalueExperiments: Int = 1000,
-  randomDistance: Int = 50000)//,
-  //pvalIterations: Int,
-  //pvalReinforcement: Double,
-  //pvalForgetfulness: Double)
+  randomDistance: Int = 50000,
+  
+  /*
+   * Print patern additional parameters
+   */
+  genes: List[String] = List()
+)

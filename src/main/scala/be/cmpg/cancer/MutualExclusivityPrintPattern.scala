@@ -14,74 +14,42 @@ import java.io.FileReader
 import scala.collection.JavaConversions._
 
 object MutualExclusivityPrintPattern extends App {
-
-  case class Config(
-    outputPrefix: String,
-    refNetwork: Seq[String],
-    genes: List[String] = List(),
-    maf: Option[File] = None,
-    expression: Map[String, File] = Map())
-
-  val parser = new scopt.OptionParser[Config]("SSA.ME.") {
-    head("Mutual exclusivity analysis by Small Subnetwork Analysis", "0.1")
-
-    opt[Seq[String]]('n', "refNetwork") action { (x, c) =>
-      c.copy(refNetwork = x)
-    } text ("The reference network (HT, hiII14, ppi, cell-map, nci-nature, reactome or/and files. HT_hiII14 used by default.)")
-
-    opt[String]('o', "outputPrefix") action { (x, c) =>
-      c.copy(outputPrefix = x)
-    } text ("The prefix for the analisis output files")
-
-    opt[String]('l', "genelist") required () action { (x, c) =>
-      c.copy(genes = x.split(",").toList)
-    } text ("Gene list to print network and pattern (comma separated).")
-
-    opt[File]('m', "maf") required () action { (x, c) =>
-      c.copy(maf = Some(x))
-    } text ("Mutation .maf file")
-
-    opt[Map[String, File]]('e', "expression") action { (x, c) =>
-      c.copy(expression = x)
-    } text ("expression files from GISTIC (... -e cnv_peaks=<file1>,exp=<file2>,cnv_thresholds=<file3> ...).")
-
-    help("help")
-
-  }
-  // parser.parse returns Option[C]
-
+    
   val helper = new CancerHelper
 
-  val configOption = parser.parse(args, Config(
-    /*
-       * Default Values
-       */
-    refNetwork = Seq("HT", "hiII14", "reactome"),
-    outputPrefix = "ME"))
+  val parser = helper.getBasicArgParser("SSA.ME Print patterns from a list of genes")
+  
+  parser.opt[String]("geneList") action { (x, c) =>
+    c.copy(genes = x.split(",").toList)
+  } text ("Gene list to print network and pattern (comma separated).")
 
-  if (configOption.isEmpty) {
+  val configOpt = parser.parse(args, Config(
+
+    /*
+     * Default Values
+     */
+    iterations = 1000,
+    reinforcement = 0.005,
+    forgetfulness = 0.996,
+    refNetwork = Seq("HT", "hiII14", "reactome"),
+    useRank = true,
+    hypergeometricTest = false,
+    minMutPerGene = 3,
+    seedGenesMutations = 1,
+    outputPrefix = "ME",
+    pvalueExperiments = 1000,
+    randomDistance = 50000))
+ 
+  if (configOpt.isEmpty) {
     parser.showUsageAsError
     System.exit(1)
   }
+  // parser.parse returns Option[C]
 
-  val config = configOption.get
 
-  val genePatientMatrix = {
-
-    val genePatientMatrix = new HashMap[PolimorphismKey, Polimorphism]
-    helper.loadMaf(genePatientMatrix, config.maf.get)
-
-    if (config.expression.size == 3)
-      helper.loadExpression(genePatientMatrix,
-        config.expression("cnv_peaks"),
-        config.expression("exp"),
-        config.expression("cnv_thresholds"))
-
-    genePatientMatrix.toMap
-  }
-
-  val interactions = helper.loadNetwork(config.refNetwork)
-  val network = new Network(interactions)
+  val config = configOpt.get
+  
+  val (interactions, network, genePatientMatrix, all_samples, geneList) = helper.loadData(config)
 
   val networkManager = new MutualExclusivityNetworkManager(
     network = network,
@@ -153,8 +121,8 @@ object MutualExclusivityPrintPattern extends App {
                                 
                                 
     def getKnownCancerGene(gene:Gene) = {
-      if (malacard.contains(gene.name)) "malacard"
-      else if (cgc.contains(gene.name)) "cgc"
+      if (cgc.contains(gene.name)) "cgc"
+    	else if (malacard.contains(gene.name)) "malacard"
       else if (ncg.contains(gene.name)) "ncg"
       else "unkown"
     }  
