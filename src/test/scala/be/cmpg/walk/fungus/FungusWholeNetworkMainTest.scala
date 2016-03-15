@@ -33,7 +33,7 @@ object FungusWholeNetworkMainTest {
   val goldenSet = new FileWriter(raw"C:\Users\Bram\Desktop/goldenSet.txt")
   val PossibleGenes = new FileWriter(raw"C:\Users\Bram\Desktop/possibleGenes.txt")
 
-  val interactions = NetworkReader.fromFile(Paths.get("src/test/resources/be/cmpg/graph/network_small_connected.txt"))
+  val interactions = NetworkReader.fromFile("src/test/resources/be/cmpg/graph/network_small_connected.txt")
   val networkManager = new ExpressionNetworkManager(network = new Network(interactions), evaporation = 0.996)
 
   new Network(interactions).genes.foreach(gene => PossibleGenes.write(gene + "\n"))

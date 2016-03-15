@@ -146,7 +146,7 @@ object ROCPlotSimulatedData extends App {
 
   for (networkName <- networkFiles.keys) {
     val interactions = if (networkFiles(networkName).size == 1)
-				       	   NetworkReader.fromFile(Paths.get(networkFiles(networkName)(0)))
+				       	   NetworkReader.fromFile(networkFiles(networkName)(0))
 				       else
 				    	   NetworkReader.fromCytoScapeFiles(Paths.get(networkFiles(networkName)(0)), Paths.get(networkFiles(networkName)(1)))._1
 

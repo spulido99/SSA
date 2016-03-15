@@ -30,13 +30,8 @@ object MutualExclusivityAnalysis extends App {
      */
     iterations = 50000,
     reinforcement = 0.0005,
-    forgetfulness = 0.9996,
-    refNetwork = Seq("HT", "hiII14", "reactome"),
-    useRank = true,
-    hypergeometricTest = false,
-    minMutPerGene = 3,
-    seedGenesMutations = 1,
-    outputPrefix = "ME"
+    forgetfulness = 0.9996
+    
     /*,
     pvalIterations = 1000,
     pvalReinforcement = 0.005,
@@ -57,7 +52,7 @@ object MutualExclusivityAnalysis extends App {
         pheromone = config.reinforcement,
         evaporation = config.forgetfulness,
         ranked = config.useRank,
-        hypergeometricTest = config.hypergeometricTest)
+        statistical = config.statistical)
 
       
       val walkers = helper.buildWalkers(geneList.view.toSet, networkManager)
@@ -68,7 +63,7 @@ object MutualExclusivityAnalysis extends App {
       //networkManager.debug = Some(Set(Gene("TP53")), 20)
       println("Subnetwork selectors: " + walkers.size)
 
-      networkManager.run(config.iterations, geneList.view.toSet, Runtime.getRuntime().availableProcessors() / 2, defwalkers = Some(walkers))
+      networkManager.run(config.iterations, geneList.view.toSet, config.processors, defwalkers = Some(walkers))
 
       //val rankedGenes = networkManager.getRankedAllGenes().filter { g => networkManager.getPosteriorProbability(g) > 0.95 } .toList
       val rankedGenes = if (config.outputGenes == 0)

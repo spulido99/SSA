@@ -21,7 +21,7 @@ object TimeExpressionAnalysis extends App {
 
   val NUMBER_OF_STEPS = 1000
 
-  val interactions = NetworkReader.fromFile(Paths.get("src/main/resources/be/cmpg/positiveSelectionInBacteria/E.coli K-12 network V1.0.txt"))
+  val interactions = NetworkReader.fromFile("src/main/resources/be/cmpg/positiveSelectionInBacteria/E.coli K-12 network V1.0.txt")
 
   print("Reading expression data. ")
   val timeExpressionMatrix = new CSVReader(new FileReader("src/main/resources/be/cmpg/time/GSE59050.txt"), '\t')

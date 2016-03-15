@@ -12,6 +12,8 @@ import be.cmpg.graph.interaction.NodeCostNetworkManager
 import au.com.bytecode.opencsv.CSVReader
 import java.io.FileReader
 import scala.collection.JavaConversions._
+import java.io.InputStreamReader
+import scala.io.Source
 
 object MutualExclusivityPrintPattern extends App {
     
@@ -22,6 +24,10 @@ object MutualExclusivityPrintPattern extends App {
   parser.opt[String]("geneList") action { (x, c) =>
     c.copy(genes = x.split(",").toList)
   } text ("Gene list to print network and pattern (comma separated).")
+  
+  parser.opt[Seq[String]]("positiveGeneSetLists") action { (x, c) =>
+    c.copy(positiveGeneSetLists = x)
+  } text ("Files with a list of gene containing what are considered positive (COSMIC and NCG added by default). Sould be tab delimited files with the gene name in the first column.")
 
   val configOpt = parser.parse(args, Config(
 
@@ -30,15 +36,7 @@ object MutualExclusivityPrintPattern extends App {
      */
     iterations = 1000,
     reinforcement = 0.005,
-    forgetfulness = 0.996,
-    refNetwork = Seq("HT", "hiII14", "reactome"),
-    useRank = true,
-    hypergeometricTest = false,
-    minMutPerGene = 3,
-    seedGenesMutations = 1,
-    outputPrefix = "ME",
-    pvalueExperiments = 1000,
-    randomDistance = 50000))
+    forgetfulness = 0.996))
  
   if (configOpt.isEmpty) {
     parser.showUsageAsError
@@ -58,11 +56,17 @@ object MutualExclusivityPrintPattern extends App {
     pheromone = 0,
     evaporation = 0,
     ranked = false)
+  
+  val otherPositiveSet = config.positiveGeneSetLists.map { geneListFile =>
+                                        Source.fromFile(geneListFile, "latin1").getLines.map { _.split("\t")(0) }.map(Gene(_))
+                                      }.flatten.toSet
 
-  printPattern(config.outputPrefix, config.genes.map { n => Gene(n) }, networkManager, genePatientMatrix)
+  printPattern(config.outputPrefix+".selected", config.genes.map { n => Gene(n) }, networkManager, genePatientMatrix, otherPositiveGeneSetLists=otherPositiveSet)
 
-  def printPattern(outputPrefix: String, genes: List[Gene], networkManager: NodeCostNetworkManager, genePatientMatrix: Map[PolimorphismKey, Polimorphism], additional: Map[Gene, Map[String, Any]] = Map()) = {
+  def printPattern(outputPrefix: String, genes: List[Gene], networkManager: NodeCostNetworkManager, genePatientMatrix: Map[PolimorphismKey, Polimorphism], additional: Map[Gene, Map[String, Any]] = Map(), otherPositiveGeneSetLists:Set[Gene]=Set()) = {
 
+    val helper = new CancerHelper
+                                        
     val results = new JSONObject
 
     val edges = new JSONArray
@@ -100,44 +104,24 @@ object MutualExclusivityPrintPattern extends App {
 
     out_edges.close()
 
-    
-    val cgc = new CSVReader(new FileReader("cancergenelists/Census_allFri20150102.csv")) // CGC: Cancer Gene Census
-                                .readAll()
-                                .drop(1)
-                                .map(_(0))
-                                .toSet
-                                
-    val malacard = new CSVReader(new FileReader("cancergenelists/malacardBreastCancer.tsv"), '\t') // Malacards
-                                .readAll()
-                                .drop(1)
-                                .map(_(1))
-                                .toSet            
-    
-   val ncg = new CSVReader(new FileReader("cancergenelists/cancergenes.txt"), '\t') // NCG 4.0 : Network of Cancer Genes
-                                .readAll()
-                                .drop(1)
-                                .map(_(1))
-                                .toSet
-                                
-                                
     def getKnownCancerGene(gene:Gene) = {
-      if (cgc.contains(gene.name)) "cgc"
-    	else if (malacard.contains(gene.name)) "malacard"
-      else if (ncg.contains(gene.name)) "ncg"
+    	if (otherPositiveGeneSetLists.contains(gene)) "other"
+      else if (helper.cgc.contains(gene)) "cgc"
+      else if (helper.ncg.contains(gene)) "ncg"
       else "unkown"
     }  
     
-    val truePositiveGeneList = cgc ++ malacard ++ ncg;
+    val truePositiveGeneList = helper.cgc ++ helper.ncg ++ otherPositiveGeneSetLists;
     
     val nodes = new JSONArray
 
     val out_nodes = new FileWriter(outputPrefix + "_nodes.tsv")
     out_nodes.write("GeneSymbol\tPosteriorP\tSelected\tConvergenceIter\tKnownCancerGene\t\tBestSSN\n")
-    println("GeneSymbol\tMalacard\tCGC\tNCG")
+    println("GeneSymbol\tOtherPositive\tCGC\tNCG")
     genes
       .foreach(g => {
         
-        println(g.name+"\t"+malacard.contains(g.name)+"\t"+cgc.contains(g.name)+"\t"+ncg.contains(g.name))
+        println(g.name+"\t"+otherPositiveGeneSetLists.contains(g)+"\t"+helper.cgc.contains(g)+"\t"+helper.ncg.contains(g))
         
         val geneInfo = new JSONObject()
           .accumulate("name", g.name)
@@ -153,9 +137,9 @@ object MutualExclusivityPrintPattern extends App {
         nodes.put(geneInfo)
         try {
         	val node = networkManager.getNetwork().getNode(g)
-        	out_nodes.write(g.name + "\t" + node.posteriorProbability+ "\t" + genes.contains(g) + "\t" + node.convergenceIteration + "\t" + truePositiveGeneList.contains(g.name) + "\t" + node.bestSubnetwork._1+"\n")
+        	out_nodes.write(g.name + "\t" + node.posteriorProbability+ "\t" + genes.contains(g) + "\t" + node.convergenceIteration + "\t" + truePositiveGeneList.contains(g) + "\t" + node.bestSubnetwork._1+"\n")
         } catch {
-          case t: Throwable => out_nodes.write(g.name + "\t" + "NA" + "\t" + genes.contains(g) + "\t" + "NA" + "\t" + truePositiveGeneList.contains(g.name) + "\t" + "NA" + "\n")
+          case t: Throwable => out_nodes.write(g.name + "\t" + "NA" + "\t" + genes.contains(g) + "\t" + "NA" + "\t" + truePositiveGeneList.contains(g) + "\t" + "NA" + "\n")
         }
       })
 
@@ -164,12 +148,10 @@ object MutualExclusivityPrintPattern extends App {
     results.put("edges", edges)
     results.put("nodes", nodes)
 
-    val baseNetworkOutput = scala.io.Source.fromFile("baseNetworkOutput.html")
-    val lines = baseNetworkOutput.mkString
-    baseNetworkOutput.close()
+    val html = Source.fromInputStream(getClass.getResourceAsStream("/baseNetworkOutput.html")).mkString
 
     val out_json = new FileWriter(outputPrefix + "_network.html")
-    out_json.write(lines.replace("$${graph}$$", results.toString))
+    out_json.write(html.replace("$${graph}$$", results.toString))
 
     out_json.close()
 

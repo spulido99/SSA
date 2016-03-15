@@ -39,7 +39,7 @@ class MutualExclusivityNetworkManager(network: Network,
   evaporation: Double = 0.996,
   ranked: Boolean = false,
   minProb: Double = 0.01,
-  hypergeometricTest: Boolean = false) extends NodeCostNetworkManager(network: Network, pheromone: Double, evaporation: Double, ranked: Boolean, minProb: Double) {
+  statistical: Boolean = false) extends NodeCostNetworkManager(network: Network, pheromone: Double, evaporation: Double, ranked: Boolean, minProb: Double) {
   
   println("MEManager")
   val all_samples = genePatientMatrix.map(_._1.sample).toSet//Set[String], // all the samples names (here to not need to analyse all keys of the genePatientMatrix)
@@ -47,6 +47,7 @@ class MutualExclusivityNetworkManager(network: Network,
   println("Samples: "+mutationsPerSample.size)
   val mutationsPerGene = genePatientMatrix.groupBy(_._1.gene).map(e => (e._1, e._2.map(e => (e._1.sample, e._2))))
   println("Genes: "+mutationsPerGene.size)
+  val mutatedSamplesByGene = mutationsPerGene.keys.map( g => (g, mutationsPerGene(g).keySet)).toMap
 
   override def scoreWalker(walker: SubNetworkSelector) : Option[(Set[Interaction], Double)] = {
     var chances = 5
@@ -84,14 +85,9 @@ class MutualExclusivityNetworkManager(network: Network,
      * Calculate a score:
      */
     
-    val mutatedSamplesByGene = genes.map( g => (g, mutationsPerGene(g).keySet)).toMap
-    
     // Order genes by to analyse those with more mutations first
     val orderedGenes = genes.toList.sortBy( g => -1*mutatedSamplesByGene(g).size )
     
-    // Make a list of samples to be analysed (samples with mutations in those genes)
-    val pendingSamples = new HashSet ++ genes.map { g => mutatedSamplesByGene(g) }.reduceLeft(_ ++ _)
-   
     // Obtain a score per gene
     /*
      * Score:
@@ -111,22 +107,22 @@ class MutualExclusivityNetworkManager(network: Network,
      *      
      */
 
-    if (hypergeometricTest) {
+    if (statistical) {
       /*
        * HyperGeometric test
        */
       //println("********")
       val scorePerGeneHyperTest = orderedGenes.map {
         gene => {
-      	  val otherGenes = genes - gene
+          val otherGenes = genes - gene
           
           val totalSamples = all_samples.size // population size
-      	  val noMutatedSamplesInOtherGenes = all_samples.size - otherGenes.map { mutatedSamplesByGene(_) }.flatten.size // Successes in the population
+          val noMutatedSamplesInOtherGenes = all_samples.size - otherGenes.map { mutatedSamplesByGene(_) }.flatten.size // Successes in the population
           val geneMutatedSamples = mutationsPerGene(gene).size //samples size
           
           val test = new HypergeometricDistribution(totalSamples, noMutatedSamplesInOtherGenes, geneMutatedSamples)
           
-      	  val samplesOnlyMutatedInGene = mutationsPerGene(gene).size - mutatedSamplesByGene(gene).intersect(otherGenes.map { mutatedSamplesByGene(_) }.flatten).size // number of succeses
+          val samplesOnlyMutatedInGene = mutationsPerGene(gene).size - mutatedSamplesByGene(gene).intersect(otherGenes.map { mutatedSamplesByGene(_) }.flatten).size // number of succeses
           //println(gene.name + " => PS: "+totalSamples+ " SuccP: "+noMutatedSamplesInOtherGenes+" Sample: "+geneMutatedSamples +" SuccS: " + samplesOnlyMutatedInGene + " => P: "+test.cumulativeProbability(samplesOnlyMutatedInGene))
           
           1.0 - test.cumulativeProbability(samplesOnlyMutatedInGene)
@@ -138,6 +134,8 @@ class MutualExclusivityNetworkManager(network: Network,
       /*
        * Similar to Dendrix
        */
+      // Make a list of samples to be analysed (samples with mutations in those genes)
+      val pendingSamples = new HashSet ++ genes.map { g => mutatedSamplesByGene(g) }.reduceLeft(_ ++ _)
       
       val scorePerGene = orderedGenes.map {
         gene => {
@@ -161,4 +159,19 @@ class MutualExclusivityNetworkManager(network: Network,
        return scorePerGene.map {sg => math.sqrt(sg._2)}.sum / allGenes.size
     }
   }
+  
+  def cometScore(genes:List[Gene], samples:Set[String]) {
+    // not able to replicate
+  }
+  
+  def nonAlteredScore(gene1:Gene, gene2:Gene, nonAlteredSamples:Set[String]):Int = {
+    val altG1 = mutatedSamplesByGene(gene1)
+    val altG2 = mutatedSamplesByGene(gene2)
+    (nonAlteredSamples -- (altG1.diff(altG2) union altG2.diff(altG1))).size
+  }
+  
+  def alteredScore(gene1:Gene, gene2:Gene, alteredSamples:Set[String]):Int = {
+	  (alteredSamples -- mutatedSamplesByGene(gene1) -- mutatedSamplesByGene(gene2)).size
+  }
+  
 }
