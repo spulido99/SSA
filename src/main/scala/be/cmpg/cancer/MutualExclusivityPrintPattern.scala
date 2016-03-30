@@ -16,7 +16,7 @@ import java.io.InputStreamReader
 import scala.io.Source
 
 object MutualExclusivityPrintPattern extends App {
-    
+  
   val helper = new CancerHelper
 
   val parser = helper.getBasicArgParser("SSA.ME Print patterns from a list of genes")
@@ -105,10 +105,20 @@ object MutualExclusivityPrintPattern extends App {
     out_edges.close()
 
     def getKnownCancerGene(gene:Gene) = {
-    	if (otherPositiveGeneSetLists.contains(gene)) "other"
-      else if (helper.cgc.contains(gene)) "cgc"
+      if (helper.cgc.contains(gene)) "cgc"
+      else if (otherPositiveGeneSetLists.contains(gene)) "other"
       else if (helper.ncg.contains(gene)) "ncg"
       else "unkown"
+    }  
+    
+    def getKnownCancerLists(gene:Gene) = {
+      var toReturn = 0;
+      
+      if (otherPositiveGeneSetLists.contains(gene)) toReturn += 1
+      if (helper.cgc.contains(gene)) toReturn += 1
+      if (helper.ncg.contains(gene)) toReturn += 1
+      
+      toReturn
     }  
     
     val truePositiveGeneList = helper.cgc ++ helper.ncg ++ otherPositiveGeneSetLists;
@@ -126,6 +136,10 @@ object MutualExclusivityPrintPattern extends App {
         val geneInfo = new JSONObject()
           .accumulate("name", g.name)
           .accumulate("selected", genes.contains(g))
+          .accumulate("cgc", helper.cgc.contains(g))
+          .accumulate("other", otherPositiveGeneSetLists.contains(g))
+          .accumulate("ncg", helper.ncg.contains(g))
+          .accumulate("inTPLists", getKnownCancerLists(g))
           .accumulate("knownCancerGene", getKnownCancerGene(g))
           
         val additionalInfo = additionalNodeInfo.get(g)

@@ -58,7 +58,7 @@ object MutualExclusivityPrepareInput extends App {
     case Some(config) =>
        val genePatientMatrix = {
 
-        //val genePatientMatrix = new HashMap[PolimorphismKey, Polimorphism]
+        //val genePatientMatrix = new HashMap[PolimorphismKey, Polimorphism]  
         val mutationMatrix = if (config.maf.isDefined) {
         	println("Loading mutation file...")        
         	helper.loadMaf(config.maf.get, config.maxQtyMutations)
@@ -73,7 +73,7 @@ object MutualExclusivityPrepareInput extends App {
           Map[PolimorphismKey, Polimorphism]()
         }
         
-        mutationMatrix ++ copyNumberMatrix
+        copyNumberMatrix ++ mutationMatrix 
         
         //genePatientMatrix.toMap
       }

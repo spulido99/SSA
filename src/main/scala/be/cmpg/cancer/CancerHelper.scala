@@ -47,6 +47,8 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
                                 .map(_(1))
                                 .map(Gene(_))
                                 .toSet
+                                
+  lazy val zackGenes = Source.fromInputStream(getClass.getResourceAsStream("/cancergenelists/ZackEtAl_CNAGenes.txt")).getLines.toSet
 
   def loadNetwork(networks: Seq[String]): Set[Interaction] = {
 
@@ -203,7 +205,7 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
     
     val gisticDelGenes = loadGisticConfidenceGenes(gistic.get + "/del_genes.conf_99.txt")
     
-    val confGenes = ( gisticAmpGenes ++ gisticDelGenes ).toSet
+    val confGenes = (gisticAmpGenes ++ gisticDelGenes).toSet intersect (zackGenes ++ cgc ++ ncg)
     
     val gisticOutput = Source.fromFile(gistic.get + "/all_thresholded.by_genes.txt", "latin1").getLines.map { _.split("\t") }
     
@@ -234,7 +236,7 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
       			if (value.abs < gisticThreshold || geneExpressionCorr.isEmpty) {
       				None
             } else {
-          	  Some(PolimorphismKey(Gene(geneName), sample), Polimorphism(geneName, "cnv", geneExpressionCorr.get))
+          	  Some(PolimorphismKey(Gene(geneName), sample), Polimorphism(geneName, if (value > 0) "amp" else "del", geneExpressionCorr.get))
             }
           }
         }
@@ -631,18 +633,30 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
   def printMutationMatrixFiles(output: String, seedGenesMutations: Int, genePatientMatrix: Map[PolimorphismKey, Polimorphism]) = {
 
     println("Printing binary (.m2) matrix")
+    println("Printing samples stats");
+    println("Printing as .tbs");
     val printM2 = new PrintWriter(new File(output + ".m2"));
+    val printBySample = new PrintWriter(new File(output + ".bySample.stats"));
+    val printTbs = new PrintWriter(new File(output + ".tbs"));
+    printTbs.println("column\trow\ttype\tmutation\tcnvAmp\tcnvDel")
     genePatientMatrix.groupBy(_._1.sample).foreach {
       case (sample, map) =>
         if (map.size > seedGenesMutations) {
           printM2.print(sample)
-          for (key <- map.keys)
+          map.foreach{ case (key, poli) => 
             printM2.print("\t" + key.gene.name)
+            printTbs.println(key.sample + "\t" + key.gene.name + "\t" + (if (poli.source=="mut") 1 else if (poli.source=="amp") 2 else 3) + "\t" + (if (poli.source=="mut") 1 else 0) + "\t" +(if (poli.source=="amp") 1 else 0)+ "\t" +(if (poli.source=="del") 1 else 0))
+          }
 
           printM2.println();
+        
+          val bySource = map.groupBy(_._2.source).map(e => (e._1, e._2.size))
+          printBySample.println(sample + "\t" + map.size + "\t"+bySource.mkString(","))
         }
     }
+    printBySample.close();
     printM2.close();
+    printTbs.close();
 
     println("Printing genes and genes stats");
     
@@ -658,19 +672,6 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
       }
       printGlst.close();
       printByGene.close();
-    }
-    
-    println("Printing samples stats");
-    
-    {
-      val printBySample = new PrintWriter(new File(output + ".bySample.stats"));
-      genePatientMatrix.groupBy(_._1.sample).foreach { e =>
-        if (e._2.size > seedGenesMutations) {
-          val bySource = e._2.groupBy(_._2.source).map(e => (e._1, e._2.size))
-        	printBySample.println(e._1 + "\t" + e._2.size + "\t"+bySource.mkString(","))
-        }
-      }
-      printBySample.close();
     }
     
   }
@@ -991,6 +992,8 @@ case class Config(
   bootstraapExperiments:Int = 1000,
   minBootstraapSupport:Double = 0.95,
   positiveGeneSetLists: Seq[String] = Seq(),
+  useCGC:Boolean=true,
+  useNCG:Boolean=true,
   
   /*
    * Print patern additional parameters

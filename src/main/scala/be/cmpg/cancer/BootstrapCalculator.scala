@@ -31,14 +31,21 @@ object BootstrapCalculator extends App {
     c.copy(bootstraapExperiments = x)
   } text ("Number of calculations with random inputs to calculate the bootstraap support. Large values increase processing time. (1000 by default)")
   
-  parser.opt[Int]("minBootstraapSupport") action { (x, c) =>
+  parser.opt[Double]("minBootstraapSupport") action { (x, c) =>
     c.copy(minBootstraapSupport = x)
   } text ("Minimum bootstrap support to be included in the network (0.95 by default)")
-
+  
   parser.opt[Seq[String]]("positiveGeneSetLists") action { (x, c) =>
     c.copy(positiveGeneSetLists = x)
   } text ("Files with a list of gene containing what are considered positive (COSMIC and NCG added by default). Sould be tab delimited files with the gene name in the first column.")
   
+  parser.opt[Boolean]("useCGC") action { (x, c) =>
+    c.copy(useCGC = x)
+  } text ("Use the Census of Cancer Genes in the True Positives set (true by default)")
+
+  parser.opt[Boolean]("useNCG") action { (x, c) =>
+  c.copy(useNCG = x)
+  } text ("Use the network of cancer genes in the True Positives set (true by default)")
   
   val configOpt = parser.parse(args, Config(
 
@@ -176,13 +183,13 @@ object BootstrapCalculator extends App {
                                         Source.fromFile(geneListFile, "latin1").getLines.map { _.split("\t")(0) }.map(Gene(_))
                                       }.flatten.toSet
                                 
-  val truePositiveSet = helper.cgc ++ helper.ncg ++ otherPositiveSet
+  val truePositiveSet =  (if (config.useCGC) helper.cgc else Set[Gene]()) ++ (if (config.useNCG) helper.ncg else Set[Gene]()) ++ otherPositiveSet
   
   println("Calculating ppv with bootstraap support > "+ config.minBootstraapSupport +" ...")
                                       
   val writerbootstraap = new PrintWriter(config.outputPrefix + "_networksPPV.bootstraap.tsv")
   writerbootstraap.println("SubnetworkSize\tTruePositives\tFalsePositives\tPPV(%)\tgenes")
-                                      
+  
   val posibleSubnetworks = List.range(1, rankedGenes.size).map { subnetworkSize =>
     
     val genesToConsider = rankedGenes.take(subnetworkSize)
@@ -199,12 +206,8 @@ object BootstrapCalculator extends App {
     
     (_TP, _FP, subnetworkSize)
   }
-                                      
   writerbootstraap.close();
-  
-  val (bestTP, bestFP, bestSNSize) = posibleSubnetworks.maxBy( e => e._1.size - e._2.size)
-  
-  println("Genes in selected network: [Genes Selected: " + bestSNSize + ",  Supported by Boostraap: "+(bestTP++bestFP).size+"]" + (bestTP++bestFP).map { _.name }.mkString(","))
+
   
   val dummyNetworkManager = new MutualExclusivityNetworkManager(
         network = network,
@@ -214,8 +217,28 @@ object BootstrapCalculator extends App {
         evaporation = config.forgetfulness,
         ranked = config.useRank,
         statistical = config.statistical)
+  
+  var selectedGenes = Set[Gene]()
+  var rankCount = 0;
+  //Map[Gene, Map[String, Any]]
+  val additional = posibleSubnetworks.map { e =>
+    if (selectedGenes.size < config.outputGenes) {
+    	val genes = (e._1 ++ e._2).toSet
+      val toReturn = (genes -- selectedGenes).map { gene => (gene, Map("rank" -> rankCount, "pvalue" -> 9))}
+      
+      if (!toReturn.isEmpty) {
+        rankCount += 1
+        selectedGenes ++= genes
+        toReturn
+      } else {
+        Set.empty[(Gene, Map[String, Int])]
+      }
+    } else {
+      Set.empty[(Gene, Map[String, Int])]
+    }
+  }.flatten.toMap
 
-  MutualExclusivityPrintPattern.printPattern(config.outputPrefix+".best", (bestTP++bestFP), dummyNetworkManager, genePatientMatrix, otherPositiveGeneSetLists=otherPositiveSet)
+  MutualExclusivityPrintPattern.printPattern(config.outputPrefix+".selected", rankedGenes.filter { selectedGenes contains _ }, dummyNetworkManager, genePatientMatrix, additional, otherPositiveSet)
   
   println("Output in " + config.outputPrefix + "_networksPPV.bootstraap.tsv")
   println("Network in " + config.outputPrefix + ".best_network.html")
