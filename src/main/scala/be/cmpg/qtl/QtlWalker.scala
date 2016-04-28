@@ -1,6 +1,7 @@
 package be.cmpg.qtl
 
 import be.cmpg.graph.Gene
+import be.cmpg.graph.Node
 import be.cmpg.graph.interaction.NetworkManager
 import be.cmpg.walk.SubNetworkSelector
 import be.cmpg.walk.Path

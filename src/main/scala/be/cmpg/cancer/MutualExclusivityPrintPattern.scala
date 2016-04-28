@@ -105,10 +105,13 @@ object MutualExclusivityPrintPattern extends App {
     out_edges.close()
 
     def getKnownCancerGene(gene:Gene) = {
-      if (helper.cgc.contains(gene)) "cgc"
-      else if (otherPositiveGeneSetLists.contains(gene)) "other"
-      else if (helper.ncg.contains(gene)) "ncg"
-      else "unkown"
+      val toReturn = new JSONArray();
+      
+      toReturn.put(helper.cgc.contains(gene))
+      toReturn.put(otherPositiveGeneSetLists.contains(gene))
+      toReturn.put(helper.ncg.contains(gene))
+
+      toReturn
     }  
     
     def getKnownCancerLists(gene:Gene) = {
@@ -126,7 +129,7 @@ object MutualExclusivityPrintPattern extends App {
     val nodes = new JSONArray
 
     val out_nodes = new FileWriter(outputPrefix + "_nodes.tsv")
-    out_nodes.write("GeneSymbol\tPosteriorP\tSelected\tConvergenceIter\tKnownCancerGene\t\tBestSSN\n")
+    out_nodes.write("GeneSymbol\tPosteriorP\tSelected\tConvergenceIter\tKnownCancerGene\tBestSSNScore\tBestSSN\n")
     println("GeneSymbol\tOtherPositive\tCGC\tNCG")
     genes
       .foreach(g => {
@@ -135,12 +138,9 @@ object MutualExclusivityPrintPattern extends App {
         
         val geneInfo = new JSONObject()
           .accumulate("name", g.name)
-          .accumulate("selected", genes.contains(g))
-          .accumulate("cgc", helper.cgc.contains(g))
-          .accumulate("other", otherPositiveGeneSetLists.contains(g))
-          .accumulate("ncg", helper.ncg.contains(g))
-          .accumulate("inTPLists", getKnownCancerLists(g))
-          .accumulate("knownCancerGene", getKnownCancerGene(g))
+          .accumulate("selected", genes.contains(g));
+        
+        geneInfo.put("knownCancerGene", getKnownCancerGene(g))
           
         val additionalInfo = additionalNodeInfo.get(g)
         if (additionalInfo.isDefined) {
@@ -151,7 +151,7 @@ object MutualExclusivityPrintPattern extends App {
         nodes.put(geneInfo)
         try {
         	val node = networkManager.getNetwork().getNode(g)
-        	out_nodes.write(g.name + "\t" + node.posteriorProbability+ "\t" + genes.contains(g) + "\t" + node.convergenceIteration + "\t" + truePositiveGeneList.contains(g) + "\t" + node.bestSubnetwork._1+"\n")
+        	out_nodes.write(g.name + "\t" + node.posteriorProbability+ "\t" + genes.contains(g) + "\t" + node.convergenceIteration + "\t" + truePositiveGeneList.contains(g) + "\t" + node.bestSubnetwork._2+ "\t" + node.bestSubnetwork._1+"\n")
         } catch {
           case t: Throwable => out_nodes.write(g.name + "\t" + "NA" + "\t" + genes.contains(g) + "\t" + "NA" + "\t" + truePositiveGeneList.contains(g) + "\t" + "NA" + "\n")
         }

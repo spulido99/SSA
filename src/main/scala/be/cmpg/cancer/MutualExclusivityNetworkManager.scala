@@ -18,6 +18,7 @@ import scala.collection.mutable.MutableList
 import scala.collection.mutable.LinearSeq
 import scala.collection.immutable.TreeMap
 import org.apache.commons.math3.distribution.HypergeometricDistribution
+import be.cmpg.graph.interaction.WalkerResult
 
 /**
  * References:
@@ -49,12 +50,12 @@ class MutualExclusivityNetworkManager(network: Network,
   println("Genes: "+mutationsPerGene.size)
   val mutatedSamplesByGene = mutationsPerGene.keys.map( g => (g, mutationsPerGene(g).keySet)).toMap
 
-  override def scoreWalker(walker: SubNetworkSelector) : Option[(Set[Interaction], Double)] = {
+  override def scoreWalker(walker: SubNetworkSelector) : Option[WalkerResult] = {
     var chances = 5
-    var result = (Set[Interaction](), Double.NaN)
-    while (chances > 0 && result._2.isNaN()) {
+    var result = WalkerResult(walker, Set[Interaction](), Double.NaN)
+    while (chances > 0 && result.score.isNaN()) {
       val subnetwork = walker.selectSubNetwork()
-      result = (subnetwork.get, scoreSubnetwork(subnetwork.get, Some(walker)))
+      result = WalkerResult(walker, subnetwork.get, scoreSubnetwork(subnetwork.get, Some(walker)))
       chances -= 1
     }
     Some(result)

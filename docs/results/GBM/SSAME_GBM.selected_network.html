@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+line.link {
+	fill: none;
+	stroke: #aaa;
+	opacity: 0.6;
+	stroke-width: 2px;
+}
+
+.node {
+	fill: #ccc;
+	opacity: 0.3;
+	font: 9px sans-serif;
+}
+
+.node.important {
+	fill: gray;
+	stroke: gray;
+	stroke-width: 0;
+	opacity: 0.95;
+}
+
+.node.important.coding {
+	fill: #2D8677;
+	opacity: 0.95;
+}
+
+.node.important.promoter {
+	fill: #37588B;
+	opacity: 0.95;
+}
+
+.node.important.enhancer {
+	fill: #D3A047;
+	opacity: 0.95;
+}
+
+.node.important.lncrna {
+	fill: #D38047;
+	opacity: 0.95;
+}
+
+.node.important.cgc {
+	fill: #2D8677;
+	stroke-width: 0;
+	opacity: 0.95;
+}
+
+.node.important.other {
+	fill: #37588B;
+	stroke-width: 0;
+	opacity: 0.95;
+}
+
+.node.important.ncg {
+	fill: #D3A047;
+	stroke-width: 0;
+	opacity: 0.95;
+}
+
+
+text {
+	font: 9px sans-serif;
+}
+
+text.shadow {
+	stroke: #fff;
+	stroke-width: 2px;
+	stroke-opacity: .8;
+}
+</style>
+<head>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+	<script src="http://d3js.org/d3.v3.js"></script>
+	<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+	<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+	<script src="http://code.jquery.com/color/jquery.color.plus-names-2.1.2.js"></script>
+</head>
+<body>
+	<div id="controls" style="width: 100%">
+		<div style="width: 800px;">
+		  <label for="showgenes">Genes:</label>
+		  <input type="text" id="showgenes" readonly style="border:0; color:#f6931f; font-weight:bold;">
+		  <div id="slider-range"></div>
+		</div>
+		<!--
+		<span>Start condition: </span>
+		<select></select>
+		<span>End condition: </span>
+		<select></select>
+		 -->
+	</div>
+	<div id="network" style="width: 100%; height: 1500px"></div>
+
+</body>
+<script>
+
+	var graph = {"nodes":[{"knownCancerGene":[true,false,true],"name":"TP53","rank":0,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"PTEN","rank":1,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"CDK4","rank":2,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"CDKN2A","rank":3,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"MDM2","rank":4,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"EGFR","rank":5,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"PIK3R1","rank":6,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"PIK3CA","rank":7,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"MDM4","rank":8,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"RB1","rank":9,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"CDK6","rank":10,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"AKT1","rank":11,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"MYC","rank":12,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"ATM","rank":13,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"DDX5","rank":14,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,false],"name":"PLCG1","rank":15,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"PDGFRA","rank":16,"pvalue":9,"selected":true},{"knownCancerGene":[false,false,false],"name":"CRK","rank":17,"pvalue":9,"selected":true},{"knownCancerGene":[false,false,false],"name":"RELN","rank":18,"pvalue":9,"selected":true},{"knownCancerGene":[false,false,false],"name":"VAV2","rank":19,"pvalue":9,"selected":true},{"knownCancerGene":[false,false,true],"name":"APOB","rank":20,"pvalue":9,"selected":true},{"knownCancerGene":[false,false,false],"name":"ITGAM","rank":21,"pvalue":9,"selected":true},{"knownCancerGene":[false,false,false],"name":"ITGB2","rank":22,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"NF1","rank":23,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"ABL1","rank":24,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"KDR","rank":25,"pvalue":9,"selected":true},{"knownCancerGene":[false,false,true],"name":"GRB2","rank":26,"pvalue":9,"selected":true},{"knownCancerGene":[false,false,false],"name":"FYN","rank":27,"pvalue":9,"selected":true},{"knownCancerGene":[false,false,true],"name":"MACF1","rank":28,"pvalue":9,"selected":true},{"knownCancerGene":[false,false,true],"name":"RHOA","rank":29,"pvalue":9,"selected":true},{"knownCancerGene":[false,false,false],"name":"NCK1","rank":30,"pvalue":9,"selected":true},{"knownCancerGene":[false,false,true],"name":"CNTNAP2","rank":31,"pvalue":9,"selected":true},{"knownCancerGene":[false,false,false],"name":"IL4R","rank":32,"pvalue":9,"selected":true},{"knownCancerGene":[false,false,true],"name":"GRIN2A","rank":33,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"PDGFRB","rank":34,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"ERBB2","rank":35,"pvalue":9,"selected":true},{"knownCancerGene":[true,false,true],"name":"CTNNB1","rank":36,"pvalue":9,"selected":true},{"knownCancerGene":[false,false,false],"name":"SRC","rank":37,"pvalue":9,"selected":true},{"knownCancerGene":[false,false,false],"name":"ESR2","rank":38,"pvalue":9,"selected":true}],"edges":[{"score":0,"source":"ABL1","target":"GRB2"},{"score":0,"source":"KDR","target":"SRC"},{"score":5.404319251433773,"source":"PIK3CA","target":"PIK3R1"},{"score":0,"source":"PIK3CA","target":"SRC"},{"score":0,"source":"KDR","target":"NCK1"},{"score":8.024116225711989,"source":"PIK3R1","target":"PTEN"},{"score":0,"source":"CTNNB1","target":"RHOA"},{"score":4.464101615137754,"source":"ATM","target":"MDM2"},{"score":0,"source":"ABL1","target":"FYN"},{"score":0,"source":"ABL1","target":"PLCG1"},{"score":0,"source":"FYN","target":"PIK3CA"},{"score":5.138027276443204,"source":"EGFR","target":"PLCG1"},{"score":0,"source":"MYC","target":"PDGFRB"},{"score":0,"source":"ERBB2","target":"PIK3R1"},{"score":11.511632640777464,"source":"CDK4","target":"CDKN2A"},{"score":0,"source":"ERBB2","target":"GRB2"},{"score":8.255432216610668,"source":"PIK3CA","target":"PTEN"},{"score":0,"source":"ABL1","target":"SRC"},{"score":0,"source":"CTNNB1","target":"SRC"},{"score":0,"source":"PIK3CA","target":"RHOA"},{"score":4.1798961672288675,"source":"RB1","target":"MYC"},{"score":5.47213595499958,"source":"ATM","target":"TP53"},{"score":0,"source":"EGFR","target":"ERBB2"},{"score":0,"source":"ERBB2","target":"VAV2"},{"score":6.362749604440715,"source":"TP53","target":"RB1"},{"score":0,"source":"ABL1","target":"RB1"},{"score":3.944897775957674,"source":"IL4R","target":"PIK3CA"},{"score":0,"source":"CTNNB1","target":"KDR"},{"score":0,"source":"PDGFRB","target":"PIK3R1"},{"score":0,"source":"CRK","target":"EGFR"},{"score":8.144985218866182,"source":"TP53","target":"EGFR"},{"score":0,"source":"CRK","target":"RHOA"},{"score":0,"source":"PIK3CA","target":"VAV2"},{"score":0,"source":"PDGFRB","target":"AKT1"},{"score":0,"source":"PDGFRB","target":"PIK3CA"},{"score":0,"source":"PLCG1","target":"SRC"},{"score":2.9888626821368653,"source":"APOB","target":"ITGAM"},{"score":0,"source":"CRK","target":"PIK3R1"},{"score":0,"source":"ABL1","target":"PIK3R1"},{"score":0,"source":"VAV2","target":"RHOA"},{"score":0,"source":"ESR2","target":"SRC"},{"score":0,"source":"PDGFRB","target":"PTEN"},{"score":0,"source":"ABL1","target":"NCK1"},{"score":2.8708286933869704,"source":"APOB","target":"ITGB2"},{"score":0,"source":"PDGFRB","target":"PLCG1"},{"score":0,"source":"FYN","target":"GRIN2A"},{"score":2.4409096442821903,"source":"AKT1","target":"ITGAM"},{"score":3.968626966596886,"source":"PIK3CA","target":"AKT1"},{"score":0,"source":"RHOA","target":"FYN"},{"score":5.32416402881619,"source":"DDX5","target":"TP53"},{"score":0,"source":"MYC","target":"ERBB2"},{"score":3.302775637731995,"source":"MACF1","target":"CNTNAP2"},{"score":3.302775637731995,"source":"GRIN2A","target":"RELN"},{"score":4.151302780278486,"source":"PIK3R1","target":"AKT1"},{"score":0,"source":"CTNNB1","target":"MYC"},{"score":2.3693063937629155,"source":"KDR","target":"PLCG1"},{"score":0,"source":"CRK","target":"PDGFRA"},{"score":4.5,"source":"ATM","target":"MDM4"},{"score":2.3228756555322954,"source":"AKT1","target":"ITGB2"},{"score":0,"source":"ABL1","target":"ERBB2"},{"score":4.256388606531016,"source":"PIK3CA","target":"RELN"},{"score":4.9587017897206636,"source":"PDGFRA","target":"PLCG1"},{"score":3.944897775957674,"source":"KDR","target":"PIK3CA"},{"score":0,"source":"EGFR","target":"NCK1"},{"score":0,"source":"KDR","target":"RHOA"},{"score":8.717376065535227,"source":"CDK6","target":"CDKN2A"},{"score":0,"source":"PIK3R1","target":"SRC"},{"score":4.0086270528066,"source":"IL4R","target":"PIK3R1"},{"score":2.7370892179053907,"source":"AKT1","target":"MYC"},{"score":0,"source":"CRK","target":"SRC"},{"score":4.631202762478185,"source":"PIK3R1","target":"RELN"},{"score":0,"source":"EGFR","target":"SRC"},{"score":0,"source":"SRC","target":"VAV2"},{"score":0,"source":"PIK3R1","target":"RHOA"},{"score":7.885965925232274,"source":"MDM2","target":"TP53"},{"score":2.118033988749895,"source":"ITGAM","target":"ITGB2"},{"score":5.548045275417232,"source":"MYC","target":"TP53"},{"score":0,"source":"CTNNB1","target":"EGFR"},{"score":0,"source":"GRB2","target":"PIK3R1"},{"score":0,"source":"FYN","target":"KDR"},{"score":4.1291186956127515,"source":"KDR","target":"PIK3R1"},{"score":8.847698147370222,"source":"TP53","target":"PTEN"},{"score":4.78697727067005,"source":"AKT1","target":"MDM2"},{"score":0,"source":"RELN","target":"ABL1"},{"score":6.566248761789626,"source":"EGFR","target":"PIK3R1"},{"score":0,"source":"FYN","target":"PIK3R1"},{"score":5.801695756069156,"source":"MYC","target":"CDK4"},{"score":7.5099811928952604,"source":"CDK4","target":"RB1"},{"score":0,"source":"FYN","target":"RELN"},{"score":0,"source":"EGFR","target":"GRB2"},{"score":0,"source":"CRK","target":"ERBB2"},{"score":6.80011415427224,"source":"MDM4","target":"MDM2"},{"score":0,"source":"PIK3R1","target":"VAV2"},{"score":0,"source":"SRC","target":"AKT1"},{"score":0,"source":"CRK","target":"PIK3CA"},{"score":3.6457513110645907,"source":"DDX5","target":"PIK3CA"},{"score":0,"source":"FYN","target":"SRC"},{"score":0,"source":"ITGAM","target":"RHOA"},{"score":0,"source":"ABL1","target":"EGFR"},{"score":0,"source":"ITGB2","target":"RHOA"},{"score":0,"source":"ABL1","target":"MDM2"},{"score":3.1256512932642897,"source":"RELN","target":"AKT1"},{"score":0,"source":"RHOA","target":"AKT1"},{"score":0,"source":"ABL1","target":"CRK"},{"score":0,"source":"ERBB2","target":"PLCG1"}]}
+
+	$( "#slider-range" ).slider({
+	      range: true,
+	      min: 0,
+	      max: graph.nodes.length,
+	      values: [ 0, Math.min(25, graph.nodes.length) ],
+	      change: function( event, ui ) {
+			console.log("*******************************")
+			/*circles.style("opacity", function(d) {
+
+					return geneOpacity(d.name, ui.values[0], ui.values[1])
+				})*/
+			text.style("opacity", function(d) {
+					return textOpacity(d.name, ui.values[0], ui.values[1])
+				})
+
+			path.style("opacity", function(d) {
+				return linkOpacity(d, ui.values[0], ui.values[1])
+			})
+
+			$( "#showgenes" ).val( ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+	      }
+	    });
+
+	function linkOpacity(link, minRankValue, maxRankValue) {
+		var toLower = 0.6	
+		var sourceOp = geneOpacity(link.source.name, minRankValue, maxRankValue) * toLower;
+		var targetOp = geneOpacity(link.target.name, minRankValue, maxRankValue) * toLower;
+		var byRank = Math.min(sourceOp, targetOp);
+		return byRank
+	}
+
+	function geneOpacity(name, minRankValue, maxRankValue) {
+		var node = nodeMap[name]
+		if (minRankValue <= node.rank && node.rank <= maxRankValue) {
+			return 1 - 0.75 * node.rank / maxRank;
+		} else {
+			return 0.0
+		}
+	}
+
+	function textOpacity(name, minRankValue, maxRankValue) {
+		var geneO = geneOpacity(name, minRankValue, maxRankValue);
+		if (geneO == 0) {
+			return 0;
+		}
+		else {
+			return Math.min(1, geneO + 0.3)
+		}
+
+	}
+
+var radius = 8;
+
+	$( "#showgenes" ).val( $( "#slider-range" ).slider( "values", 0 ) + " - " + $( "#slider-range" ).slider( "values", 1 ) );
+
+	var w = 1200, h = 800;
+
+	var nodeMap = {};
+	var count = 0
+	var maxRank = 0;
+	var nodeNames = {};
+	graph.nodes.forEach(function(node) {
+		if (node.rank == undefined) {
+			node.rank = count++;
+		}
+		maxRank = Math.max(maxRank, node.rank);
+		nodeMap[node.name] = node;
+		knownCancerGene = node.knownCancerGene;
+		nodeNames[node.name] = {
+			name : node.name
+		};
+	});
+
+	var maxScore = 0;
+	graph.edges.forEach(function(link) {
+		link.source = nodeNames[link.source];
+		link.target = nodeNames[link.target];
+		maxScore = Math.max(maxScore, link.score);
+	});
+
+	var svg = d3.select("#network").append("svg:svg").attr("width", w).attr("height", h);
+
+	var force = d3.layout.force()
+					.nodes(d3.values(nodeNames))
+					.links(graph.edges)
+					.size([ w, h ])
+					.linkDistance(50)
+					.charge(-500)
+					.gravity(0.5)
+					.on("tick", tick)
+					.start();
+
+	var node_drag = d3.behavior.drag().on("dragstart", dragstart).on("drag", dragmove).on("dragend", dragend);
+
+	function dragstart(d, i) {
+		force.stop() // stops the force auto positioning before you start dragging
+	}
+
+	function dragmove(d, i) {
+		d.px += d3.event.dx;
+		d.py += d3.event.dy;
+		d.x += d3.event.dx;
+		d.y += d3.event.dy;
+		tick(); // this is the key to make it work together with updating both px,py,x,y on d !
+	}
+
+	function dragend(d, i) {
+		d.fixed = true; // of course set the node to fixed so the force doesnt include the node in its auto positioning stuff
+		tick();
+		force.resume();
+	}
+
+	var svgs = svg.append("svg:g")
+
+	var interpolatorImportant = d3.interpolateRgb("#eee", "green");
+	var interpolatorNoImportant = d3.interpolateRgb("#eee", "#aaa");
+
+	var path = svgs.selectAll("line")
+		.data(force.links())
+			.enter()
+				.append("svg:line")
+				.attr("class", "link")
+				.style("stroke", "#000")
+				.style("opacity", function(d) {
+					return linkOpacity(d, 0, maxRank);
+				})
+				.style("stroke-width", "4px");
+				/*
+				.style("stroke", function(d) {
+					var source = nodeMap[d.source.name]
+					var target = nodeMap[d.target.name]
+					if (source.selected && target.selected) {
+						return interpolatorImportant(d.score);
+					} else {
+						return interpolatorNoImportant(d.score);
+					}
+				}).style("stroke-width", function(d) {
+					var source = nodeMap[d.source.name]
+					var target = nodeMap[d.target.name]
+					if (source.selected && target.selected) {
+						return "4px";
+					} else {
+						return "2px";
+					}
+				})
+
+	var circles = svgs.selectAll("svg")
+		.data(force.nodes())
+		.enter().append("svg:circle")
+				.attr("r", function(d) {
+					var node = nodeMap[d.name];
+					return Math.max(4, node.pvalue)
+				}).attr("class", function(d) {
+					var node = nodeMap[d.name];
+					if (node.selected) {
+						return "node important "+node.knownCancerGene;
+					}
+					return "node";
+				}).attr("class","arc")
+				.style("opacity", function(d) {
+					return geneOpacity(d.name, 0, maxRank);
+				}).attr("id", function(d) {
+					return d.name;
+				}).call(node_drag);*/
+
+	var pies = svg.append("svg:g").selectAll("svg")
+      .data(force.nodes())
+     .enter()
+     .append("g")
+     .call(node_drag)
+     .attr("class", "arc")
+
+	var text = svgs.selectAll("g").data(force.nodes()).enter().append("svg:g");
+
+	//A copy of the text with a thick white stroke for legibility.
+	text.append("svg:text")
+		.attr("x", 2)
+		.attr("y", -5)
+		.attr("class", "shadow")
+		.text(function(d) {
+			return d.name;
+		}).style("opacity", function(d) {
+			return textOpacity(d.name, 0, maxRank);
+		});
+
+	text.append("svg:text")
+		.attr("x", 2)
+		.attr("y", -5)
+		.attr("target", "_blank")
+		.attr("class", function(d) {
+			var node = nodeMap[d.name];
+			if (node.selected) {
+				var knownClass = "";
+				if (node.knownCancerGene[0]) {
+					knownClass = "cgc"
+				} else if (node.knownCancerGene[1]) {
+					knownClass = "other"
+				} else if (node.knownCancerGene[2]) {
+					knownClass = "ncg"
+				}
+				return "node important "+knownClass;
+			}
+			return "node";
+
+		}).text(function(d) { return d.name;})
+		.on('dblclick', clickit, true);;
+
+	function clickit() {
+		var node = nodeMap[this.innerHTML];
+		if (node.selected) {
+			window.open("http://www.malacards.org/search/results/"+node.name, '_blank');
+		}
+	}
+
+
+	function tick() {
+		path.attr("x1", function(d) {
+			return d.source.x;
+		}).attr("y1", function(d) {
+			return d.source.y;
+		}).attr("x2", function(d) {
+			return d.target.x;
+		}).attr("y2", function(d) {
+			return d.target.y;
+		});
+
+		/*circles.attr("transform", function(d) {
+			return "translate(" + d.x + "," + d.y + ")";
+		});*/
+
+		pies.attr("transform", function (d) {
+              return "translate(" + d.x + "," + d.y + ")";
+          });
+
+		text.attr("transform", function(d) {
+			return "translate(" + d.x + "," + d.y + ")";
+		});
+	}
+
+	jQuery.Color.hook("fill stroke");
+
+	$(document).ready(function() {
+		$("#network").hide();
+		for (var i = 0; i < 200; ++i) {
+			force.tick();
+		}
+		//force.stop();
+		$("#network").show();
+		console.log("done.");
+	});
+
+	// class, label
+	var colors = [ ["cgc", "CGC"],
+	               ["other", "Other"],
+	               ["ncg", "NCG"],
+	               ["unknown", "NA" ] ];
+	/*
+	var colors = [ ["coding", "Coding"],
+	               ["promoter", "Promoter"],
+	               ["enhancer", "Enhancer"],
+	               ["lncrna", "lncRNA"],
+	               ["unknown", "NA" ] ];
+	*/
+	var legend = svg.append("g")
+.attr("class", "legend")
+//.attr("x", w - 65)
+//.attr("y", 50)
+.attr("height", 100)
+.attr("width", 100)
+.attr('transform', 'translate(-20,50)');
+
+	var legendRect = legend.selectAll('rect').data(colors);
+
+	legendRect.enter()
+	    .append("rect")
+	    .attr("x", w - 65)
+	    .attr("width", 10)
+	    .attr("height", 10);
+
+	legendRect
+	    .attr("y", function(d, i) {
+	        return i * 20;
+	    })
+	    .attr("class", function(d) {
+			return "node important "+d[0];
+		});
+
+	var legendText = legend.selectAll('text').data(colors);
+
+	legendText.enter()
+	    .append("text")
+	    .attr("x", w - 52);
+
+	legendText
+	    .attr("y", function(d, i) {
+	        return i * 20 + 9;
+	    })
+	    .text(function(d) {
+	        return d[1];
+	    });
+
+var classes = ["cgc", "other", "ncg"]
+
+function numberOfClasses(node) {
+	return node.knownCancerGene[0] + node.knownCancerGene[1] + node.knownCancerGene[2];
+}
+
+function getStartAngle(node, position) {
+	var nc = numberOfClasses(node)
+	if (nc == 0) {
+		return 0;
+	}
+
+	var angle = 360 / nc
+
+	var realPos = 0
+	for (i = 0; i <= position; i++) {
+		realPos += node.knownCancerGene[i]
+	}
+
+	return realPos * angle * Math.PI / 180;
+}
+
+function getEndAngle(node, position) {
+	var nc = numberOfClasses(node);
+	if (nc == 0) {
+		return 360 * Math.PI / 180
+	}
+
+	if (!node.knownCancerGene[position]) {
+		return getStartAngle(node, position)
+	}
+
+	var angle = 360 / nc
+
+	var realPos = 0
+	for (i = 0; i <= position; i++) {
+		realPos += node.knownCancerGene[i]
+	}
+
+	return (realPos + 1)* angle * Math.PI / 180;
+}
+
+function addMutatorArc(position, color) {
+
+      var arc = d3.svg.arc()
+              .outerRadius(radius)
+              .innerRadius(0)
+              .startAngle(function(d,i) {
+              	return getStartAngle(nodeMap[d.name], position);
+              }) //converting from degs to radians
+              .endAngle(function(d,i) {
+              	return getEndAngle(nodeMap[d.name], position);
+              });
+
+      pies.append("path")
+              .attr("d", arc)
+                  .attr("class", function (d, i) {
+                      if (nodeMap[d.name].knownCancerGene[position]) {
+                          return "node important "+classes[position];
+                      }
+                      else {
+                      	return "node important";
+                      }
+                  }).style("opacity", function(d) {
+						return geneOpacity(d.name, 0, maxRank);
+				   });
+              }
+
+addMutatorArc(-1);
+addMutatorArc(0);
+addMutatorArc(1);
+addMutatorArc(2);
+
+</script>

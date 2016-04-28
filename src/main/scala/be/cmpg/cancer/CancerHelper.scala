@@ -746,9 +746,15 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
         c.copy(subtype = Some(x))
       } text ("subtype to analyse")
 
-      opt[Seq[String]]('d', "debug") action { (x, c) =>
+      opt[Seq[String]]("debug") action { (x, c) =>
         c.copy(debug = Some(x))
-      } text ("Debug mode. List of genes that want to be observed (e.g. -d TP53,MYC,")
+      } text ("Debug mode. List of genes that want to be observed (e.g. -d TP53,MYC)")
+      
+      opt[Boolean]("randomizeData") action { (x, c) =>
+        c.copy(randomizeData = x)
+      } text ("It will randomize the input data by genenames. Useful to see differences in small subnetworks score distributions. (default: false)")
+      
+      
 
       /*
       opt[Boolean]("calculatePValue") action { (x, c) =>
@@ -977,6 +983,7 @@ case class Config(
   subtypeFile: Option[File] = None,
   debug: Option[Seq[String]] = None,
   processors: Int = Runtime.getRuntime().availableProcessors() / 2,
+  randomizeData: Boolean = false,
 
   /*
    * P-value calculation parameters
@@ -994,6 +1001,7 @@ case class Config(
   positiveGeneSetLists: Seq[String] = Seq(),
   useCGC:Boolean=true,
   useNCG:Boolean=true,
+  ppv:Double=0.6,
   
   /*
    * Print patern additional parameters

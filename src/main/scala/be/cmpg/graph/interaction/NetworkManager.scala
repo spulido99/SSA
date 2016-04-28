@@ -16,14 +16,14 @@ abstract class NetworkManager[T](network: Network) {
 
   def getNetwork() = network
   
-  def scoreWalker(selector: SubNetworkSelector) : Option[(Set[Interaction], Double)] ={
+  def scoreWalker(selector: SubNetworkSelector) : Option[WalkerResult] ={
     val sn = selector.selectSubNetwork
-    if (sn.isDefined) Some(sn.get, scoreSubnetwork(sn.get, Some(selector))) else None
+    if (sn.isDefined) Some(WalkerResult(selector, sn.get, scoreSubnetwork(sn.get, Some(selector)))) else None
   }
 
   def scoreSubnetwork(subnetwork: Set[Interaction], selector:Option[SubNetworkSelector]=None) : Double
   
-  def updateScores(subnetworkScores: Traversable[(Set[Interaction], Double)]) : Map[T, Double]
+  def updateScores(subnetworkScores: Traversable[WalkerResult]) : Map[T, Double]
 
   def evaporate(scores:Map[T, Double] = Map())
 
@@ -49,3 +49,5 @@ abstract class NetworkManager[T](network: Network) {
   def getRandomInteraction(selector: SubNetworkSelector) : Option[Interaction]
   
 }
+
+case class WalkerResult(walker:SubNetworkSelector, subnetwork:Set[Interaction], score:Double)

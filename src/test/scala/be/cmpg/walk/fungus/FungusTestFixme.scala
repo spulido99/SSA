@@ -8,6 +8,7 @@ import be.cmpg.graph.Gene
 import java.util.concurrent.Callable
 import scala.collection.Set
 import be.cmpg.expression.ExpressionNetworkManager
+import be.cmpg.graph.interaction.WalkerResult
 
 object FungusTestFixme {
 
@@ -79,11 +80,11 @@ object FungusTestFixme {
     for (i <- 0 to numberOfSteps) {
       
       val callables = generateFungus(networkManager, 19).map(walker => {
-        new Callable[Option[(Set[Interaction], Double)]] {
-          override def call(): Option[(Set[Interaction], Double)] = {
+        new Callable[Option[WalkerResult]] {
+          override def call(): Option[WalkerResult] = {
             val subnetwork = walker.selectSubNetwork()
             if (subnetwork.isDefined)
-              Some((subnetwork.get, networkManager.scoreSubnetwork(subnetwork.get)))
+              Some(WalkerResult(walker, subnetwork.get, networkManager.scoreSubnetwork(subnetwork.get)))
             else
               return None
           }

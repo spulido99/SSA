@@ -16,6 +16,8 @@ import au.com.bytecode.opencsv.CSVReader
 import java.io.FileReader
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.ListBuffer
+import be.cmpg.graph.interaction.WalkerResult
+import be.cmpg.graph.interaction.WalkerResult
 
 object TimeExpressionAnalysis extends App {
 
@@ -88,11 +90,11 @@ object TimeExpressionAnalysis extends App {
     })
 
     val callables = walkers.map(walker => {
-      new Callable[Option[(Set[Interaction], Double)]] {
-        override def call(): Option[(Set[Interaction], Double)] = {
+      new Callable[Option[WalkerResult]] {
+        override def call(): Option[WalkerResult] = {
           val subnetwork = walker.selectSubNetwork()
           val score = networkManager.scoreSubnetwork(subnetwork.get)
-          Some((subnetwork.get, score))
+          Some(WalkerResult(walker, subnetwork.get, score))
         }
       }
     })

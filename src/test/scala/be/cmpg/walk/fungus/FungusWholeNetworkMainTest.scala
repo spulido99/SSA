@@ -22,6 +22,7 @@ import be.cmpg.walk.Path
 import collection.immutable.ListMap
 import java.io.FileWriter
 import be.cmpg.expression.ExpressionNetworkManager
+import be.cmpg.graph.interaction.WalkerResult
 
 object FungusWholeNetworkMainTest {
 
@@ -128,11 +129,11 @@ object FungusWholeNetworkMainTest {
     for (i <- 0 to NUMBER_OF_STEPS) {
 
       val callables = generateFungus(networkManager, FUNGUS_MAX_SIZE).map(walker => {
-        new Callable[Option[(Set[Interaction], Double)]] {
-          override def call(): Option[(Set[Interaction], Double)] = {
+        new Callable[Option[WalkerResult]] {
+          override def call(): Option[WalkerResult] = {
             val subnetwork = walker.selectSubNetwork()
             if (subnetwork.isDefined)
-              Some((subnetwork.get, networkManager.scoreSubnetwork(subnetwork.get)))
+              Some(WalkerResult(walker, subnetwork.get, networkManager.scoreSubnetwork(subnetwork.get)))
             else
               return None
           }

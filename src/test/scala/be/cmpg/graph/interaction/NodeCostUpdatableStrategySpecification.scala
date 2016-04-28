@@ -35,7 +35,7 @@ class NodeCostUpdatableStrategySpecification extends Specification {
       val subnetwork = path.getVisitedInteractions().toSet
       val score = interactionManager.scoreSubnetwork(subnetwork)
       
-      interactionManager.updateScores(List((subnetwork, score)))
+      //interactionManager.updateScores(List(WalkerResult(path, subnetwork, score)))
       interactionManager.evaporate()
 
       // Check that the current value of "from" and "end_x" -the found end- node are higher than the value of "to"

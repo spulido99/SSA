@@ -9,6 +9,7 @@ import be.cmpg.cancer.simulations.AnalizeSimulationResults
 import be.cmpg.cancer.MutualExclusivityPrepareInput
 import be.cmpg.cancer.PValueCalculator
 import be.cmpg.cancer.BootstrapCalculator
+import be.cmpg.cancer.pcawg.FunSeq2Analysis
 
 object SmallSubnetworkAnalysis extends App {
   
@@ -24,6 +25,7 @@ object SmallSubnetworkAnalysis extends App {
       case "ME_input" => MutualExclusivityPrepareInput.main(newArgs)
       case "ME_pattern" => MutualExclusivityPrintPattern.main(newArgs)
       case "ME_pan" => PancancerAnalysis.main(newArgs)
+      case "ME_funSeq2" => FunSeq2Analysis.main(newArgs)
       case "ME_memoComp" => MemoComparissonAnalysis.main(newArgs)
       case "ME_sim" => MutualExclusivitySimulations.main(newArgs)
       case "ME_sim_results" => AnalizeSimulationResults.main(newArgs)

@@ -47,6 +47,11 @@ object BootstrapCalculator extends App {
   c.copy(useNCG = x)
   } text ("Use the network of cancer genes in the True Positives set (true by default)")
   
+  parser.opt[Double]("ppv") action { (x, c) =>
+    c.copy(ppv = x)
+  } text ("PPV to find the closest peak.")
+  
+  
   val configOpt = parser.parse(args, Config(
 
     /*
@@ -208,6 +213,20 @@ object BootstrapCalculator extends App {
   }
   writerbootstraap.close();
 
+  val peakGenes = List.range(3, posibleSubnetworks.size - 2).toList.map { index => 
+    val before = posibleSubnetworks(index - 1);
+    val current = posibleSubnetworks(index)
+    val after = posibleSubnetworks(index + 1);
+    
+    val bPPV = (before._1.size+1.0)/(before._1.size+before._2.size+1.0)
+    val cPPV = (current._1.size+1.0)/(current._1.size+current._2.size+1.0)
+    val aPPV = (after._1.size+1.0)/(after._1.size+after._2.size+1.0)
+
+    val isPeak = bPPV < cPPV && cPPV >= aPPV
+    
+    (current._1 ++ current._2, isPeak, (cPPV - config.ppv).abs)
+  }.filter(_._2).minBy(_._3)._1
+  
   
   val dummyNetworkManager = new MutualExclusivityNetworkManager(
         network = network,
@@ -218,30 +237,14 @@ object BootstrapCalculator extends App {
         ranked = config.useRank,
         statistical = config.statistical)
   
-  var selectedGenes = Set[Gene]()
-  var rankCount = 0;
-  //Map[Gene, Map[String, Any]]
-  val additional = posibleSubnetworks.map { e =>
-    if (selectedGenes.size < config.outputGenes) {
-    	val genes = (e._1 ++ e._2).toSet
-      val toReturn = (genes -- selectedGenes).map { gene => (gene, Map("rank" -> rankCount, "pvalue" -> 9))}
-      
-      if (!toReturn.isEmpty) {
-        rankCount += 1
-        selectedGenes ++= genes
-        toReturn
-      } else {
-        Set.empty[(Gene, Map[String, Int])]
-      }
-    } else {
-      Set.empty[(Gene, Map[String, Int])]
-    }
-  }.flatten.toMap
+  val additional = rankedGenes.filter { peakGenes contains _ }.zipWithIndex.map { case (gene, index) =>
+    (gene, Map("rank" -> index, "pvalue" -> 9))
+  }.toMap
 
-  MutualExclusivityPrintPattern.printPattern(config.outputPrefix+".selected", rankedGenes.filter { selectedGenes contains _ }, dummyNetworkManager, genePatientMatrix, additional, otherPositiveSet)
+  MutualExclusivityPrintPattern.printPattern(config.outputPrefix+".selected", rankedGenes.filter { peakGenes contains _ }, dummyNetworkManager, genePatientMatrix, additional, otherPositiveSet)
   
   println("Output in " + config.outputPrefix + "_networksPPV.bootstraap.tsv")
-  println("Network in " + config.outputPrefix + ".best_network.html")
+  println("Network in " + config.outputPrefix + ".best_network.html ["+peakGenes.size+" genes selected]")
 
   
   

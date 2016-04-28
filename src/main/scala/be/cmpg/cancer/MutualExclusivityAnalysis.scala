@@ -47,7 +47,7 @@ object MutualExclusivityAnalysis extends App {
       
       val networkManager = new MutualExclusivityNetworkManager(
         network = network,
-        genePatientMatrix = genePatientMatrix,
+        genePatientMatrix = buildData(config, genePatientMatrix, network),
         minimumSamplesAltered = config.minMutPerGene,
         pheromone = config.reinforcement,
         evaporation = config.forgetfulness,
@@ -96,6 +96,15 @@ object MutualExclusivityAnalysis extends App {
     case None =>
       parser.showUsageAsError
     // arguments are bad, error message will have been displayed
+  }
+  
+  def buildData(config:Config, genePatientMatrix:Map[PolimorphismKey, Polimorphism], network:Network):Map[PolimorphismKey, Polimorphism] = {
+    if (!config.randomizeData) {
+    	genePatientMatrix
+    } else {
+      val altered_genes = genePatientMatrix.map(_._1.gene).toSet
+      helper.randomizeGeneNames(genePatientMatrix, altered_genes intersect network.genes)
+    }
   }
 
 }

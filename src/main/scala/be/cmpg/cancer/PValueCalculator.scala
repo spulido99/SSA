@@ -173,6 +173,9 @@ object PValueCalculator extends App {
       println("> rep: " + e)
       println("*****************************")
 
+      if (config.debug.isDefined)
+        pvalNetworkManager.debug = Some(config.debug.get.map { Gene(_) }.toSet, 20)
+      
       pvalNetworkManager.run(config.iterations, geneList.view.toSet, config.processors, defwalkers = Some(walkers))
 
       val pvalRankedGenes = pvalNetworkManager.getRankedAllGenes().take(config.outputGenes).toList
@@ -200,10 +203,10 @@ object PValueCalculator extends App {
 
   val statsByGene = {
 
-    val geneStatistics = randomizationResults.take(1).get(0).drop(1).map { gene => (Gene(gene), new LinkedList[Int]) }
+    val geneStatistics = randomizationResults.take(1).get(0).drop(1).map { gene => (Gene(gene), new LinkedList[Int]()) }
 
     randomizationResults.drop(1).foreach { fields =>
-      geneStatistics.zip(fields.drop(1).map(_.toInt)).foreach { x => x._1._2.add(x._2) }
+      geneStatistics.zip(fields.drop(1).map(_.toInt)).foreach { x => x._1._2 += (x._2) }
     }
 
     geneStatistics.map {
@@ -212,6 +215,8 @@ object PValueCalculator extends App {
         (gene, values.count { x => x >= 0 && indexInRealData >= x }) // less than zero means not found
     }.toMap
   }
+  
+  
   val writerPvalues = new PrintWriter(config.outputPrefix + "_nodes.pvalues.tsv")
   rankedGenes.foreach { gene =>
     println(gene.name + "\t" + (statsByGene.getOrElse(gene, 0).toDouble / numberOfLines))
