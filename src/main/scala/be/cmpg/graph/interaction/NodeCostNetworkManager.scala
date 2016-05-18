@@ -91,22 +91,47 @@ abstract class NodeCostNetworkManager(network: Network,
    */
   def setUserFakeMax(fakeMax: Double) = this.fakeMax = Some(fakeMax)
 
-  def scaleSubnetworksScoresByGene(inputSubnetworkScores: Traversable[(Set[Interaction], Double)]): Map[Gene, Double] = {
+  def scaleSubnetworksScoresByGene(inputSubnetworkScores: Traversable[WalkerResult]): Map[Gene, Double] = {
 
+    
+    if (debug.isDefined) {
+      
+      val results = inputSubnetworkScores.filter { result => debug.get._1 contains result.walker.getStartGene() }
+                                          .groupBy { _.walker.getStartGene() }
+                                          .mapValues { _.maxBy { _.score } }
+      
+      if (iterationsLeft == 1000) {
+        println()
+        debug.get._1.foreach(g => print("\tNetScore" + g.name))
+        debug.get._1.foreach(g => print("\tNodeProb" + g.name))
+        debug.get._1.foreach(g => print("\tSelectedNet" + g.name))
+      }
+  
+      if (debug.isDefined && iterationsLeft % debug.get._2 == 0) {
+  
+        println()
+        print(iterationsLeft)
+        debug.get._1.foreach(g => print("\t" + results.getOrElse(g, WalkerResult(null, Set(), 0.0)).score))
+        debug.get._1.foreach(g => print("\t" + network.getNode(g).posteriorProbability))
+        debug.get._1.foreach(g => print("\t" + results.getOrElse(g, WalkerResult(null, Set(), 0.0)).subnetwork.map(_.genes).flatten.map(_.name).toSet))
+  
+      }
+    }
+    
     /*
      * filter out NaN values
      */
-    var subnetworkScores = inputSubnetworkScores.filter(sn => !sn._1.isEmpty && !sn._2.isNaN())
+    var subnetworkScores = inputSubnetworkScores.filter(sn => !sn.subnetwork.isEmpty && !sn.score.isNaN())
 
     if (ranked) {
       var rank = 0.0;
       subnetworkScores = subnetworkScores
         .toList
-        .sortBy(_._2)
-        .filter(_._2 > 0)
+        .sortBy(_.score)
+        .filter(_.score > 0)
         .map(s => {
           rank += 1
-          (s._1, rank)
+          WalkerResult(s.walker, s.subnetwork, rank)
         })
     }
 
@@ -116,23 +141,20 @@ abstract class NodeCostNetworkManager(network: Network,
     /*
      * store score by gene
      */
-    val scores = HashMap[Gene, (Double, Set[Interaction])]()
+    val scores = HashMap[Gene, WalkerResult]()
     //val scores_i = HashMap[Interaction, Double]()
-    for (subnetworkScore <- subnetworkScores) {
-
-      val subnetwork = subnetworkScore._1
-      val score = subnetworkScore._2
+    for (result <- subnetworkScores) {
 
       /*
        * update the min/max scores
        */
-      minScore = math.min(minScore, score)
-      maxScore = math.max(maxScore, score)
+      minScore = math.min(minScore, result.score)
+      maxScore = math.max(maxScore, result.score)
 
       /*
        * Set to each gene the highest score found in all subnetworks it is present
        */
-      for (interaction <- subnetwork) {
+      for (interaction <- result.subnetwork) {
         /*
          *  add If the gene (from) is not present, 
          *  or the stored score is lower than the current score
@@ -140,11 +162,11 @@ abstract class NodeCostNetworkManager(network: Network,
         val fromNode = network.getNode(interaction.from)
 
         val cScoreFrom = scores.get(interaction.from)
-        if (!cScoreFrom.isDefined || score > cScoreFrom.get._1) {
-          scores.put(interaction.from, (score, subnetwork))
+        if (!cScoreFrom.isDefined || result.score > cScoreFrom.get.score) {
+          scores.put(interaction.from, result)
 
-          if (fromNode.bestSubnetwork._2 < score) {
-            fromNode.bestSubnetwork = (subnetwork, score)
+          if (fromNode.bestSubnetwork._2 < result.score) {
+            fromNode.bestSubnetwork = (result.subnetwork, result.score)
           }
         }
 
@@ -154,11 +176,11 @@ abstract class NodeCostNetworkManager(network: Network,
          */
         val cScoreTo = scores.get(interaction.to)
         val toNode = network.getNode(interaction.to)
-        if (!cScoreTo.isDefined || score > cScoreTo.get._1) {
-          scores.put(interaction.to, (score, subnetwork))
+        if (!cScoreTo.isDefined || result.score > cScoreTo.get.score) {
+          scores.put(interaction.to, result)
 
-          if (toNode.bestSubnetwork._2 < score) {
-            toNode.bestSubnetwork = (subnetwork, score)
+          if (toNode.bestSubnetwork._2 < result.score) {
+            toNode.bestSubnetwork = (result.subnetwork, result.score)
           }
         }
 
@@ -187,34 +209,10 @@ abstract class NodeCostNetworkManager(network: Network,
       if (range == 0) {
         (x._1, 0.0)
       } else {
-        val scaledValue = (x._2._1 - minScore) / (range);
+        val scaledValue = (x._2.score - minScore) / (range);
         (x._1, scaledValue)
       }
     }).toMap
-
-    if (debug.isDefined && iterationsLeft == 1000) {
-      println()
-      debug.get._1.foreach(g => print("\tNetScore" + g.name))
-      debug.get._1.foreach(g => print("\tNodeProb" + g.name))
-      debug.get._1.foreach(g => print("\tSelectedNet" + g.name))
-    }
-
-    if (debug.isDefined && iterationsLeft % debug.get._2 == 0) {
-
-      println()
-      print(iterationsLeft)
-      debug.get._1.foreach(g => print("\t" + scaledScores.getOrElse(g, "NA")))
-      debug.get._1.foreach(g => print("\t" + network.getNode(g).posteriorProbability))
-      debug.get._1.foreach(g => print("\t" + scores.getOrElse(g, (null, Set()))._2.map(_.genes).flatten.map(_.name).toSet))
-
-      if (debug.get._1.isEmpty) {
-
-        println("*************")
-        val bestSubnetworks = subnetworkScores.toList.takeRight(10)
-        bestSubnetworks.foreach(e => println(e._1.map(_.genes).flatten + "\t" + e._2))
-      }
-
-    }
 
     iterationsLeft -= 1
 
@@ -224,7 +222,7 @@ abstract class NodeCostNetworkManager(network: Network,
   /*
    * (subnetwork, score)
    */
-  override def updateScores(subnetworkScores: Traversable[(Set[Interaction], Double)]): Map[Gene, Double] = {
+  override def updateScores(subnetworkScores: Traversable[WalkerResult]): Map[Gene, Double] = {
 
     /*
      * Update by the best scored subnetwork in which the gene is part of. 
@@ -324,8 +322,9 @@ abstract class NodeCostNetworkManager(network: Network,
 
     iterationsLeft = iterations
 
-    if (storeNodePHistory)
+    if (storeNodePHistory) {
       network.getNodes.foreach(_.probabilityHistory = new LinkedList[Double])
+    }
 
     val threadpool = if (debug.isDefined || processors == 1)
       java.util.concurrent.Executors.newSingleThreadExecutor()
@@ -364,8 +363,10 @@ abstract class NodeCostNetworkManager(network: Network,
 
       //.filterNot(networkManager.rankedGenes contains _)
       val callables = walkers.map(walker => {
-        new Callable[Option[(Set[Interaction], Double)]] {
-          override def call(): Option[(Set[Interaction], Double)] = scoreWalker(walker)
+        new Callable[Option[WalkerResult]] {
+          override def call(): Option[WalkerResult] = {
+        		  scoreWalker(walker)
+          }
         }
       })
 
@@ -403,3 +404,4 @@ abstract class NodeCostNetworkManager(network: Network,
   }
 
 }
+

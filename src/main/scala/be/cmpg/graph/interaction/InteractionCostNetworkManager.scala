@@ -34,8 +34,8 @@ class InteractionCostNetworkManager(
    */
   def scoreSubnetwork(subnetwork: Set[Interaction], selector: Option[SubNetworkSelector] = None) : Double = Double.NaN
   
-  override def updateScores(subnetworkScores: Traversable[(Set[Interaction], Double)]) : Map[Interaction, Double] = {
-    subnetworkScores.map(_._1).flatten.toSet[Interaction].foreach(interaction => probabilityMap.put(interaction, math.min(1, probabilityMap(interaction) * pheromone)))
+  override def updateScores(subnetworkScores: Traversable[WalkerResult]) : Map[Interaction, Double] = {
+    subnetworkScores.map(_.subnetwork).flatten.toSet[Interaction].foreach(interaction => probabilityMap.put(interaction, math.min(1, probabilityMap(interaction) * pheromone)))
     probabilityMap.view.toMap
   }
 

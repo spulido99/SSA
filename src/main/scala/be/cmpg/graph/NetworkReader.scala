@@ -8,11 +8,27 @@ import au.com.bytecode.opencsv.CSVReader
 import java.io.FileReader
 import scala.collection.JavaConversions._
 import au.com.bytecode.opencsv.CSVParser
+import java.io.InputStream
+import java.net.URL
+import java.io.BufferedReader
+import java.io.Reader
+import java.io.InputStreamReader
+import java.nio.file.Paths
+import java.io.File
 
 object NetworkReader {
 
-  def fromSif(file: Path, fromIdx:Int = 0, typeIdx:Int = 1, toIdx:Int = 2): Set[Interaction] = {
-    new CSVReader(new FileReader(file.toFile()), '\t')
+  def getReader(fileName:String) = {
+    val file = new File(fileName)
+    if (file.exists()) 
+       new FileReader(file) 
+    else 
+    	 new InputStreamReader(getClass.getResourceAsStream("/"+fileName))
+  }
+  
+  def fromSif(file: String, fromIdx:Int = 0, typeIdx:Int = 1, toIdx:Int = 2): Set[Interaction] = {
+    
+    new CSVReader(getReader(file), '\t')
     .readAll()
     .map(fields => {
       val from = Gene(fields(fromIdx))
@@ -22,12 +38,12 @@ object NetworkReader {
     }).toSet
   }
   
-  def fromFile(file: Path): Set[Interaction] = {
+  def fromFile(file:String): Set[Interaction] = {
 
     println("*********************** Reading network from File")
 
     //CSVReader(Reader reader, char separator, char quotechar, char escape, int line, boolean strictQuotes, boolean ignoreLeadingWhiteSpace)
-    val reader = new CSVReader(new FileReader(file.toFile()), '\t');
+    val reader = new CSVReader(getReader(file), '\t');
 
     val interactions = new HashSet[Interaction]()
 
@@ -43,7 +59,7 @@ object NetworkReader {
 
     interactions.toSet
     
-    Source.fromURI(file.toUri())
+    Source.fromURI(Paths.get(file).toUri())
       .getLines()
       .filter(!_.startsWith("%"))
       .map(line => {
@@ -56,14 +72,14 @@ object NetworkReader {
       .toSet
   }
 
-  def fromTSV(file: Path, typ:Option[String] = None) : (Set[Interaction], Map[String, String]) = {
+  def fromTSV(file:String, typ:Option[String] = None) : (Set[Interaction], Map[String, String]) = {
 
     val interactions = new HashSet[Interaction]()
     interactions.useSizeMap(true)
     
-    val translateGenesToEntrez = new HashMap[String, String]
+    val translateGenesToEntrez = new HashMap[String, String]    
     
-    val reader = new CSVReader(new FileReader(file.toFile()), '\t');
+    val reader = new CSVReader(getReader(file), '\t');
     
     var first = true
     var edgeCount = 0

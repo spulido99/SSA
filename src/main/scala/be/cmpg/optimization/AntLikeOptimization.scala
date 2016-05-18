@@ -5,6 +5,7 @@ import be.cmpg.walk.SubNetworkSelector
 import be.cmpg.graph.Interaction
 import java.util.concurrent.Callable
 import scala.collection.Set
+import be.cmpg.graph.interaction.WalkerResult
 
 class AntLikeOptimization(networkManager: NetworkManager[_], subNetworkSelectors: Traversable[SubNetworkSelector]) {
 
@@ -14,11 +15,11 @@ class AntLikeOptimization(networkManager: NetworkManager[_], subNetworkSelectors
     for (i <- 0 to numberOfSteps) {
 
       val callables = subNetworkSelectors.map(ant => {
-        new Callable[Option[(Set[Interaction], Double)]] {
-          override def call(): Option[(Set[Interaction], Double)] = {
+        new Callable[Option[WalkerResult]] {
+          override def call(): Option[WalkerResult] = {
             val subnetwork = ant.selectSubNetwork()
             if (subnetwork.isDefined)
-              Some((subnetwork.get, networkManager.scoreSubnetwork(subnetwork.get)))
+              Some(WalkerResult(ant, subnetwork.get, networkManager.scoreSubnetwork(subnetwork.get)))
             else
               return None
           }

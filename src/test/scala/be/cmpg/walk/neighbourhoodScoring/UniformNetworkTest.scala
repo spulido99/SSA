@@ -24,7 +24,7 @@ class UniformNetworkTest extends Specification {
 
       val mutationScoringMap = new MutationScoresGenerator(mutationList).getScoresCount
 
-      val network = new Network(NetworkReader.fromFile(Paths.get(raw"src\test\resources\be\cmpg\NeighbourhoodScoring\graph\Network.txt")))
+      val network = new Network(NetworkReader.fromFile(raw"src\test\resources\be\cmpg\NeighbourhoodScoring\graph\Network.txt"))
 
       val startGene = new Gene("b001")
 

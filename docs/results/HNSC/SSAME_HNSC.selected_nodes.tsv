@@ -1,0 +1,8 @@
+GeneSymbol	PosteriorP	Selected	ConvergenceIter	KnownCancerGene		BestSSN
+TP53	0.5	true	-1	true	Set()
+NLRC4	0.5	true	-1	false	Set()
+APC	0.5	true	-1	true	Set()
+PIK3CA	0.5	true	-1	true	Set()
+EGFR	0.5	true	-1	true	Set()
+MACF1	0.5	true	-1	true	Set()
+NRXN1	0.5	true	-1	false	Set()

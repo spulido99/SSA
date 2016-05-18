@@ -1,6 +1,6 @@
 import AssemblyKeys._
 
-name := "phac"
+name := "SSA"
 
 organization := "cmpg"
 

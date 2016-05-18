@@ -23,7 +23,7 @@ class NeighbourhoodTreeGeneratorTest extends Specification {
 
       val mutationScoringMap = new MutationScoresGenerator(mutationList).getScoresQuotient
 
-      val network = new Network(NetworkReader.fromFile(Paths.get("src/test/resources/be/cmpg/NeighbourhoodScoring/graph/Network.txt")))
+      val network = new Network(NetworkReader.fromFile("src/test/resources/be/cmpg/NeighbourhoodScoring/graph/Network.txt"))
 
       val startGene = new Gene("b001")
 

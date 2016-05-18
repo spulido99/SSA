@@ -1,0 +1,1 @@
+awk '{print $2,"\t",$4,"\t",$5,"\t",$6}' gdac.broadinstitute.org_LAML-TP.Correlate_CopyNumber_vs_mRNAseq.Level_4.2015082100.0.0/LAML-TPcors.txt > gdac.broadinstitute.org_LAML-TP.Correlate_CopyNumber_vs_mRNA.Level_4.2015082100.0.0/LAML-TP.CORS.tsv

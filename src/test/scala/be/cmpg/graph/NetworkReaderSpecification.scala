@@ -11,7 +11,7 @@ class NetworkReaderSpecification extends Specification{
   "The GraphReader" should {
     "convert a given text file to a graph" in {
       
-      val graph = NetworkReader.fromFile(Paths.get("src/test/resources/be/cmpg/graph/network_1.txt"))
+      val graph = NetworkReader.fromFile("src/test/resources/be/cmpg/graph/network_1.txt")
     
       graph.size must beEqualTo(13327)
       
