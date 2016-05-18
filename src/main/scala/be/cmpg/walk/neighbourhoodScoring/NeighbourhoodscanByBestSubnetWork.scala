@@ -13,7 +13,7 @@ import be.cmpg.expression.ExpressionNetworkManager
 
 object NeighbourhoodscanByBestSubnetWork extends App {
 
-  val interactions = NetworkReader.fromFile(Paths.get("src/test/resources/be/cmpg/graph/network_small_connected.txt"))
+  val interactions = NetworkReader.fromFile("src/test/resources/be/cmpg/graph/network_small_connected.txt")
 
   val selectedGenesSet = new FileWriter(raw"C:\Users\Bram\Documents\doctoraat\Projecten/PhAc/selected.txt")
   val goldenSet = new FileWriter(raw"C:\Users\Bram\Documents\doctoraat\Projecten/PhAc/goldenSet.txt")

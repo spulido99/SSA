@@ -26,7 +26,7 @@ object BenchmarkBasedOnImidazole {
   def main(args: Array[String]) {
 
     val interactions = NetworkReader
-    		.fromFile(Paths.get("src/main/resources/be/cmpg/benchmark/salmonella_only_metabolic_network.txt"))
+    		.fromFile("src/main/resources/be/cmpg/benchmark/salmonella_only_metabolic_network.txt")
 
     val networkManager = new InteractionCostNetworkManager(
       network = new Network(interactions),

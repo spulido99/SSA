@@ -18,7 +18,7 @@ object ROCPlotRobusticityAnalysis extends App {
   val threadpool = java.util.concurrent.Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1)
   //val threadpool = java.util.concurrent.Executors.newSingleThreadExecutor()
 
-  val interactions = NetworkReader.fromFile(Paths.get("src/main/resources/be/cmpg/graph/network_1.txt"))
+  val interactions = NetworkReader.fromFile("src/main/resources/be/cmpg/graph/network_1.txt")
   val allGenes = interactions.map(interaction => Set(interaction.from, interaction.to)).flatten[Gene]
   val size = 10
 

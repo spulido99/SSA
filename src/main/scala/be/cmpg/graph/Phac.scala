@@ -124,7 +124,7 @@ STM0756
 STM4511
 STM3344"""
 
-  val interactions = NetworkReader.fromFile(Paths.get("src/test/resources/be/cmpg/graph/network_1.txt"))
+  val interactions = NetworkReader.fromFile("src/test/resources/be/cmpg/graph/network_1.txt")
 
   def generateAnts(network: NetworkManager[Interaction]) = {
     val genes = {

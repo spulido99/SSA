@@ -1,28 +1,26 @@
 package be.cmpg.simulatedDataAnalysis
 
 import java.io.FileWriter
-import be.cmpg.walk.Path
-import be.cmpg.graph.interaction.NodeCostNetworkManager
-import be.cmpg.graph.Gene
-import scala.util.Random
-import org.apache.commons.math3.distribution.ChiSquaredDistribution
-import be.cmpg.graph.NetworkReader
 import java.nio.file.Paths
-import be.cmpg.graph.Network
-import be.cmpg.graph.Interaction
 import java.util.concurrent.Callable
-import be.cmpg.graph.interaction.NetworkManager
-import be.cmpg.walk.fungus.Fungus
-import scala.collection.Set
-import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
-import scala.collection.mutable.HashSet
-import org.apache.commons.math3.distribution.BetaDistribution
-import scala.collection.mutable.ListBuffer
+import scala.collection.Set
 import scala.collection.mutable.HashMap
-import be.cmpg.expression.ExpressionNetworkManager
-import be.cmpg.expression.ExpressionNetworkManager
+import scala.collection.mutable.HashSet
+import scala.util.Random
+import org.apache.commons.math3.distribution.BetaDistribution
 import org.apache.commons.math3.distribution.NormalDistribution
+import be.cmpg.expression.ExpressionNetworkManager
+import be.cmpg.expression.ExpressionNetworkManager
+import be.cmpg.graph.Gene
+import be.cmpg.graph.Interaction
+import be.cmpg.graph.Network
+import be.cmpg.graph.NetworkReader
+import be.cmpg.graph.interaction.NetworkManager
+import be.cmpg.graph.interaction.NodeCostNetworkManager
+import be.cmpg.walk.Path
+import be.cmpg.walk.fungus.Fungus
+import be.cmpg.graph.interaction.WalkerResult
 
 object ROCPlotSimulatedData extends App {
 
@@ -100,11 +98,11 @@ object ROCPlotSimulatedData extends App {
     for (i <- 0 to numberOfSteps) {
 
       val callables = generateFungus(networkManager, maxFungusSize).map(walker => {
-        new Callable[Option[(Set[Interaction], Double)]] {
-          override def call(): Option[(Set[Interaction], Double)] = {
+        new Callable[Option[WalkerResult]] {
+          override def call(): Option[WalkerResult] = {
             val subnetwork = walker.selectSubNetwork()
             if (subnetwork.isDefined) {
-            	Some((subnetwork.get, networkManager.scoreSubnetwork(subnetwork.get)))
+            	Some(WalkerResult(walker, subnetwork.get, networkManager.scoreSubnetwork(subnetwork.get)))
             } else
               return None
           }
@@ -146,7 +144,7 @@ object ROCPlotSimulatedData extends App {
 
   for (networkName <- networkFiles.keys) {
     val interactions = if (networkFiles(networkName).size == 1)
-				       	   NetworkReader.fromFile(Paths.get(networkFiles(networkName)(0)))
+				       	   NetworkReader.fromFile(networkFiles(networkName)(0))
 				       else
 				    	   NetworkReader.fromCytoScapeFiles(Paths.get(networkFiles(networkName)(0)), Paths.get(networkFiles(networkName)(1)))._1
 
