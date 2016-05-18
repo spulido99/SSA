@@ -27,7 +27,7 @@ tar xf gdac.broadinstitute.org_BRCA-TP.Mutation_Assessor.Level_4.2015082100.0.0.
 
 and run SSA.ME input creation step:
 ```
-java -jar ../SSA.jar ME_input -m gdac.broadinstitute.org_BRCA-TP.Mutation_Assessor.Level_4.2015082100.0.0/BRCA-TP.maf.annotated -e corr=gdac.broadinstitute.org_BRCA-TP.Correlate_CopyNumber_vs_mRNA.Level_4.2015082100.0.0/BRCA-TP.CORS.tsv,gistic=gdac.broadinstitute.org_BRCA-TP.CopyNumber_Gistic2.Level_4.2015082100.0.0/ -o BRCA
+java -jar SSA.jar ME_input -m gdac.broadinstitute.org_BRCA-TP.Mutation_Assessor.Level_4.2015082100.0.0/BRCA-TP.maf.annotated -e corr=gdac.broadinstitute.org_BRCA-TP.Correlate_CopyNumber_vs_mRNA.Level_4.2015082100.0.0/BRCA-TP.CORS.tsv,gistic=gdac.broadinstitute.org_BRCA-TP.CopyNumber_Gistic2.Level_4.2015082100.0.0/ -o BRCA
 ```
 
 It will create several files called BRCA.m2, KIRC.tbs, BRCA.glst, BRCA.byGene.stats and BRCA.bySample.stats. The .m2 and .tbs file represent a binary matrix containing which samples have which genes mutated (the .tbs file can be used directly in [Gitools](http://www.gitools.org/)). The gene list is a of all the mutated genes present in the matrix. The .stats file show the number of mutations by gene or by sample in the dataset.
@@ -37,7 +37,7 @@ It will create several files called BRCA.m2, KIRC.tbs, BRCA.glst, BRCA.byGene.st
 SSA-ME uses the .m2 file as the input for the Mutual Exclusivity (ME) step.
 
 ```
-java -Xmx30g -jar ../SSA.jar ME -m BRCA -o SSAME_BRCA -i 5000 -r 0.0002 -f 0.9998 -p 200 -s 3 --processors 60 -n HT,hiII14,reactome
+java -Xmx30g -jar SSA.jar ME -m BRCA -o SSAME_BRCA -i 5000 -r 0.0002 -f 0.9998 -p 200 -s 3 --processors 60 -n HT,hiII14,reactome
 ```
 (change the number of processors to those you have available)
 
@@ -46,7 +46,7 @@ java -Xmx30g -jar ../SSA.jar ME -m BRCA -o SSAME_BRCA -i 5000 -r 0.0002 -f 0.999
 SSA-ME provides a statistical analysis based on bootstraap to select only those genes supported by random sampling with replacement from the data.
 
 ```
-java -Xmx30g -jar ../SSA.jar ME_btstrp -m BRCA -o SSAME_BRCA -i 500 -r 0.0002 -f 0.9998 -p 200 -s 3 --processors 60 -n HT,hiII14,reactome --bootstraapExperiments 1000 --useNCG false
+java -Xmx30g -jar SSA.jar ME_btstrp -m BRCA -o SSAME_BRCA -i 500 -r 0.0002 -f 0.9998 -p 200 -s 3 --processors 60 -n HT,hiII14,reactome --bootstraapExperiments 1000 --useNCG false
 ```
 
 ### Visualizing the Output
