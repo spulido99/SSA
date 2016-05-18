@@ -1,7 +1,7 @@
 # SSA
 Lighweigth framework for Small Subnetwork Analysis (SSA)
 
-## How to run SSA.ME
+## How to run SSA-ME
 
 * Download and extract the software from [this link](http://bioinformatics.intec.ugent.be/ssame/SSA.zip)
 * Running SSA.ME consist of 2 steps:
@@ -11,44 +11,52 @@ Lighweigth framework for Small Subnetwork Analysis (SSA)
 
 Mutual exclusivity tools run using a genomic alteration matrix that is Zero if a gene is not altered in a sample and One if the gene is altered in that sample. Alterations can represent anything: single nucleotide mutations, INDELS, deletions, amplifications, methilation, etc.
 
-```
-java -jar SSA.jar ME_input -m <maf file> -e cnv_peaks=<file>,exp=<file>,cnv_thresholds=<file>
-Usage: SSA.ME. [options]
-
-  -o <value> | --outputPrefix <value>
-        The name to be used in the output files (XXX.m2 and XXX.glst).
-  -s <value> | --seedGenesMutations <value>
-        The number of mutated samples required in a gene to be included (default: 1)
-  -m <value> | --maf <value>
-        Mutation .maf file
-  -e <value> | --expression <value>
-        expression file and GISTIC files (... -e cnv_peaks=<file1>,exp=<file2>,cnv_thresholds=<file3> ...).
-```
 We provide a binary alteration matrix generation tool that uses somatic MAF files and expression profiles with amplication/deletion information (GISTIC output) to generate this matrix. 
 
-To generate the binary alteration matrix, for example, download the publicly available [TCGA Breast Cancer data from 2012](https://tcga-data.nci.nih.gov/docs/publications/brca_2012/) .maf file [Somatic MAF archive](http://tcga-data.nci.nih.gov/docs/publications/brca_2012/genome.wustl.edu_BRCA.IlluminaGA_DNASeq.Level_2.3.2.0.tar.gz) and run SSA.ME input creation step:
+To generate the binary alteration matrix, for example, download and decompress the publicly available [Firehose](http://firebrowse.org/?cohort=BRCA) BRCA Data:
 ```
-java -jar SSA.jar ME_input -m genome.wustl.edu_BRCA.IlluminaGA_DNASeq.Level_2.3.2.0.somatic.maf
+wget http://gdac.broadinstitute.org/runs/analyses__2015_08_21/data/BRCA-TP/20150821/gdac.broadinstitute.org_BRCA-TP.CopyNumber_Gistic2.Level_4.2015082100.0.0.tar.gz 
+wget http://gdac.broadinstitute.org/runs/analyses__2015_08_21/data/BRCA-TP/20150821/gdac.broadinstitute.org_BRCA-TP.Correlate_CopyNumber_vs_mRNA.Level_4.2015082100.0.0.tar.gz
+wget http://gdac.broadinstitute.org/runs/analyses__2015_08_21/data/BRCA-TP/20150821/gdac.broadinstitute.org_BRCA-TP.Mutation_Assessor.Level_4.2015082100.0.0.tar.gz
+
+tar xf gdac.broadinstitute.org_BRCA-TP.CopyNumber_Gistic2.Level_4.2015082100.0.0.tar.gz
+tar xf gdac.broadinstitute.org_BRCA-TP.Correlate_CopyNumber_vs_mRNA.Level_4.2015082100.0.0.tar.gz
+tar xf gdac.broadinstitute.org_BRCA-TP.Mutation_Assessor.Level_4.2015082100.0.0.tar.gz
+
 ```
 
-It will create 2 files called SSAME_input.m2 and SSAME_input.glst. The m2 file represent a binary matrix containing which samples have which genes mutated. The gene list is a of all the mutated genes present in the matrix. This 2 files follow the *de facto* standard followed by other mutual exclusivity tools and can be used with them.
+and run SSA.ME input creation step:
+```
+java -jar ../SSA.jar ME_input -m gdac.broadinstitute.org_BRCA-TP.Mutation_Assessor.Level_4.2015082100.0.0/BRCA-TP.maf.annotated -e corr=gdac.broadinstitute.org_BRCA-TP.Correlate_CopyNumber_vs_mRNA.Level_4.2015082100.0.0/BRCA-TP.CORS.tsv,gistic=gdac.broadinstitute.org_BRCA-TP.CopyNumber_Gistic2.Level_4.2015082100.0.0/ -o BRCA
+```
 
-### Run SSA.ME
+It will create several files called BRCA.m2, KIRC.tbs, BRCA.glst, BRCA.byGene.stats and BRCA.bySample.stats. The .m2 and .tbs file represent a binary matrix containing which samples have which genes mutated (the .tbs file can be used directly in [Gitools](http://www.gitools.org/)). The gene list is a of all the mutated genes present in the matrix. The .stats file show the number of mutations by gene or by sample in the dataset.
 
-SSA.ME uses the .m2 file as the input for the Mutual Exclusivity (ME) step.
+### Run SSA-ME
+
+SSA-ME uses the .m2 file as the input for the Mutual Exclusivity (ME) step.
 
 ```
-java -jar SSA.jar ME -m SSAME_input.m2 -s 5 -i 10000
+java -Xmx30g -jar ../SSA.jar ME -m BRCA -o SSAME_BRCA -i 5000 -r 0.0002 -f 0.9998 -p 200 -s 3 --processors 60 -n HT,hiII14,reactome
+```
+(change the number of processors to those you have available)
+
+## Run statistical analysis (Bootstraap)
+
+SSA-ME provides a statistical analysis based on bootstraap to select only those genes supported by random sampling with replacement from the data.
+
+```
+java -Xmx30g -jar ../SSA.jar ME_btstrp -m BRCA -o SSAME_BRCA -i 500 -r 0.0002 -f 0.9998 -p 200 -s 3 --processors 60 -n HT,hiII14,reactome --bootstraapExperiments 1000 --useNCG false
 ```
 
 ### Visualizing the Output
 
-The output contain 4 files:
+The output contain 4 files (twice, one set from the original run, a second set from the Bootstraaping marked as .selected):
 
-+ __ME_network.html__ : An interactive html page showing the selected network. [See example](http://bioinformatics.intec.ugent.be/ssame/ME_network.html)
-+ __ME_edges__ : The interactions between the genes selected forming mutual exclusivity
-+ __ME_nodes__ : The genes in the network (nodes) with additional information as the convergence iteration and the best observed Small Subnetwork detected for that gene.
-+ __ME_pattern__ : A matrix showing for each gene and sample if there was a mutation present.
++ __network.html__ : An interactive html page showing the selected network. [See example](http://bioinformatics.intec.ugent.be/ssame/ME_network.html)
++ __edges__ : The interactions between the genes selected forming mutual exclusivity
++ __nodes__ : The genes in the network (nodes) with additional information as the convergence iteration and the best observed Small Subnetwork detected for that gene.
++ __pattern__ : A matrix showing for each gene and sample if there was a mutation present.
 
 ## Solve other problems using SSA
 
