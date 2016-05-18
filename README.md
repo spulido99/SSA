@@ -2,6 +2,7 @@
 Lighweigth framework for Small Subnetwork Analysis (SSA)
 
 ![alt tag](https://raw.githubusercontent.com/spulido99/SSA/develop/docs/ssa-me_logo.png)
+Detection of cancer driver genes using mutual exclusivity by small subnetwork analysis
 ## How to run SSA-ME
 
 * Download and extract the software from [this link](http://bioinformatics.intec.ugent.be/ssame/SSA.jar)
