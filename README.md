@@ -3,7 +3,7 @@ Lighweigth framework for Small Subnetwork Analysis (SSA)
 
 ## How to run SSA-ME
 
-* Download and extract the software from [this link](http://bioinformatics.intec.ugent.be/ssame/SSA.zip)
+* Download and extract the software from [this link](http://bioinformatics.intec.ugent.be/ssame/SSA.jar)
 * Running SSA.ME consist of 2 steps:
  
 
