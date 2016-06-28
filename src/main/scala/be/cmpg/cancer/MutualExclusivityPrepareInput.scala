@@ -28,11 +28,11 @@ object MutualExclusivityPrepareInput extends App {
     } text ("The number of mutated samples required in a gene to be included (default: 1)")
     
     opt[Int]("maxQtyMutations") action { (x, c) =>
-      c.copy(seedGenesMutations = x)
+      c.copy(maxQtyMutations = x)
     } text ("Maximum number of mutations for a sample. If more, the sample is removed. (default: 500)")
     
     opt[Int]("maxQtyCopyNumber") action { (x, c) =>
-      c.copy(seedGenesMutations = x)
+      c.copy(maxQtyCopyNumber = x)
     } text ("Maximum number of copy number variations for a sample. If more, the sample is removed. (default: 500)")
     
     opt[File]('m', "maf") action { (x, c) =>
@@ -61,7 +61,7 @@ object MutualExclusivityPrepareInput extends App {
         //val genePatientMatrix = new HashMap[PolimorphismKey, Polimorphism]  
         val mutationMatrix = if (config.maf.isDefined) {
         	println("Loading mutation file...")        
-        	helper.loadMaf(config.maf.get, config.maxQtyMutations)
+        	helper.loadMaf(config.maf.get, maxQtyMutations = config.maxQtyMutations)
         } else {
           Map[PolimorphismKey, Polimorphism]()
         }
