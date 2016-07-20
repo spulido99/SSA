@@ -14,6 +14,8 @@ import java.io.FileReader
 import scala.collection.JavaConversions._
 import java.io.InputStreamReader
 import scala.io.Source
+import java.io.InputStream
+import java.io.FileInputStream
 
 object MutualExclusivityPrintPattern extends App {
   
@@ -25,10 +27,10 @@ object MutualExclusivityPrintPattern extends App {
     c.copy(genes = x.split(",").toList)
   } text ("Gene list to print network and pattern (comma separated).")
   
-  parser.opt[Seq[String]]("positiveGeneSetLists") action { (x, c) =>
+/*  parser.opt[Seq[String]]("positiveGeneSetLists") action { (x, c) =>
     c.copy(positiveGeneSetLists = x)
   } text ("Files with a list of gene containing what are considered positive (COSMIC and NCG added by default). Sould be tab delimited files with the gene name in the first column.")
-
+*/
   val configOpt = parser.parse(args, Config(
 
     /*
@@ -47,7 +49,7 @@ object MutualExclusivityPrintPattern extends App {
 
   val config = configOpt.get
   
-  val (interactions, network, genePatientMatrix, all_samples, geneList) = helper.loadData(config)
+  val (interactions, network, genePatientMatrix, all_samples, geneList) = helper.loadData(config,false)
 
   val networkManager = new MutualExclusivityNetworkManager(
     network = network,
@@ -57,11 +59,13 @@ object MutualExclusivityPrintPattern extends App {
     evaporation = 0,
     ranked = false)
   
-  val otherPositiveSet = config.positiveGeneSetLists.map { geneListFile =>
+/*  val otherPositiveSet = config.positiveGeneSetLists.map { geneListFile =>
                                         Source.fromFile(geneListFile, "latin1").getLines.map { _.split("\t")(0) }.map(Gene(_))
-                                      }.flatten.toSet
+                                      }.flatten.toSet*/
 
-  printPattern(config.outputPrefix+".selected", config.genes.map { n => Gene(n) }, networkManager, genePatientMatrix, otherPositiveGeneSetLists=otherPositiveSet)
+//  printPattern(config.outputPrefix+".selected", config.genes.map { n => Gene(n) }, networkManager, genePatientMatrix, otherPositiveGeneSetLists=otherPositiveSet)
+  
+  printPattern(config.outputPrefix+".selected", config.genes.map { n => Gene(n) }, networkManager, genePatientMatrix)
 
   def printPattern(outputPrefix: String, genes: List[Gene], networkManager: NodeCostNetworkManager, genePatientMatrix: Map[PolimorphismKey, Polimorphism], additional: Map[Gene, Map[String, Any]] = Map(), otherPositiveGeneSetLists:Set[Gene]=Set()) = {
 
@@ -92,11 +96,12 @@ object MutualExclusivityPrintPattern extends App {
       .foreach { i =>
         {
           val score = { val score = networkManager.scoreSubnetwork(Set(i)); if (score.isNaN) 0.0 else score }
-
+          
           val edgeInfo = new JSONObject()
             .accumulate("source", i.from.name)
             .accumulate("target", i.to.name)
             .accumulate("score", score)
+            .accumulate("evidence",i.evidence.mkString(","))
           edges.put(edgeInfo)
           out_edges.write(i.from.name + "\t" + i.to.name + "\t" + score + "\n")
         }
@@ -104,12 +109,12 @@ object MutualExclusivityPrintPattern extends App {
 
     out_edges.close()
 
-    def getKnownCancerGene(gene:Gene) = {
+/*    def getKnownCancerGene(gene:Gene) = {
       if (helper.cgc.contains(gene)) "cgc"
       else if (otherPositiveGeneSetLists.contains(gene)) "other"
       else if (helper.ncg.contains(gene)) "ncg"
       else "unkown"
-    }  
+    } */ 
     
     def getKnownCancerLists(gene:Gene) = {
       var toReturn = 0;
@@ -136,11 +141,12 @@ object MutualExclusivityPrintPattern extends App {
         val geneInfo = new JSONObject()
           .accumulate("name", g.name)
           .accumulate("selected", genes.contains(g))
-          .accumulate("cgc", helper.cgc.contains(g))
+          .accumulate("knownCancerGene",("["+(helper.cgc.contains(g),otherPositiveGeneSetLists.contains(g),helper.ncg.contains(g)).toString+"]").replace("(","").replace(")","").replace("\"",""))
+/*          .accumulate("cgc", helper.cgc.contains(g))
           .accumulate("other", otherPositiveGeneSetLists.contains(g))
-          .accumulate("ncg", helper.ncg.contains(g))
+          .accumulate("ncg", helper.ncg.contains(g))*/
           .accumulate("inTPLists", getKnownCancerLists(g))
-          .accumulate("knownCancerGene", getKnownCancerGene(g))
+//          .accumulate("knownCancerGene", getKnownCancerGene(g))
           
         val additionalInfo = additionalNodeInfo.get(g)
         if (additionalInfo.isDefined) {
@@ -148,10 +154,11 @@ object MutualExclusivityPrintPattern extends App {
             geneInfo.accumulate(e._1, e._2)
           }
         }
+        
         nodes.put(geneInfo)
         try {
         	val node = networkManager.getNetwork().getNode(g)
-        	out_nodes.write(g.name + "\t" + node.posteriorProbability+ "\t" + genes.contains(g) + "\t" + node.convergenceIteration + "\t" + truePositiveGeneList.contains(g) + "\t" + node.bestSubnetwork._1+"\n")
+        	out_nodes.write(g.name + "\t" + node.posteriorProbability+ "\t" + genes.contains(g) + "\t" + node.convergenceIteration + "\t" + truePositiveGeneList.contains(g) + "\t" + node.bestSubnetwork._1+"\t"+node.bestSubnetwork._2+"\n")
         } catch {
           case t: Throwable => out_nodes.write(g.name + "\t" + "NA" + "\t" + genes.contains(g) + "\t" + "NA" + "\t" + truePositiveGeneList.contains(g) + "\t" + "NA" + "\n")
         }
@@ -162,10 +169,10 @@ object MutualExclusivityPrintPattern extends App {
     results.put("edges", edges)
     results.put("nodes", nodes)
 
-    val html = Source.fromInputStream(getClass.getResourceAsStream("/baseNetworkOutput.html")).mkString
+    val html = Source.fromInputStream(new FileInputStream("src/main/resources/adjustedNetworkOutput.html")).mkString
 
     val out_json = new FileWriter(outputPrefix + "_network.html")
-    out_json.write(html.replace("$${graph}$$", results.toString))
+    out_json.write(html.replace("$${graph}$$", results.toString.replace("\"[","[").replace("]\"","]")))
 
     out_json.close()
 
@@ -174,17 +181,20 @@ object MutualExclusivityPrintPattern extends App {
     val geneMutScoreCounts = genes.map(gene => (gene, {
       var mutationCounts = 0
       for (sample <- all_samples) {
-        if (genePatientMatrix contains (PolimorphismKey(gene, sample))) {
+        // Location not yet implemented here !
+        if (genePatientMatrix contains (PolimorphismKey(gene, sample,0))) {
           mutationCounts += 1
         }
       }
       var mutualExScore = 0.0
       for (sample <- all_samples) {
-        if (genePatientMatrix contains (PolimorphismKey(gene, sample))) {
+        // Location not yet implemented here !
+        if (genePatientMatrix contains (PolimorphismKey(gene, sample,0))) {
 
           var nonMutualGenes = 0.0
           for (other <- genes) {
-            if (genePatientMatrix.contains(PolimorphismKey(other, sample))) {
+            // Location not yet implemented here !
+            if (genePatientMatrix.contains(PolimorphismKey(other, sample,0))) {
               nonMutualGenes += 1
             }
           }
@@ -216,7 +226,8 @@ object MutualExclusivityPrintPattern extends App {
 
     val samplesStr = all_samples.map(sample => (sample, {
       val sb = new StringBuilder
-      geneMutScoreCounts.foreach(gMsc => sb.append("\t").append(genePatientMatrix.getOrElse(PolimorphismKey(gMsc._1, sample), Polimorphism("Nothing", score = 9)).score.toShort))
+      // Location not yet implemented here !
+      geneMutScoreCounts.foreach(gMsc => sb.append("\t").append(genePatientMatrix.getOrElse(PolimorphismKey(gMsc._1, sample,0), Polimorphism("Nothing", score = 9)).score.toShort))
       sb.toString
     })).toList.sortBy(_._2)
 

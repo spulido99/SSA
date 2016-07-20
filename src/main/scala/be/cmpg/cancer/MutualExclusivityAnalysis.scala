@@ -14,13 +14,15 @@ import org.json.JSONObject
 import org.json.JSONArray
 import au.com.bytecode.opencsv.CSVReader
 import java.io.FileReader
+import be.cmpg.utils.MutualExclusivityPatternsManager
+import scala.io.Source
 
 object MutualExclusivityAnalysis extends App {
 
   val helper = new CancerHelper
   
   val parser = helper.getBasicArgParser("SSA.ME")
-
+  
   // parser.parse returns Option[C]
 
   parser.parse(args, Config(
@@ -28,9 +30,9 @@ object MutualExclusivityAnalysis extends App {
     /*
      * Default Values
      */
-    iterations = 50000,
-    reinforcement = 0.0005,
-    forgetfulness = 0.9996
+    iterations = 5000,
+    reinforcement = 0.005,
+    forgetfulness = 0.995
     
     /*,
     pvalIterations = 1000,
@@ -41,7 +43,9 @@ object MutualExclusivityAnalysis extends App {
 
     case Some(config) =>
 
-      val (interactions, network, genePatientMatrix, all_samples, geneList) = helper.loadData(config)
+      val (interactions, network, genePatientMatrix, all_samples, geneList) = helper.loadData(config,false)
+      
+      val mutualExclusivePatternsManager = new MutualExclusivityPatternsManager(network)
       
       println("Samples: " + all_samples.size)
       
@@ -52,7 +56,8 @@ object MutualExclusivityAnalysis extends App {
         pheromone = config.reinforcement,
         evaporation = config.forgetfulness,
         ranked = config.useRank,
-        statistical = config.statistical)
+        statistical = config.statistical
+        )
 
       
       val walkers = helper.buildWalkers(geneList.view.toSet, networkManager)
@@ -63,7 +68,7 @@ object MutualExclusivityAnalysis extends App {
       //networkManager.debug = Some(Set(Gene("TP53")), 20)
       println("Subnetwork selectors: " + walkers.size)
 
-      networkManager.run(config.iterations, geneList.view.toSet, config.processors, defwalkers = Some(walkers))
+      networkManager.run(config.iterations, geneList.view.toSet, config.processors, defwalkers = Some(walkers),mutualExclusivityPatternManager=Option(mutualExclusivePatternsManager))
 
       //val rankedGenes = networkManager.getRankedAllGenes().filter { g => networkManager.getPosteriorProbability(g) > 0.95 } .toList
       val rankedGenes = if (config.outputGenes == 0)
@@ -84,10 +89,16 @@ object MutualExclusivityAnalysis extends App {
                           .map(_._1)
                           .toSet*/
 
-      println("Genes printed in network: " + rankedGenes.size + " " + rankedGenes.map(_.name))
+      println("\nGenes printed in network: " + rankedGenes.size + " " + rankedGenes.map(_.name))
+      
+      val malacardsGenes = if (config.otherGeneList==""){Set[Gene]()} else {Source.fromFile(config.otherGeneList).getLines.map(line => Gene(line.split("\t")(0))).toSet}
+      
+      MutualExclusivityPrintPattern.printPattern(config.outputPrefix, rankedGenes, networkManager, genePatientMatrix, otherPositiveGeneSetLists=malacardsGenes)
 
-      MutualExclusivityPrintPattern.printPattern(config.outputPrefix, rankedGenes, networkManager, genePatientMatrix)
-
+      println("\n calculating 5 best subnetworks per gene")
+      
+      mutualExclusivePatternsManager.returnNbestSubnetworks(rankedGenes.toSet,5,"5bestPatterns")
+      
       /**
        * P-value calculation
        */

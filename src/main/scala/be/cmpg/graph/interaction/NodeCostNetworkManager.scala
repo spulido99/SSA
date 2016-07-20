@@ -21,6 +21,7 @@ import be.cmpg.utils.StatUtils
 import java.util.LinkedList
 import scala.collection.mutable.HashSet
 import scala.util.control.Breaks
+import be.cmpg.utils.MutualExclusivityPatternsManager
 
 abstract class NodeCostNetworkManager(network: Network,
                                       pheromone: Double = 0.005,
@@ -37,7 +38,7 @@ abstract class NodeCostNetworkManager(network: Network,
   //val bestSubnetworkRankedGenes = new HashMap[Gene, (Set[Interaction], Double)]
   //val probabilityMap = initProbabilityMap()
   //var probabilityHistory:Map[Gene, LinkedList[Double]] = _
-
+  
   /*
    * Initialize node probabilities
    */
@@ -92,12 +93,12 @@ abstract class NodeCostNetworkManager(network: Network,
   def setUserFakeMax(fakeMax: Double) = this.fakeMax = Some(fakeMax)
 
   def scaleSubnetworksScoresByGene(inputSubnetworkScores: Traversable[(Set[Interaction], Double)]): Map[Gene, Double] = {
-
     /*
      * filter out NaN values
      */
     var subnetworkScores = inputSubnetworkScores.filter(sn => !sn._1.isEmpty && !sn._2.isNaN())
 
+    // If ranked is set to true, no scores but ranks will be attributed to the subnetworks. But these ranks are defined only within an interation, they are not continuous in between different iterations. That is why "best subnetwork" makes little sense when using this rank definition.
     if (ranked) {
       var rank = 0.0;
       subnetworkScores = subnetworkScores
@@ -109,7 +110,7 @@ abstract class NodeCostNetworkManager(network: Network,
           (s._1, rank)
         })
     }
-
+    
     var minScore = Double.MaxValue
     var maxScore = Double.MinValue
 
@@ -142,7 +143,7 @@ abstract class NodeCostNetworkManager(network: Network,
         val cScoreFrom = scores.get(interaction.from)
         if (!cScoreFrom.isDefined || score > cScoreFrom.get._1) {
           scores.put(interaction.from, (score, subnetwork))
-
+              
           if (fromNode.bestSubnetwork._2 < score) {
             fromNode.bestSubnetwork = (subnetwork, score)
           }
@@ -156,7 +157,7 @@ abstract class NodeCostNetworkManager(network: Network,
         val toNode = network.getNode(interaction.to)
         if (!cScoreTo.isDefined || score > cScoreTo.get._1) {
           scores.put(interaction.to, (score, subnetwork))
-
+          
           if (toNode.bestSubnetwork._2 < score) {
             toNode.bestSubnetwork = (subnetwork, score)
           }
@@ -320,7 +321,7 @@ abstract class NodeCostNetworkManager(network: Network,
     }
   }
 
-  def run(iterations: Int, startingNodes: Set[Gene], processors: Int = 1, endNodes: Set[Gene] = Set(), defwalkers: Option[Set[SubNetworkSelector]] = None, storeNodePHistory: Boolean = false, storeNodePHistIter: Int = 50, subnetworkSize: Option[Int] = None) = {
+  def run(iterations: Int, startingNodes: Set[Gene], processors: Int = 1, endNodes: Set[Gene] = Set(), defwalkers: Option[Set[SubNetworkSelector]] = None, storeNodePHistory: Boolean = false, storeNodePHistIter: Int = 50, subnetworkSize: Option[Int] = None, mutualExclusivityPatternManager: Option[MutualExclusivityPatternsManager]=None) = {
 
     iterationsLeft = iterations
 
@@ -340,7 +341,7 @@ abstract class NodeCostNetworkManager(network: Network,
           startGene = gene,
           endGenes = endNodes,
           network = this)).toSet
-
+    
     for (iteration <- 0 to iterations if (!converged())) {
 
       if (debug.isEmpty && iteration % (iterations / 5).ceil == 0) {
@@ -356,6 +357,7 @@ abstract class NodeCostNetworkManager(network: Network,
 
       if (subnetworkSize.isEmpty)
         walkers.foreach(_.setGeneNumberVariable(4 + Random.nextInt(2))) // 4 Nodes => 3 interactions
+     //   walkers.foreach(_.setGeneNumberVariable(3))
       else
         walkers.foreach(_.setGeneNumberVariable(subnetworkSize.get))
 
@@ -378,6 +380,10 @@ abstract class NodeCostNetworkManager(network: Network,
       //futures.map(x => println(x.get))
       val paths = futures.map(_.get.get)
 
+      if (mutualExclusivityPatternManager.isEmpty)(None)
+      else{
+      mutualExclusivityPatternManager.get.addSubnetworks(paths)}
+      
       val genesScores = updateScores(paths)
 
       /*

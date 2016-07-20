@@ -56,7 +56,8 @@ object MemoComparissonAnalysis extends App {
   network.genes.foreach(gene => {
     var count = 0
     for (sample <- all_samples) {
-      if (genePatientMatrix contains (PolimorphismKey(gene, sample))) {
+      // Location not yet implemented here !
+      if (genePatientMatrix contains (PolimorphismKey(gene, sample,0))) {
         count += 1
       }
     }
@@ -119,17 +120,20 @@ object MemoComparissonAnalysis extends App {
   val geneMutScoreCounts = rankedGenes.map(gene => (gene, {
     var mutationCounts = 0
     for (sample <- all_samples) {
-      if (genePatientMatrix contains (PolimorphismKey(gene, sample))) {
+      // Location not yet implemented here !
+      if (genePatientMatrix contains (PolimorphismKey(gene, sample,0))) {
         mutationCounts += 1
       }
     }
     var mutualExScore = 0.0
     for (sample <- all_samples) {
-      if (genePatientMatrix contains (PolimorphismKey(gene, sample))) {
+      // Location not yet implemented here !
+      if (genePatientMatrix contains (PolimorphismKey(gene, sample,0))) {
 
         var nonMutualGenes = 0.0
         for (other <- rankedGenes) {
-          if (genePatientMatrix.contains(PolimorphismKey(other, sample))) {
+          // Location not yet implemented here !
+          if (genePatientMatrix.contains(PolimorphismKey(other, sample,0))) {
             nonMutualGenes += 1
           }
         }
@@ -180,7 +184,8 @@ object MemoComparissonAnalysis extends App {
 
   val samplesStr = all_samples.map(sample => (sample, {
     val sb = new StringBuilder
-    geneMutScoreCounts.foreach(gMsc => sb.append("\t").append(genePatientMatrix.getOrElse(PolimorphismKey(gMsc._1, sample), Polimorphism("Nothing", score = 9))._type))
+    // Location not yet implemented here !
+    geneMutScoreCounts.foreach(gMsc => sb.append("\t").append(genePatientMatrix.getOrElse(PolimorphismKey(gMsc._1, sample,0), Polimorphism("Nothing", score = 9))._type))
     sb.toString
   })).toList.sortBy(_._2)
 

@@ -4,7 +4,8 @@ case class Interaction(from: Gene, to: Gene,
   typ: String = "any",
   direction: String = "undirected",
   regulatory: String = "regulatory",
-  probability: Double = 0d) {
+  probability: Double = 0d,
+  evidence:Set[String] = Set()) {
 
   lazy val genes = Set(from, to)
   
@@ -16,7 +17,11 @@ case class Interaction(from: Gene, to: Gene,
       to.name + "\t" + typ + "\t" + from.name
     }
   }
-
+  
+  def contains(gene:Gene){from==Gene || to ==Gene}
+  
+  def listGenes = List(from,to)
+  
   override def equals(other: Any) = this.toStr.equals(other.toString())
 
   override def hashCode: Int = toStr.hashCode()

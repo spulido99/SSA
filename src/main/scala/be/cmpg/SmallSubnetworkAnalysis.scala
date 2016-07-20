@@ -4,11 +4,13 @@ import be.cmpg.cancer.MemoComparissonAnalysis
 import be.cmpg.cancer.simulations.MutualExclusivitySimulations
 import be.cmpg.cancer.PancancerAnalysis
 import be.cmpg.cancer.MutualExclusivityAnalysis
+import be.cmpg.cancer.FunctionalMutualExclusivityAnalysis
 import be.cmpg.cancer.MutualExclusivityPrintPattern
 import be.cmpg.cancer.simulations.AnalizeSimulationResults
 import be.cmpg.cancer.MutualExclusivityPrepareInput
 import be.cmpg.cancer.PValueCalculator
 import be.cmpg.cancer.BootstrapCalculator
+import be.cmpg.cancer.FunctionalMutualExclusivityPrepareInput
 
 object SmallSubnetworkAnalysis extends App {
   
@@ -29,6 +31,8 @@ object SmallSubnetworkAnalysis extends App {
       case "ME_sim_results" => AnalizeSimulationResults.main(newArgs)
       case "ME_pval" => PValueCalculator.main(newArgs)
       case "ME_btstrp" => BootstrapCalculator.main(newArgs)
+      case "FME_input" => FunctionalMutualExclusivityPrepareInput.main(newArgs)
+      case "FME" => FunctionalMutualExclusivityAnalysis.main(newArgs)
     }
   }
   

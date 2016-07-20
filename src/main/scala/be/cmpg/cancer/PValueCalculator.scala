@@ -98,7 +98,7 @@ object PValueCalculator extends App {
      * Load Original Data
      */
 
-    val (interactions, network, genePatientMatrix, all_samples, geneList) = helper.loadData(config)
+    val (interactions, network, genePatientMatrix, all_samples, geneList) = helper.loadData(config,false)
 
     val altered_genes = genePatientMatrix.map(_._1.gene).toSet
     

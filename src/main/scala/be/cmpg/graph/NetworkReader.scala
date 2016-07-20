@@ -26,15 +26,18 @@ object NetworkReader {
     	 new InputStreamReader(getClass.getResourceAsStream("/"+fileName))
   }
   
-  def fromSif(file: String, fromIdx:Int = 0, typeIdx:Int = 1, toIdx:Int = 2): Set[Interaction] = {
+  def fromSif(file: String, fromIdx:Int, typeIdx:Int, toIdx:Int, evidenceId:Int= -1): Set[Interaction] = {
     
     new CSVReader(getReader(file), '\t')
     .readAll()
+    .drop(1)
     .map(fields => {
       val from = Gene(fields(fromIdx))
       val iType = if (typeIdx < 0) "undirected" else fields(typeIdx)
       val to = Gene(fields(toIdx))
-      Interaction(from, to, iType)
+      val evidence = if(evidenceId== -1){Set("Not available")} else{fields(evidenceId).split(",").toSet}
+//      Interaction(from, to, iType)
+      Interaction(from, to, iType,evidence=evidence)
     }).toSet
   }
   
@@ -86,8 +89,10 @@ object NetworkReader {
     for (fields <- reader.readAll()) {
       if (!first) {
         edgeCount += 1
-        
-        interactions += Interaction(Gene(fields(1).trim), Gene(fields(3).trim), if (typ.isDefined) typ.get else "any")
+    
+    val interactionEvidence = if (!(fields(4)=="")){fields(4).split(",").toSet} else {Set("Not available")}
+       
+        interactions += Interaction(Gene(fields(1).trim), Gene(fields(3).trim), if (typ.isDefined) typ.get else "any",evidence=interactionEvidence)
         
         translateGenesToEntrez.put(fields(0).trim, fields(1).trim)
         translateGenesToEntrez.put(fields(2).trim, fields(3).trim)

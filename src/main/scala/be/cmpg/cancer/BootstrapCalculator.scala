@@ -35,10 +35,6 @@ object BootstrapCalculator extends App {
     c.copy(minBootstraapSupport = x)
   } text ("Minimum bootstrap support to be included in the network (0.95 by default)")
   
-  parser.opt[Seq[String]]("positiveGeneSetLists") action { (x, c) =>
-    c.copy(positiveGeneSetLists = x)
-  } text ("Files with a list of gene containing what are considered positive (COSMIC and NCG added by default). Sould be tab delimited files with the gene name in the first column.")
-  
   parser.opt[Boolean]("useCGC") action { (x, c) =>
     c.copy(useCGC = x)
   } text ("Use the Census of Cancer Genes in the True Positives set (true by default)")
@@ -95,7 +91,7 @@ object BootstrapCalculator extends App {
    *
    * Done.
    */
-  val (interactions, network, genePatientMatrix, all_samples, geneList) = helper.loadData(config)
+  val (interactions, network, genePatientMatrix, all_samples, geneList) = helper.loadData(config,false)
 
   if (numberOfLines < config.bootstraapExperiments) {
     /**
@@ -178,12 +174,10 @@ object BootstrapCalculator extends App {
   
   
   println("Loading true positive gene sets...")
-  
-  val otherPositiveSet = config.positiveGeneSetLists.map { geneListFile =>
-                                        Source.fromFile(geneListFile, "latin1").getLines.map { _.split("\t")(0) }.map(Gene(_))
-                                      }.flatten.toSet
                                 
-  val truePositiveSet =  (if (config.useCGC) helper.cgc else Set[Gene]()) ++ (if (config.useNCG) helper.ncg else Set[Gene]()) ++ otherPositiveSet
+  val malacardsGenes = if (config.otherGeneList==""){Set[Gene]()} else {Source.fromFile(config.otherGeneList).getLines.map(line => Gene(line.split("\t")(0))).toSet}
+  
+  val truePositiveSet =  (if (config.useCGC) helper.cgc else Set[Gene]()) ++ (if (config.useNCG) helper.ncg else Set[Gene]()) ++ malacardsGenes
   
   println("Calculating ppv with bootstraap support > "+ config.minBootstraapSupport +" ...")
                                       
@@ -237,8 +231,8 @@ object BootstrapCalculator extends App {
       Set.empty[(Gene, Map[String, Int])]
     }
   }.flatten.toMap
-
-  MutualExclusivityPrintPattern.printPattern(config.outputPrefix+".selected", rankedGenes.filter { selectedGenes contains _ }, dummyNetworkManager, genePatientMatrix, additional, otherPositiveSet)
+  
+  MutualExclusivityPrintPattern.printPattern(config.outputPrefix+".selected", rankedGenes.filter { selectedGenes contains _ }, dummyNetworkManager, genePatientMatrix, additional,malacardsGenes)
   
   println("Output in " + config.outputPrefix + "_networksPPV.bootstraap.tsv")
   println("Network in " + config.outputPrefix + ".best_network.html")

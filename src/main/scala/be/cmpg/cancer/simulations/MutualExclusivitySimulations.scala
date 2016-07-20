@@ -481,14 +481,16 @@ object MutualExclusivitySimulations extends App {
         val gene = meGenes(index)
         if (true) { //}!noMutableMEGenes.contains(gene)) {
           val sample = samplesToAssign(0)._1
-          meGenePatientMatrix.put(PolimorphismKey(gene, sample), Polimorphism(gene.name))
+          // Location not yet implemented here !
+          meGenePatientMatrix.put(PolimorphismKey(gene, sample,0), Polimorphism(gene.name))
 
           // have random mutation in the other genes?
           /*
            * 20% prob that the network is mutated somewhere else.
            * Number as a random because its probably to be mutated more than once
            */
-          meGenes.filter { g => random.nextDouble() < 0.2 / subnetworkSize }.foreach { g => meGenePatientMatrix.put(PolimorphismKey(g, sample), Polimorphism(g.name)) }
+          // Location not yet implemented here !
+          meGenes.filter { g => random.nextDouble() < 0.2 / subnetworkSize }.foreach { g => meGenePatientMatrix.put(PolimorphismKey(g, sample,0), Polimorphism(g.name)) }
 
           samplesToAssign.remove(0)
         }
@@ -504,7 +506,8 @@ object MutualExclusivitySimulations extends App {
       (0 until m._2).map { i =>
         {
           val randomGene = genes(random.nextInt(genes.size))
-          val key = PolimorphismKey(randomGene, m._1)
+          // Location not yet implemented here !
+          val key = PolimorphismKey(randomGene, m._1,0)
           val value = Polimorphism(randomGene.name)
           (key, value)
         }

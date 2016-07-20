@@ -55,5 +55,11 @@ class Network(val interactions: Set[Interaction], geneList: Set[Gene] = null) {
     val node = nodeMap(gene)
     node.getInteractions(Some(InteractionType.Incoming)).map( e => Interaction(node.gene, e._2.gene))
   }
+  
+  override def toString: String = {
+    
+    interactions.map(interaction => interaction.from.name +","+interaction.to.name+","+interaction.typ).mkString("\n")
+    
+  }
 
 }

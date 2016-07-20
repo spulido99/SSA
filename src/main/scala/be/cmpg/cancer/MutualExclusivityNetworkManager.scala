@@ -44,8 +44,10 @@ class MutualExclusivityNetworkManager(network: Network,
   println("MEManager")
   val all_samples = genePatientMatrix.map(_._1.sample).toSet//Set[String], // all the samples names (here to not need to analyse all keys of the genePatientMatrix)
   val mutationsPerSample = genePatientMatrix.groupBy(_._1.sample).map(e => (e._1, e._2.map(e => (e._1.gene, e._2))))
-  println("Samples: "+mutationsPerSample.size)
+//  val minimumCADDscore = 20
+//  val mutationsPerGene = genePatientMatrix.filter(input => input._2.score > minimumCADDscore).groupBy(_._1.gene).map(e => (e._1, e._2.map(e => (e._1.sample, e._2))))
   val mutationsPerGene = genePatientMatrix.groupBy(_._1.gene).map(e => (e._1, e._2.map(e => (e._1.sample, e._2))))
+ // val mutationsPerGene = genePatientMatrix.groupBy(_._1.gene).map(e => (e._1, e._2.map(e => (e._1.sample, e._2))))
   println("Genes: "+mutationsPerGene.size)
   val mutatedSamplesByGene = mutationsPerGene.keys.map( g => (g, mutationsPerGene(g).keySet)).toMap
 
@@ -155,7 +157,6 @@ class MutualExclusivityNetworkManager(network: Network,
           (gene, geneScore)
         }}
         .toMap
-        
        return scorePerGene.map {sg => math.sqrt(sg._2)}.sum / allGenes.size
     }
   }
