@@ -65,9 +65,9 @@ object MutualExclusivityPrintPattern extends App {
 
 //  printPattern(config.outputPrefix+".selected", config.genes.map { n => Gene(n) }, networkManager, genePatientMatrix, otherPositiveGeneSetLists=otherPositiveSet)
   
-  printPattern(config.outputPrefix+".selected", config.genes.map { n => Gene(n) }, networkManager, genePatientMatrix)
+  printPattern(config.outputPrefix+".selected", config.genes.map { n => Gene(n) }, networkManager, genePatientMatrix,config.outputFolder,config.inputFolder)
 
-  def printPattern(outputPrefix: String, genes: List[Gene], networkManager: NodeCostNetworkManager, genePatientMatrix: Map[PolimorphismKey, Polimorphism], additional: Map[Gene, Map[String, Any]] = Map(), otherPositiveGeneSetLists:Set[Gene]=Set()) = {
+  def printPattern(outputPrefix: String, genes: List[Gene], networkManager: NodeCostNetworkManager, genePatientMatrix: Map[PolimorphismKey, Polimorphism], outputFolder:String, inputFolder:String, additional: Map[Gene, Map[String, Any]] = Map(), otherPositiveGeneSetLists:Set[Gene]=Set()) = {
 
     val helper = new CancerHelper
                                         
@@ -89,7 +89,7 @@ object MutualExclusivityPrintPattern extends App {
        additional 
     }
 
-    val out_edges = new FileWriter(outputPrefix + "_edges.tsv")
+    val out_edges = new FileWriter(outputFolder+outputPrefix + "_edges.tsv")
     out_edges.write("GeneA\tGeneB\tMEScore\n")
     networkManager.getAllInteractions
       .filter { i => i.to != i.from && genes.contains(i.from) && genes.contains(i.to) }
@@ -120,28 +120,28 @@ object MutualExclusivityPrintPattern extends App {
       var toReturn = 0;
       
       if (otherPositiveGeneSetLists.contains(gene)) toReturn += 1
-      if (helper.cgc.contains(gene)) toReturn += 1
-      if (helper.ncg.contains(gene)) toReturn += 1
+      if (helper.cgcGenes(inputFolder).contains(gene)) toReturn += 1
+      if (helper.ncgGenes(inputFolder).contains(gene)) toReturn += 1
       
       toReturn
     }  
     
-    val truePositiveGeneList = helper.cgc ++ helper.ncg ++ otherPositiveGeneSetLists;
+    val truePositiveGeneList = helper.cgcGenes(inputFolder) ++ helper.ncgGenes(inputFolder) ++ otherPositiveGeneSetLists;
     
     val nodes = new JSONArray
 
-    val out_nodes = new FileWriter(outputPrefix + "_nodes.tsv")
+    val out_nodes = new FileWriter(outputFolder+outputPrefix + "_nodes.tsv")
     out_nodes.write("GeneSymbol\tPosteriorP\tSelected\tConvergenceIter\tKnownCancerGene\t\tBestSSN\n")
     println("GeneSymbol\tOtherPositive\tCGC\tNCG")
     genes
       .foreach(g => {
         
-        println(g.name+"\t"+otherPositiveGeneSetLists.contains(g)+"\t"+helper.cgc.contains(g)+"\t"+helper.ncg.contains(g))
+        println(g.name+"\t"+otherPositiveGeneSetLists.contains(g)+"\t"+helper.cgcGenes(inputFolder).contains(g)+"\t"+helper.ncgGenes(inputFolder).contains(g))
         
         val geneInfo = new JSONObject()
           .accumulate("name", g.name)
           .accumulate("selected", genes.contains(g))
-          .accumulate("knownCancerGene",("["+(helper.cgc.contains(g),otherPositiveGeneSetLists.contains(g),helper.ncg.contains(g)).toString+"]").replace("(","").replace(")","").replace("\"",""))
+          .accumulate("knownCancerGene",("["+(helper.cgcGenes(inputFolder).contains(g),otherPositiveGeneSetLists.contains(g),helper.ncgGenes(inputFolder).contains(g)).toString+"]").replace("(","").replace(")","").replace("\"",""))
 /*          .accumulate("cgc", helper.cgc.contains(g))
           .accumulate("other", otherPositiveGeneSetLists.contains(g))
           .accumulate("ncg", helper.ncg.contains(g))*/
@@ -169,9 +169,9 @@ object MutualExclusivityPrintPattern extends App {
     results.put("edges", edges)
     results.put("nodes", nodes)
 
-    val html = Source.fromInputStream(new FileInputStream("src/main/resources/adjustedNetworkOutput.html")).mkString
+    val html = Source.fromInputStream(new FileInputStream(inputFolder+"adjustedNetworkOutput.html")).mkString
 
-    val out_json = new FileWriter(outputPrefix + "_network.html")
+    val out_json = new FileWriter(outputFolder+outputPrefix + "_network.html")
     out_json.write(html.replace("$${graph}$$", results.toString.replace("\"[","[").replace("]\"","]")))
 
     out_json.close()
@@ -209,7 +209,7 @@ object MutualExclusivityPrintPattern extends App {
 
     val toPrint = new HashMap[String, List[String]]
 
-    val out = new FileWriter(outputPrefix + "_pattern.tsv")
+    val out = new FileWriter(outputFolder+outputPrefix + "_pattern.tsv")
 
     val header = {
       out.append("Gene")

@@ -34,28 +34,52 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
 
   val random = new Random(System.nanoTime())
   //lazy val cgc = new CSVReader(new InputStreamReader(new FileInputStream("./src/main/resources/cancergenelists/Census_allFri20150102.csv"))) // CGC: Cancer Gene Census
-  lazy val cgc = new CSVReader(new InputStreamReader(new FileInputStream("./src/main/resources/cancergenelists/CancerGeneCensus20150718.csv"))) // CGC: Cancer Gene Census
+
+  /*  lazy val cgc = new CSVReader(new InputStreamReader(new FileInputStream(inputFolder+"CancerGeneCensus20150718.csv"))) // CGC: Cancer Gene Census
     .readAll()
     .map(_(0))
     .map(Gene(_))
-    .toSet
+    .toSet*/
 
   // lazy val ncg = new CSVReader(new InputStreamReader(new FileInputStream("./src/main/resources/cancergenelists/ncg.txt")), '\t') // NCG 5.0: Network of Cancer Genes
-  lazy val ncg = new CSVReader(new InputStreamReader(new FileInputStream("./src/main/resources/cancergenelists/NCG5.0.txt")), '\t') // NCG 5.0: Network of Cancer Genes
+  /*  lazy val ncg = new CSVReader(new InputStreamReader(new FileInputStream(inputFolder+"NCG5.0.txt")), '\t') // NCG 5.0: Network of Cancer Genes
     .readAll()
     //.filter { x => x(25) == "FALSE" }
     .map(_(0))
     .map(Gene(_))
-    .toSet
+    .toSet*/
 
-  lazy val zackGenes = Source.fromInputStream(new FileInputStream("./src/main/resources/cancergenelists/ZackEtAl_CNAGenes.txt")).getLines.toSet
+  // lazy val zackGenes = Source.fromInputStream(new FileInputStream(inputFolder+"ZackEtAl_CNAGenes.txt")).getLines.toSet
 
-  def loadNetwork(networks: Seq[String]): Set[Interaction] = {
+  def cgcGenes(inputFolder: String) = {
+    new CSVReader(new InputStreamReader(new FileInputStream(inputFolder + "CancerGeneCensus20150718.csv"))) // CGC: Cancer Gene Census
+      .readAll()
+      .map(_(0))
+      .map(Gene(_))
+      .toSet
+  }
+
+  def ncgGenes(inputFolder: String) = {
+
+    new CSVReader(new InputStreamReader(new FileInputStream(inputFolder + "NCG5.0.txt")), '\t') // NCG 5.0: Network of Cancer Genes
+      .readAll()
+      //.filter { x => x(25) == "FALSE" }
+      .map(_(0))
+      .map(Gene(_))
+      .toSet
+
+  }
+  
+  def zackGEnes (inputFolder:String) = {
+    Source.fromInputStream(new FileInputStream(inputFolder+"ZackEtAl_CNAGenes.txt")).getLines.toSet
+  }
+
+  def loadNetwork(networks: Seq[String], networkFolder: String): Set[Interaction] = {
 
     val interactionsMap = scala.collection.mutable.Map[Interaction, Set[String]]()
     //    var interactions = Set[Interaction]()
     //   val hiII = NetworkReader.fromTSV("src/main/resources/networks/HI-II-14.tsv")._1
-    val hiII = NetworkReader.fromTSV("src/main/resources/networks/HI-II-14_Annotated.tsv")._1
+    val hiII = NetworkReader.fromTSV(networkFolder + "HI-II-14_Annotated.tsv")._1
 
     networks.foreach { n =>
       {
@@ -63,7 +87,7 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
         //        if (n == "HT") interactions ++= NetworkReader.fromSif("src/main/resources/networks/HintBinaryInteractiionsHTAndLCAnnotated20160718.txt", 2, -1, 3)
         //        if (n == "HT") interactions ++= NetworkReader.fromSif("src/main/resources/networks/HintBinaryInteractiionsHTAndLCAnnotated20160718.txt", 4, -1, 5, 6)
         if (n == "HT") {
-          val pendingInteractions = NetworkReader.fromSif("src/main/resources/networks/HumanBinaryHQ_HT_noTTN.txt", 2, -1, 3, 4)
+          val pendingInteractions = NetworkReader.fromSif(networkFolder + "HumanBinaryHQ_HT_noTTN.txt", 2, -1, 3, 4)
           pendingInteractions.foreach(interaction => {
             if (interactionsMap.get(interaction).isDefined) {
               interactionsMap.put(interaction, interaction.evidence.++(interactionsMap(interaction)))
@@ -83,7 +107,7 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
         //       else if (n == "reactome") interactions ++= NetworkReader.fromSif("src/main/resources/networks/MEMo/reactomePPIInteractionsAnnotated20160718.txt", 0, -1, 1,4)
         else if (n == "reactome") {
           // This I find strange as it is a very old network. But using the current network will result in 90% of interactions being from reactome
-          val pendingInteractions = NetworkReader.fromSif("src/main/resources/networks/MEMo/hrn1_reactome.sif", 0, -1, 2, 3)
+          val pendingInteractions = NetworkReader.fromSif(networkFolder + "hrn1_reactome.sif", 0, -1, 2, 3)
           pendingInteractions.foreach(interaction => {
             if (interactionsMap.get(interaction).isDefined) {
               interactionsMap.put(interaction, interaction.evidence.++(interactionsMap(interaction)))
@@ -106,13 +130,13 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
 
     val interactions = interactionsMap.map(interaction => {
       val coreInteraction = interaction._1
-      Interaction(coreInteraction.from, coreInteraction.to, coreInteraction.typ, coreInteraction.direction, coreInteraction.regulatory, coreInteraction.probability,evidence = interaction._2.toSet)
+      Interaction(coreInteraction.from, coreInteraction.to, coreInteraction.typ, coreInteraction.direction, coreInteraction.regulatory, coreInteraction.probability, evidence = interaction._2.toSet)
     }).toSet
 
     val hypermutatedGenes: Set[String] = Set();
     interactions.
       filter(i => !hypermutatedGenes.contains(i.from.name) && !hypermutatedGenes.contains(i.to.name))
-//      .map(i => Interaction(i.from, i.to, if (hiII contains (i)) "hiII" else "other")).toSet
+    //      .map(i => Interaction(i.from, i.to, if (hiII contains (i)) "hiII" else "other")).toSet
   }
 
   def loadReferenceNetwork(referenceNetwork: String = "HT_hiII14") = {
@@ -252,7 +276,7 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
         }
         sample
       }
-
+      
     val all = gisticOutput.map { fields =>
       var count = fields.size - samples.size - 1
       val geneName = fields(0)
@@ -269,7 +293,7 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
             None
           } else {
             // Location is not yet implemented here !!
-            if (geneList.isEmpty) { None }
+            if (geneList.isEmpty) { Some(PolimorphismKey(Gene(geneName), sample, 0), Polimorphism(geneName, if (value > 0) "amp" else "del", geneExpressionCorr.get))  }
             else {
               if (geneList.contains(geneName)) { Some(PolimorphismKey(Gene(geneName), sample, 0), Polimorphism(geneName, if (value > 0) "amp" else "del", geneExpressionCorr.get)) }
               else {
@@ -280,9 +304,9 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
         }
       }
     }.flatten.flatten.toList
-
+    
     val hypermutators = all.groupBy(_._1.sample).filter(_._2.size > maxQtyCopyNumber).keys.toSet
-
+    
     all.filter { e => !hypermutators.contains(e._1.sample) }.toMap
 
     /*
@@ -367,6 +391,7 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
     val all = Source.fromFile(mafFile, "latin1")
       .getLines
       .drop(dropLines)
+      .filter(line => !line.startsWith("\t"))
       .map { _.split("\t") }
       .map { fields =>
 
@@ -729,14 +754,14 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
     genePatientMatrix
   }
 
-  def printMutationMatrixFiles(output: String, seedGenesMutations: Int, genePatientMatrix: Map[PolimorphismKey, Polimorphism], weighted: Boolean) = {
+  def printMutationMatrixFiles(output: String, seedGenesMutations: Int, genePatientMatrix: Map[PolimorphismKey, Polimorphism], weighted: Boolean, outputFolder: String) = {
 
     println("Printing binary (.m2) matrix")
     println("Printing samples stats");
     println("Printing as .tbs");
-    val printM2 = new PrintWriter(new File(output + ".m2"));
-    val printBySample = new PrintWriter(new File(output + ".bySample.stats"));
-    val printTbs = new PrintWriter(new File(output + ".tbs"));
+    val printM2 = new PrintWriter(new File(outputFolder + output + ".m2"));
+    val printBySample = new PrintWriter(new File(outputFolder + output + ".bySample.stats"));
+    val printTbs = new PrintWriter(new File(outputFolder + output + ".tbs"));
     genePatientMatrix.groupBy(_._1.sample).foreach {
       case (sample, map) =>
         if (map.size > seedGenesMutations) {
@@ -767,8 +792,8 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
     println("Printing genes and genes stats");
 
     {
-      val printByGene = new PrintWriter(new File(output + ".byGene.stats"));
-      val printGlst = new PrintWriter(new File(output + ".glst"));
+      val printByGene = new PrintWriter(new File(outputFolder + output + ".byGene.stats"));
+      val printGlst = new PrintWriter(new File(outputFolder + output + ".glst"));
       genePatientMatrix.groupBy(_._1.gene).foreach { e =>
         if (e._2.size >= seedGenesMutations) {
           val bySource = e._2.groupBy(_._2.source).map(e => (e._1, e._2.size))
@@ -795,6 +820,10 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
         c.copy(reinforcement = x)
       } text ("The reinforncement for succesful learning (default: 0.0005)")
 
+      opt[String]('o', "outputFolder") action { (x, c) =>
+        c.copy(outputFolder = x)
+      } text ("The folder to where the output should be written.")
+
       opt[Double]('f', "forgetfulness") action { (x, c) =>
         c.copy(forgetfulness = x)
       } text ("The forgetfulness after each iteration (default: 0.9996)")
@@ -803,7 +832,7 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
         c.copy(seedGenesMutations = x)
       } text ("The number of mutated samples required in a gene to be a seed (default: 1)")
 
-      opt[String]('o', "outputPrefix") action { (x, c) =>
+      opt[String]('p', "outputPrefix") action { (x, c) =>
         c.copy(outputPrefix = x)
       } text ("The prefix for the analisis output files (default: ME)")
 
@@ -811,6 +840,11 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
         c.copy(refNetwork = x)
       } text ("The reference network (HT, hiII14, ppi, cell-map, nci-nature, reactome or/and files. HT and hiII14 used by default.)")
 
+      opt[Boolean]("patterns") action { (x, c) =>
+        c.copy(patterns = x)
+      } text ("calculate 5 best subnetworks of every gene as ME pattern for that gene. Default is false")
+
+      
       /*    
     opt[Int]('g', "maxOutputGenes") action { (x, c) =>
       c.copy(maxOutputGenes = x)
@@ -839,6 +873,10 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
           inputMatrix = x + ".m2"
         c.copy(input = Some(inputMatrix))
       } text ("Mutation matrix .m2 file (created with option ME_input )")
+
+      opt[String]('b', "inputFolder") required() action { (x, c) =>
+        c.copy(inputFolder = x)
+      } text ("Path to the folder containing the networks and the cgc/ncg/other genes.")
 
       opt[Int]('p', "outputGenes") action { (x, c) =>
         c.copy(outputGenes = x)
@@ -882,8 +920,9 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
   }
 
   def loadData(config: Config, FunctionalData: Boolean) = {
-    val interactions = this.loadNetwork(config.refNetwork)
+    val interactions = this.loadNetwork(config.refNetwork, config.inputFolder)
     val network = new Network(interactions)
+    val networkFolder = config.inputFolder
 
     println("Interactions: " + interactions.size)
 
@@ -979,6 +1018,7 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
     val samples = alterationsBySample.keys.toArray
 
     List.tabulate(samples.size)(n =>
+      
       // Location not yet implemented here !
       alterationsBySample(samples(random.nextInt(samples.size))).map(e => (PolimorphismKey(e._1.gene, "Sample" + n, 0), Polimorphism(e._2.geneSymbol)))).flatten.toMap
   }
@@ -1086,14 +1126,17 @@ case class Config(
   useRank: Boolean = true,
   statistical: Boolean = false,
   minMutPerGene: Int = 1,
+  inputFolder: String = "",
   seedGenesMutations: Int = 1,
   outputPrefix: String = "ME",
   input: Option[String] = None,
   outputGenes: Int = 100,
-  otherGeneList: String ="",
+  otherGeneList: String = "",
   subtype: Option[String] = None,
   subtypeFile: Option[File] = None,
   debug: Option[Seq[String]] = None,
+  outputFolder: String = "",
+  patterns:Boolean = false,
   processors: Int = Runtime.getRuntime().availableProcessors() / 2,
 
   /*
@@ -1107,8 +1150,8 @@ case class Config(
   /*
    * Bootstraap calculation parameters
    */
-  bootstraapExperiments: Int = 1000,
-  minBootstraapSupport: Double = 0.95,
+  bootstraapExperiments: Int = 100,
+  minBootstraapSupport: Double = 0.9,
   useCGC: Boolean = true,
   useNCG: Boolean = true,
 

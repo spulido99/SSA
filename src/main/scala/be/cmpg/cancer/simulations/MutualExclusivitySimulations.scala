@@ -352,7 +352,7 @@ object MutualExclusivitySimulations extends App {
           println(rankedGenes)
 
           if (development) {
-            MutualExclusivityPrintPattern.printPattern("sim", rankedGenes, networkManager, genePatientMatrix)
+            MutualExclusivityPrintPattern.printPattern("sim", rankedGenes, networkManager, genePatientMatrix,"","./src/main/resources/cancergenelists")
           }
 
           val rankedGeneByPhac = networkManager.getRankedAllGenes().map(_.name).toList;
@@ -403,7 +403,7 @@ object MutualExclusivitySimulations extends App {
     println(rankedGenes)
 
     if (development) {
-      MutualExclusivityPrintPattern.printPattern("sim", rankedGenes, networkManager, genePatientMatrix)
+      MutualExclusivityPrintPattern.printPattern("sim", rankedGenes, networkManager, genePatientMatrix,"","./src/main/resources/cancergenelists")
     }
 
     val rankedGeneByPhac = networkManager.getRankedAllGenes().map(_.name).toList;

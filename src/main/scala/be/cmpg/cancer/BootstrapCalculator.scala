@@ -29,11 +29,11 @@ object BootstrapCalculator extends App {
   val parser = helper.getBasicArgParser("SSA.ME Bootstraap calculation")
   parser.opt[Int]("bootstraapExperiments") action { (x, c) =>
     c.copy(bootstraapExperiments = x)
-  } text ("Number of calculations with random inputs to calculate the bootstraap support. Large values increase processing time. (1000 by default)")
+  } text ("Number of calculations with random inputs to calculate the bootstraap support. Large values increase processing time. (100 by default)")
   
   parser.opt[Double]("minBootstraapSupport") action { (x, c) =>
     c.copy(minBootstraapSupport = x)
-  } text ("Minimum bootstrap support to be included in the network (0.95 by default)")
+  } text ("Minimum bootstrap support to be included in the network (0.9 by default)")
   
   parser.opt[Boolean]("useCGC") action { (x, c) =>
     c.copy(useCGC = x)
@@ -60,7 +60,7 @@ object BootstrapCalculator extends App {
 
   val config = configOpt.get
 
-  val outputFileName = config.outputPrefix + "_bootstraap.randomization.tsv"
+  val outputFileName = config.outputFolder+config.outputPrefix + "_bootstraap.randomization.tsv"
   val numberOfLines = {
     val outputFfile = new File(outputFileName)
     if (outputFfile.exists) Source.fromFile(outputFfile).getLines.size else 0
@@ -69,7 +69,7 @@ object BootstrapCalculator extends App {
   /**
    * Load results
    */
-  val rankedGenes = new CSVReader(new FileReader(config.outputPrefix + "_nodes.tsv"), '\t')
+  val rankedGenes = new CSVReader(new FileReader(config.outputFolder+config.outputPrefix + "_nodes.tsv"), '\t')
     .readAll()
     .drop(1) // remove Header
     .map { fields => Gene(fields(0)) }.toList
@@ -106,7 +106,6 @@ object BootstrapCalculator extends App {
      */
 
     val genesToStudy = rankedGenes //(List("PIK3CA", "TP53", "MYC", "GAB2", "VAV2", "TTN", "UBC").map { x => Gene(x) } ++ rankedGenes)
-
     val writer = new PrintWriter(new FileOutputStream(new File(outputFileName), true))
 
     if (numberOfLines == 0) {
@@ -115,6 +114,7 @@ object BootstrapCalculator extends App {
        */
       genesToStudy.foreach { gene => writer.print("\t" + gene.name) }
       writer.println()
+      writer.flush()
     }
 
     val alterationsBySample = genePatientMatrix.toList.groupBy(_._1.sample)
@@ -137,7 +137,7 @@ object BootstrapCalculator extends App {
       println("*****************************")
       println("> rep: " + e + " ["+config.outputPrefix+"]")
       println("*****************************")
-
+      
       boostraapNetworkManager.run(config.iterations, geneList.view.toSet, config.processors, defwalkers = Some(walkers))
 
       val bootstraapRankedGenes = boostraapNetworkManager.getRankedAllGenes().take(config.outputGenes).toList
@@ -166,7 +166,6 @@ object BootstrapCalculator extends App {
     statsByGene.map( e => (e._1, e._2.view.toList)).toMap
   }
   
-  
   /*rankedGenes.foreach { gene =>
     println(gene.name + "\t" + (statsByGene.getOrElse(gene, 0).toDouble / numberOfLines))
     writerbootstraap.println(gene.name + "\t" + (statsByGene.getOrElse(gene, 0).toDouble / numberOfLines))
@@ -177,11 +176,11 @@ object BootstrapCalculator extends App {
                                 
   val malacardsGenes = if (config.otherGeneList==""){Set[Gene]()} else {Source.fromFile(config.otherGeneList).getLines.map(line => Gene(line.split("\t")(0))).toSet}
   
-  val truePositiveSet =  (if (config.useCGC) helper.cgc else Set[Gene]()) ++ (if (config.useNCG) helper.ncg else Set[Gene]()) ++ malacardsGenes
+  val truePositiveSet =  (if (config.useCGC) helper.cgcGenes(config.inputFolder) else Set[Gene]()) ++ (if (config.useNCG) helper.ncgGenes(config.inputFolder) else Set[Gene]()) ++ malacardsGenes
   
   println("Calculating ppv with bootstraap support > "+ config.minBootstraapSupport +" ...")
                                       
-  val writerbootstraap = new PrintWriter(config.outputPrefix + "_networksPPV.bootstraap.tsv")
+  val writerbootstraap = new PrintWriter(config.outputFolder+config.outputPrefix + "_networksPPV.bootstraap.tsv")
   writerbootstraap.println("SubnetworkSize\tTruePositives\tFalsePositives\tPPV(%)\tgenes")
   
   val posibleSubnetworks = List.range(1, rankedGenes.size).map { subnetworkSize =>
@@ -232,10 +231,10 @@ object BootstrapCalculator extends App {
     }
   }.flatten.toMap
   
-  MutualExclusivityPrintPattern.printPattern(config.outputPrefix+".selected", rankedGenes.filter { selectedGenes contains _ }, dummyNetworkManager, genePatientMatrix, additional,malacardsGenes)
+  MutualExclusivityPrintPattern.printPattern(config.outputPrefix+".selected", rankedGenes.filter { selectedGenes contains _ }, dummyNetworkManager, genePatientMatrix, config.outputFolder, config.inputFolder, additional,malacardsGenes)
   
-  println("Output in " + config.outputPrefix + "_networksPPV.bootstraap.tsv")
-  println("Network in " + config.outputPrefix + ".best_network.html")
+  println("Output in " + config.outputFolder+config.outputPrefix + "_networksPPV.bootstraap.tsv")
+  println("Network in " + config.outputFolder+config.outputPrefix + ".best_network.html")
 
   
   

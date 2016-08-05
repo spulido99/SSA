@@ -28,7 +28,9 @@ object PancancerAnalysis extends App {
     refNetwork: Seq[String],
     useRank: Boolean,
     outputPrefix: String,
+    inputFolder: String = "",
     convergence: Double = 0.0,
+    outputFolder: String = "",
     files: Seq[File] = Seq(),
     debug: Seq[String] = Seq())
 
@@ -37,6 +39,14 @@ object PancancerAnalysis extends App {
     opt[Int]('i', "iterations") action { (x, c) =>
       c.copy(iterations = x)
     } text ("iterations is the number of iterations (default: 5000)")
+
+    opt[String]('b', "inputFolder") required() action { (x, c) =>
+      c.copy(inputFolder = x)
+    } text ("The folder which contains the networks and gene lists.")
+
+    opt[String]('o', "outputFolder") action { (x, c) =>
+      c.copy(outputFolder = x)
+    } text ("The folder to where the output should be written.")
 
     opt[Double]('r', "reinforcement") action { (x, c) =>
       c.copy(reinforcement = x)
@@ -107,7 +117,7 @@ object PancancerAnalysis extends App {
 
   val config = configOpt.get
 
-  val interactions = helper.loadNetwork(config.refNetwork)
+  val interactions = helper.loadNetwork(config.refNetwork, config.inputFolder)
   val network = new Network(interactions)
   val translateGenesToEntrez: Map[String, String] = network.genes.map(g => (g.name, g.name)).toMap
 
@@ -115,15 +125,15 @@ object PancancerAnalysis extends App {
   val genePValues = new HashMap[Gene, PValueInfo]
 
   val origins = List("coding", "enhancer", "lncrna", "promoter")
-  
-  def parseOrigin(file:File):String = {
+
+  def parseOrigin(file: File): String = {
     for (origin <- origins) {
       if (file.getName.contains(origin))
         return origin
     }
     throw new RuntimeException
   }
-  
+
   config.files.foreach { file =>
 
     val origin = parseOrigin(file)
@@ -155,17 +165,18 @@ object PancancerAnalysis extends App {
             .map { _.split("_") }
             .filter { _.size > 1 }
             .map { x => Gene(x(1)) }
-            .foreach { gene => {
-              val pValueInfoOpt = genePValues.get(gene)
-              if (pValueInfoOpt.isEmpty)
-                genePValues += gene -> PValueInfo(value, origin)
-              else if (pValueInfoOpt.get.max < value)
-                genePValues += gene -> PValueInfo(value, origin)
-              
-              if (gene.name == "ADAM12")
-                println(genePValues(gene))
+            .foreach { gene =>
+              {
+                val pValueInfoOpt = genePValues.get(gene)
+                if (pValueInfoOpt.isEmpty)
+                  genePValues += gene -> PValueInfo(value, origin)
+                else if (pValueInfoOpt.get.max < value)
+                  genePValues += gene -> PValueInfo(value, origin)
+
+                if (gene.name == "ADAM12")
+                  println(genePValues(gene))
+              }
             }
-          }
         }
       }
 
@@ -213,18 +224,17 @@ object PancancerAnalysis extends App {
                           "EP300", "DDX5", "PADI4", "BZRAP1", "NHP2L1", 
                           "SUMO2", "AKT1", "BRAF", "CDKN1A", "MDM2", "EGR1", 
                           "E2F1", "TAF1", "NFE2L2", "PRKACA", "SUZ12").map(Gene(_))*/
-  
+
   /*
    * Random PANCACNER
    */
   //val rankedGenes = List("ADAM12", "IGFBP3").map(Gene(_))
-  
+
   /*
    * Real BRCA
    */
   val rankedGenes = List("TP53", "NOC2L", "SUMO2", "PTEN", "AKT1", "MAP2K4", "PIK3CA", "PIK3R1", "GATA3", "AXIN1", "KRT18", "DVL1").map(Gene(_))
-  
-  
+
   val genesToReport = rankedGenes
 
   println("Genes printed in network: " + rankedGenes.size)
@@ -252,7 +262,7 @@ object PancancerAnalysis extends App {
       g -> Map[String, Any]("pvalue" -> 0.0, "origin" -> "unkown")
   }.toMap
 
-  MutualExclusivityPrintPattern.printPattern(config.outputPrefix, rankedGenes.view.toList, networkManager, Map(), additionalNodeInfo)
+  MutualExclusivityPrintPattern.printPattern(config.outputPrefix, rankedGenes.view.toList, networkManager, Map(), config.outputFolder, config.inputFolder, additionalNodeInfo)
 
   val historicPWriter = new PrintWriter("genesHistoricPs_" + config.reinforcement + "_" + config.forgetfulness + ".out")
   rankedGenes.foreach(g => {
@@ -263,7 +273,7 @@ object PancancerAnalysis extends App {
   })
   historicPWriter.close()
 
-  val modulesPWriter = new PrintWriter(config.outputPrefix + "_modules.txt")
+  val modulesPWriter = new PrintWriter(config.outputFolder + config.outputPrefix + "_modules.txt")
 
   modulesPWriter.println("p-Value\tModule")
   networkManager.getNetwork().getNodes()

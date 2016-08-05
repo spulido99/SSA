@@ -89,7 +89,7 @@ object FunctionalMutualExclusivityAnalysis extends App {
 
       println("\nGenes printed in network: " + rankedGenes.size + " " + rankedGenes.map(_.name))
 
-      MutualExclusivityPrintPattern.printPattern(config.outputPrefix, rankedGenes, networkManager, genePatientMatrix)
+      MutualExclusivityPrintPattern.printPattern(config.outputPrefix, rankedGenes, networkManager, genePatientMatrix,config.outputFolder,config.inputFolder)
 
       /**
        * P-value calculation

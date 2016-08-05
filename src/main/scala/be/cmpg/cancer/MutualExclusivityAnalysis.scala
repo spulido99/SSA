@@ -68,7 +68,7 @@ object MutualExclusivityAnalysis extends App {
       //networkManager.debug = Some(Set(Gene("TP53")), 20)
       println("Subnetwork selectors: " + walkers.size)
 
-      networkManager.run(config.iterations, geneList.view.toSet, config.processors, defwalkers = Some(walkers),mutualExclusivityPatternManager=Option(mutualExclusivePatternsManager))
+      networkManager.run(config.iterations, geneList.view.toSet, config.processors, defwalkers = Some(walkers),mutualExclusivityPatternManager=Option(mutualExclusivePatternsManager),patterns=config.patterns)
 
       //val rankedGenes = networkManager.getRankedAllGenes().filter { g => networkManager.getPosteriorProbability(g) > 0.95 } .toList
       val rankedGenes = if (config.outputGenes == 0)
@@ -93,11 +93,13 @@ object MutualExclusivityAnalysis extends App {
       
       val malacardsGenes = if (config.otherGeneList==""){Set[Gene]()} else {Source.fromFile(config.otherGeneList).getLines.map(line => Gene(line.split("\t")(0))).toSet}
       
-      MutualExclusivityPrintPattern.printPattern(config.outputPrefix, rankedGenes, networkManager, genePatientMatrix, otherPositiveGeneSetLists=malacardsGenes)
+      MutualExclusivityPrintPattern.printPattern(config.outputPrefix, rankedGenes, networkManager, genePatientMatrix, config.outputFolder, config.inputFolder, otherPositiveGeneSetLists=malacardsGenes)
 
+      if (config.patterns){
       println("\n calculating 5 best subnetworks per gene")
       
-      mutualExclusivePatternsManager.returnNbestSubnetworks(rankedGenes.toSet,5,"5bestPatterns")
+      mutualExclusivePatternsManager.returnNbestSubnetworks(rankedGenes.toSet,"5bestPatterns",config.outputFolder)
+      }
       
       /**
        * P-value calculation
