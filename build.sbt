@@ -1,4 +1,4 @@
-import AssemblyKeys._
+xerial.sbt.Pack.packSettings
 
 name := "SSA"
 
@@ -7,6 +7,10 @@ organization := "cmpg"
 version := "0.1"
 
 scalaVersion := "2.11.4"
+
+packMain := Map("SSA" -> "be.cmpg.SmallSubnetworkAnalysis")
+
+packJvmOpts := Map("SSA" -> Seq("-Xmx5G", "-server"))
 
 EclipseKeys.withSource := true
 
@@ -31,10 +35,3 @@ libraryDependencies += "com.github.scopt" %% "scopt" % "3.3.0"
 libraryDependencies += "org.json" % "json" % "20090211"
 
 resolvers += Resolver.sonatypeRepo("public")
-
-mainClass in assembly := Some("be.cmpg.SmallSubnetworkAnalysis")
-
-jarName in assembly := "SSA.jar"
-
-test in assembly := {}
-            

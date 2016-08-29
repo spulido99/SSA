@@ -21,7 +21,7 @@ import be.cmpg.utils.StatUtils
 import java.util.LinkedList
 import scala.collection.mutable.HashSet
 import scala.util.control.Breaks
-import be.cmpg.utils.MutualExclusivityPatternsManager
+import be.cmpg.utils.PatternsManager
 
 abstract class NodeCostNetworkManager(network: Network,
     pheromone: Double = 0.005,
@@ -321,11 +321,11 @@ abstract class NodeCostNetworkManager(network: Network,
     }
   }
 
-  def run(iterations: Int, startingNodes: Set[Gene], processors: Int = 1, endNodes: Set[Gene] = Set(), defwalkers: Option[Set[SubNetworkSelector]] = None, storeNodePHistory: Boolean = false, storeNodePHistIter: Int = 50, subnetworkSize: Option[Int] = None, mutualExclusivityPatternManager: Option[MutualExclusivityPatternsManager] = None,patterns:Boolean=false) = {
+  def run(iterations: Int, startingNodes: Set[Gene], processors: Int = 1, endNodes: Set[Gene] = Set(), defwalkers: Option[Set[SubNetworkSelector]] = None, storeNodePHistory: Boolean = false, storeNodePHistIter: Int = 50, subnetworkSize: Option[Int] = None, mutualExclusivityPatternManager: Option[PatternsManager] = None, patterns: Boolean = false) = {
 
     iterationsLeft = iterations
 
-    val mutExclusivityPatternManager = if (patterns){mutualExclusivityPatternManager.get} else{new MutualExclusivityPatternsManager(network)}
+    val mutExclusivityPatternManager = if (patterns) { mutualExclusivityPatternManager.get } else { new PatternsManager(network) }
 
     if (storeNodePHistory)
       network.getNodes.foreach(_.probabilityHistory = new LinkedList[Double])
@@ -343,12 +343,12 @@ abstract class NodeCostNetworkManager(network: Network,
           startGene = gene,
           endGenes = endNodes,
           network = this)).toSet
-          
-      // Initialize convergence iterations. This is not needed for the mutualExclusivityAnalysis but is needed for the bootstrapCalculator as it otherwise stops after any solution has converged.
-     network.getNodes().foreach(_.convergenceIteration = -1)
-          
+
+    // Initialize convergence iterations. This is not needed for the mutualExclusivityAnalysis but is needed for the bootstrapCalculator as it otherwise stops after any solution has converged.
+    network.getNodes().foreach(_.convergenceIteration = -1)
+
     for (iteration <- 0 to iterations if (!converged())) {
-      
+
       if (debug.isEmpty && iteration % (iterations / 5).ceil == 0) {
         println()
         print((iterations - iteration) + "\t- ")
@@ -360,16 +360,14 @@ abstract class NodeCostNetworkManager(network: Network,
         network.getNodes.foreach(node => node.probabilityHistory.add(node.posteriorProbability))
       }
 
-      if (subnetworkSize.isEmpty)
-        walkers.foreach(_.setGeneNumberVariable(4 + Random.nextInt(2))) // 4 Nodes => 3 interactions
-      //   walkers.foreach(_.setGeneNumberVariable(3))
-      else
-        walkers.foreach(_.setGeneNumberVariable(subnetworkSize.get))
-
-      //walkers.foreach(_.setGeneNumberVariable(3 + StatUtils.getRandomPoisson(0.5))) // 0 - 60%, 1 - 30%, 2 - 10%)
-      //walkers.foreach(_.setGeneNumberVariable(3))
-
-      //.filterNot(networkManager.rankedGenes contains _)
+      // Initialize subnetwork sizes
+      if (subnetworkSize.isEmpty) {
+        val sizeOfSubNetworksForThisRound = 4 + Random.nextInt(2)
+        walkers.foreach(_.setGeneNumberVariable(sizeOfSubNetworksForThisRound)) // 4 Nodes => 3 interactions
+      } else{
+        walkers.foreach(_.setGeneNumberVariable(subnetworkSize.get))}
+      
+      
       val callables = walkers.map(walker => {
         new Callable[Option[(Set[Interaction], Double)]] {
           override def call(): Option[(Set[Interaction], Double)] = scoreWalker(walker)
@@ -381,17 +379,15 @@ abstract class NodeCostNetworkManager(network: Network,
       val futures = callables.map(threadpool.submit(_))
 
       val after = System.nanoTime()
-
-      //futures.map(x => println(x.get))
       val paths = futures.map(_.get.get)
 
-      if (patterns){
-      if (mutualExclusivityPatternManager.isEmpty) (None)
-      else {
-        mutExclusivityPatternManager.addSubnetworks(paths)
+      if (patterns) {
+        if (mutualExclusivityPatternManager.isEmpty) (None)
+        else {
+          mutExclusivityPatternManager.addSubnetworks(paths)
+        }
       }
-      }
-      
+
       val genesScores = updateScores(paths)
 
       /*
@@ -402,9 +398,10 @@ abstract class NodeCostNetworkManager(network: Network,
           node.convergenceIteration = iteration
         }
       }
-      if(patterns){
-      mutExclusivityPatternManager.calculateNbestSubnetworks}
-      
+      if (patterns) {
+        mutExclusivityPatternManager.calculateNbestSubnetworks
+      }
+
       if (iteration != iterations)
         evaporate(genesScores)
 

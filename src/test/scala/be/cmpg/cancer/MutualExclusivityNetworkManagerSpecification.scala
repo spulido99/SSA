@@ -5,6 +5,7 @@ import org.specs2.runner.JUnitRunner
 import org.specs2.mutable.Specification
 import be.cmpg.graph.Network
 import be.cmpg.graph.Interaction
+import be.cmpg.cancer.ME.MutualExclusivityNetworkManager;
 import be.cmpg.graph.Gene
 
 @RunWith(classOf[JUnitRunner])
@@ -35,21 +36,21 @@ class MutualExclusivityNetworkManagerSpecification extends Specification {
      * S_30                           // samples without mutation in those genes
      */
 
-      val genePatientMatrix: Map[PolimorphismKey, Polimorphism] = Map(
-        PolimorphismKey(Gene("g1"), "S_1",0) -> Polimorphism("g1"),
-        PolimorphismKey(Gene("g1"), "S_2",0) -> Polimorphism("g1"),
-        PolimorphismKey(Gene("g3"), "S_2",0) -> Polimorphism("g3"),
-        PolimorphismKey(Gene("g4"), "S_2",0) -> Polimorphism("g4"),
-        PolimorphismKey(Gene("g1"), "S_3",0) -> Polimorphism("g1"),
-        PolimorphismKey(Gene("g1"), "S_4",0) -> Polimorphism("g1"),
-        PolimorphismKey(Gene("g1"), "S_5",0) -> Polimorphism("g1"),
-        PolimorphismKey(Gene("g2"), "S_5",0) -> Polimorphism("g2"),
-        PolimorphismKey(Gene("g2"), "S_6",0) -> Polimorphism("g2"),
-        PolimorphismKey(Gene("g3"), "S_6",0) -> Polimorphism("g3"),
-        PolimorphismKey(Gene("g2"), "S_7",0) -> Polimorphism("g2"),
-        PolimorphismKey(Gene("g2"), "S_8",0) -> Polimorphism("g2"),
-        PolimorphismKey(Gene("g3"), "S_9",0) -> Polimorphism("g3"),
-        PolimorphismKey(Gene("g4"), "S_10",0) -> Polimorphism("g4")) ++ (11 to 30).map {id => PolimorphismKey(Gene("gOther"), "S_"+id,0) -> Polimorphism("gOther")}.toMap
+      val genePatientMatrix: Map[PolymorphismKey, Polymorphism] = Map(
+        PolymorphismKey(Gene("g1"), "S_1",0) -> Polymorphism("g1"),
+        PolymorphismKey(Gene("g1"), "S_2",0) -> Polymorphism("g1"),
+        PolymorphismKey(Gene("g3"), "S_2",0) -> Polymorphism("g3"),
+        PolymorphismKey(Gene("g4"), "S_2",0) -> Polymorphism("g4"),
+        PolymorphismKey(Gene("g1"), "S_3",0) -> Polymorphism("g1"),
+        PolymorphismKey(Gene("g1"), "S_4",0) -> Polymorphism("g1"),
+        PolymorphismKey(Gene("g1"), "S_5",0) -> Polymorphism("g1"),
+        PolymorphismKey(Gene("g2"), "S_5",0) -> Polymorphism("g2"),
+        PolymorphismKey(Gene("g2"), "S_6",0) -> Polymorphism("g2"),
+        PolymorphismKey(Gene("g3"), "S_6",0) -> Polymorphism("g3"),
+        PolymorphismKey(Gene("g2"), "S_7",0) -> Polymorphism("g2"),
+        PolymorphismKey(Gene("g2"), "S_8",0) -> Polymorphism("g2"),
+        PolymorphismKey(Gene("g3"), "S_9",0) -> Polymorphism("g3"),
+        PolymorphismKey(Gene("g4"), "S_10",0) -> Polymorphism("g4")) ++ (11 to 30).map {id => PolymorphismKey(Gene("gOther"), "S_"+id,0) -> Polymorphism("gOther")}.toMap
 
       /* Scores:
        *            S1    S2  S3  S4   S5  S6  S7  S8  S9  S10

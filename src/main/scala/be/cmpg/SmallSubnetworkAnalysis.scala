@@ -1,16 +1,16 @@
 package be.cmpg
 
-import be.cmpg.cancer.MemoComparissonAnalysis
+import be.cmpg.cancer.MemoAnalysis.MemoComparissonAnalysis
 import be.cmpg.cancer.simulations.MutualExclusivitySimulations
-import be.cmpg.cancer.PancancerAnalysis
-import be.cmpg.cancer.MutualExclusivityAnalysis
-import be.cmpg.cancer.FunctionalMutualExclusivityAnalysis
-import be.cmpg.cancer.MutualExclusivityPrintPattern
+import be.cmpg.cancer.pancancer.PancancerAnalysis
+import be.cmpg.cancer.ME.MutualExclusivityAnalysis
+import be.cmpg.cancer.functional.FunctionalMutualExclusivityAnalysis
 import be.cmpg.cancer.simulations.AnalizeSimulationResults
-import be.cmpg.cancer.MutualExclusivityPrepareInput
-import be.cmpg.cancer.PValueCalculator
-import be.cmpg.cancer.BootstrapCalculator
-import be.cmpg.cancer.FunctionalMutualExclusivityPrepareInput
+import be.cmpg.cancer.ME.MutualExclusivityPrepareInput
+import be.cmpg.statistical.PValueCalculator
+import be.cmpg.statistical.BootstrapCalculator
+import be.cmpg.cancer.functional.FunctionalMutualExclusivityPrepareInput
+import be.cmpg.cluster.MushthofaAnalysis
 
 object SmallSubnetworkAnalysis extends App {
   
@@ -24,7 +24,6 @@ object SmallSubnetworkAnalysis extends App {
     module match {
       case "ME" => MutualExclusivityAnalysis.main(newArgs)
       case "ME_input" => MutualExclusivityPrepareInput.main(newArgs)
-      case "ME_pattern" => MutualExclusivityPrintPattern.main(newArgs)
       case "ME_pan" => PancancerAnalysis.main(newArgs)
       case "ME_memoComp" => MemoComparissonAnalysis.main(newArgs)
       case "ME_sim" => MutualExclusivitySimulations.main(newArgs)
@@ -33,6 +32,7 @@ object SmallSubnetworkAnalysis extends App {
       case "ME_btstrp" => BootstrapCalculator.main(newArgs)
       case "FME_input" => FunctionalMutualExclusivityPrepareInput.main(newArgs)
       case "FME" => FunctionalMutualExclusivityAnalysis.main(newArgs)
+      case "P_val" => MushthofaAnalysis.main(newArgs)
     }
   }
   
