@@ -12,14 +12,15 @@ class NetworkSpecification extends Specification {
 
     "be able to find the outgoing nodes of a given gene" in {
       val network = new Network(Set(
-        Interaction(Gene("from"), Gene("to"), direction = "undirected", probability = 1d),
-        Interaction(Gene("to"), Gene("end_1"), direction = "undirected", probability = 1d),
-        Interaction(Gene("to"), Gene("end_2"), direction = "undirected", probability = 1d)))
+        Interaction(Gene("from"), Gene("to"), direction = "undirected"),
+        Interaction(Gene("to"), Gene("end_1"), direction = "undirected"),
+        Interaction(Gene("to"), Gene("end_2"), direction = "undirected")))
+      
 
       network.getOutgoingInteractions(Gene("to")) must contain(allOf(
-        Interaction(Gene("from"), Gene("to"), probability = 1d),
-        Interaction(Gene("to"), Gene("end_1"), probability = 1d),
-        Interaction(Gene("to"), Gene("end_2"), probability = 1d)))
+        Interaction(Gene("to"), Gene("from")),
+        Interaction(Gene("to"), Gene("end_1")),
+        Interaction(Gene("to"), Gene("end_2"))))
     }
   }
 }

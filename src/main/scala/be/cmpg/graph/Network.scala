@@ -31,6 +31,14 @@ class Network(val interactions: Set[Interaction], geneList: Set[Gene] = null) {
     nodeMap
   }
 
+  def getOutDegree (gene:Gene):Int={
+    getOutgoingInteractions(gene).size
+  }
+  
+  def getInDegree(gene:Gene):Int ={
+    getIncommingInteractions(gene).size
+  }
+  
   /**
    * @Deprecated use node.interactions
    */

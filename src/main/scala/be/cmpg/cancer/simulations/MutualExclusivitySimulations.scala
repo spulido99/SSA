@@ -79,7 +79,7 @@ object MutualExclusivitySimulations extends App {
 
       /* Constants */
       val networkName = Seq("HT", "hiII14")
-      val interactions = NetworkFactory.loadNetwork(networkName, config.inputFolder)
+      val interactions = NetworkFactory.loadNetwork(networkName, config.inputFolder).interactions
       val baseNetwork = new Network(interactions)
       println("Base Network size: " + baseNetwork.interactions.size)
       val genes = baseNetwork.genes.toList

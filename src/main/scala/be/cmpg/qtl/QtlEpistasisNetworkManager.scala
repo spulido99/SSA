@@ -8,12 +8,14 @@ import be.cmpg.graph.Interaction
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics
 import scala.collection.Set
 import be.cmpg.walk.SubNetworkSelector
+import be.cmpg.utils.weightByFlatInitialProbability
 
 class QtlEpistasisNetworkManager(network: Network,
     chromosomeBackground: Map[String, BetaDistribution],
     markerFrequency: Map[Set[String], Double], // tuple: Chr:Pos ChrXI:149594
     pheromone: Double,
-    evaporation: Double ) extends NodeCostNetworkManager(network: Network, pheromone: Double, evaporation: Double) {
+    initialProb:Double= 0.5,
+    evaporation: Double ) extends NodeCostNetworkManager(network: Network, pheromone: Double, evaporation: Double,weightingScheme=new weightByFlatInitialProbability(network,initialProb)) {
 
   override def scoreSubnetwork(subnetwork: Set[Interaction], selector: Option[SubNetworkSelector] = None): Double = {
     

@@ -10,7 +10,7 @@ import be.cmpg.graph.Interaction
 import be.cmpg.graph.Interaction
 import java.io.FileWriter
 import be.cmpg.expression.ExpressionNetworkManager
-import be.cmpg.expression.ExpressionNetworkManager
+import be.cmpg.utils.weightByFlatInitialProbability
 
 object ROCPlotRobusticityAnalysis extends App {
   val repeats = 100
@@ -38,7 +38,9 @@ object ROCPlotRobusticityAnalysis extends App {
       }
     }
     
-    val networkManager = new ExpressionNetworkManager(network = new Network(newInteractions.view.toSet))
+    val network = new Network(newInteractions.view.toSet)
+    
+    val networkManager = new ExpressionNetworkManager(network = network,weightingScheme = new weightByFlatInitialProbability(network,0.5))
     networkManager.getNetwork.getNodes.foreach(node => node.score = base_networkManager.getNetwork.getNode(node.gene).score)
     
     networkManager
@@ -57,7 +59,7 @@ object ROCPlotRobusticityAnalysis extends App {
 
     println("---> " + r)
 
-    val base_networkManager = new ExpressionNetworkManager(network = base_network)
+    val base_networkManager = new ExpressionNetworkManager(network = base_network,weightingScheme = new weightByFlatInitialProbability(base_network,0.5))
     val (importantGenesR, geneExpression) = ROCPlotSimulatedData.simulateGeneScores(base_networkManager, size)
 
     val importantGenes = importantGenesR.map(_.name).toSet

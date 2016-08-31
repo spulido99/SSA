@@ -22,10 +22,13 @@ import java.util.LinkedList
 import scala.collection.mutable.HashSet
 import scala.util.control.Breaks
 import be.cmpg.utils.PatternsManager
+import org.apache.commons.math3.distribution.ExponentialDistribution
+import be.cmpg.utils.NetworkWeighting
 
 abstract class NodeCostNetworkManager(network: Network,
     pheromone: Double = 0.005,
     evaporation: Double = 0.996,
+    weightingScheme: NetworkWeighting,
     ranked: Boolean = false,
     minProb: Double = 0.01,
     initialProb: Double = 0.50,
@@ -33,27 +36,20 @@ abstract class NodeCostNetworkManager(network: Network,
 
   def getMinProb = minProb
 
-  //val acumulativeInteractionsScore = new HashMap[Interaction, (Double, Integer)] // interaction -> (sum of scaled scores, number of times selected)
   val rankedGenes = new LinkedHashSet[Gene]
-  //val bestSubnetworkRankedGenes = new HashMap[Gene, (Set[Interaction], Double)]
-  //val probabilityMap = initProbabilityMap()
-  //var probabilityHistory:Map[Gene, LinkedList[Double]] = _
 
   /*
-   * Initialize node probabilities
+   * Initialize node probabilities based on a specific weighting scheme and initialProbability
    */
-  network.getNodes().foreach { node => node.posteriorProbability = initialProb }
-
-  def getRankedGenes() {
-
-  }
+  
+  val networkWithInitialProb = weightingScheme.initialize
 
   def getRankedAllGenes() = {
     val toReturn = new LinkedHashSet[Gene]
 
     toReturn ++= rankedGenes
 
-    network.getNodes()
+    networkWithInitialProb.getNodes()
       .toList
       .sortBy(node => -node.posteriorProbability)
       .foreach { node => if (!rankedGenes.contains(node.gene)) toReturn += node.gene }
@@ -61,21 +57,6 @@ abstract class NodeCostNetworkManager(network: Network,
     toReturn.view
   }
 
-  /*
-   * Score subnetwork by the number of times a gene exist in subnetworks
-   * 
-  def scoreSubnetwork(subnetworks: Traversable[Set[Interaction]]) = {
-    val genes = HashMap[Gene, Double]()
-    for (subnetwork <- subnetworks) {
-      for (interaction <- subnetwork) {
-        if (!genes.contains(interaction.from)) genes.put(interaction.from, 1.0) else genes.put(interaction.from, genes(interaction.from) + 1.0)
-        if (!genes.contains(interaction.to)) genes.put(interaction.to, 1.0) else genes.put(interaction.to, genes(interaction.to) + 1.0)
-      }
-    }
-    genes
-  }
-  *
-  */
 
   def debugForGenes(genes: Set[Gene], iterations: Int = 1) = {
     debug = Some(genes, iterations)
@@ -97,7 +78,7 @@ abstract class NodeCostNetworkManager(network: Network,
      * filter out NaN values
      */
     var subnetworkScores = inputSubnetworkScores.filter(sn => !sn._1.isEmpty && !sn._2.isNaN())
-
+    
     // If ranked is set to true, no scores but ranks will be attributed to the subnetworks. But these ranks are defined only within an interation, they are not continuous in between different iterations. That is why "best subnetwork" makes little sense when using this rank definition.
     if (ranked) {
       var rank = 0.0;
@@ -138,7 +119,7 @@ abstract class NodeCostNetworkManager(network: Network,
          *  add If the gene (from) is not present, 
          *  or the stored score is lower than the current score
          */
-        val fromNode = network.getNode(interaction.from)
+        val fromNode = networkWithInitialProb.getNode(interaction.from)
 
         val cScoreFrom = scores.get(interaction.from)
         if (!cScoreFrom.isDefined || score > cScoreFrom.get._1) {
@@ -154,7 +135,7 @@ abstract class NodeCostNetworkManager(network: Network,
          *  or the stored score is lower than the current score
          */
         val cScoreTo = scores.get(interaction.to)
-        val toNode = network.getNode(interaction.to)
+        val toNode = networkWithInitialProb.getNode(interaction.to)
         if (!cScoreTo.isDefined || score > cScoreTo.get._1) {
           scores.put(interaction.to, (score, subnetwork))
 
@@ -186,7 +167,8 @@ abstract class NodeCostNetworkManager(network: Network,
     val range = maxScore - minScore
     val scaledScores = scores.map(x => {
       if (range == 0) {
-        (x._1, 0.0)
+        // If maxScore = minScore you have only found one subnetwork (or multiple subnetworks with identical scores). In this case go for the middle ground and increase their gene scores by 0.5 times the pheromone
+        (x._1, 0.5d)
       } else {
         val scaledValue = (x._2._1 - minScore) / (range);
         (x._1, scaledValue)
@@ -205,7 +187,7 @@ abstract class NodeCostNetworkManager(network: Network,
       println()
       print(iterationsLeft)
       debug.get._1.foreach(g => print("\t" + scaledScores.getOrElse(g, "NA")))
-      debug.get._1.foreach(g => print("\t" + network.getNode(g).posteriorProbability))
+      debug.get._1.foreach(g => print("\t" + networkWithInitialProb.getNode(g).posteriorProbability))
       debug.get._1.foreach(g => print("\t" + scores.getOrElse(g, (null, Set()))._2.map(_.genes).flatten.map(_.name).toSet))
 
       if (debug.get._1.isEmpty) {
@@ -234,7 +216,7 @@ abstract class NodeCostNetworkManager(network: Network,
 
     genesScores.foreach(g => {
 
-      val node = network.getNode(g._1)
+      val node = networkWithInitialProb.getNode(g._1)
 
       val increase = 1 + pheromone * g._2
       val newValue = node.posteriorProbability * increase
@@ -258,7 +240,7 @@ abstract class NodeCostNetworkManager(network: Network,
     //var sum = 0.0
     var min = Double.MaxValue
     var max = Double.MinValue
-    network.getNodes().foreach(node => {
+    networkWithInitialProb.getNodes().foreach(node => {
       node.posteriorProbability = ((node.posteriorProbability * evaporation) min 1.0) // check to not minProv <= value <= 1.0
       //sum += node.posteriorProbability
       min = min.min(node.posteriorProbability)
@@ -268,27 +250,27 @@ abstract class NodeCostNetworkManager(network: Network,
      * Given that all genes belonged to at least one path, re-center them at 0.5
      */
     val mid = (min + max) / 2.0
-    //val mid = sum / network.getNodes().size
+    //val mid = sum / networkWithInitialProb.getNodes().size
 
-    network.getNodes().foreach(node => {
+    networkWithInitialProb.getNodes().foreach(node => {
       node.posteriorProbability = (((node.posteriorProbability - mid + initialProb) min 1.0))
       //node.posteriorProbability = ((node.posteriorProbability min 1.0) max minProb)
     })
   }
 
   override def getPosteriorProbability(gene: Gene): Double = {
-    network.getNode(gene).posteriorProbability
+    networkWithInitialProb.getNode(gene).posteriorProbability
   }
 
   def converged(): Boolean = { // iteration:Int
 
-    var convergedNodes = network.getNodes().filter { _.convergenceIteration > 0 }
+    var convergedNodes = networkWithInitialProb.getNodes().filter { _.convergenceIteration > 0 }
 
     /*if (iteration % 50.ceil == 0) {
-       println(iteration + " >> "+ convergedNodes.size.toDouble + "/" + network.getNodes.size.toDouble + " = "+convergedNodes.size.toDouble / network.getNodes.size.toDouble)
+       println(iteration + " >> "+ convergedNodes.size.toDouble + "/" + networkWithInitialProb.getNodes.size.toDouble + " = "+convergedNodes.size.toDouble / networkWithInitialProb.getNodes.size.toDouble)
     }*/
 
-    convergedNodes.size.toDouble / network.getNodes.size.toDouble > convergenceThreshold
+    convergedNodes.size.toDouble / networkWithInitialProb.getNodes.size.toDouble > convergenceThreshold
   }
 
   override def getRandomInteraction(selector: SubNetworkSelector): Option[Interaction] = {
@@ -325,10 +307,10 @@ abstract class NodeCostNetworkManager(network: Network,
 
     iterationsLeft = iterations
 
-    val mutExclusivityPatternManager = if (patterns) { mutualExclusivityPatternManager.get } else { new PatternsManager(network) }
+    val mutExclusivityPatternManager = if (patterns) { mutualExclusivityPatternManager.get } else { new PatternsManager(networkWithInitialProb) }
 
     if (storeNodePHistory)
-      network.getNodes.foreach(_.probabilityHistory = new LinkedList[Double])
+      networkWithInitialProb.getNodes.foreach(_.probabilityHistory = new LinkedList[Double])
 
     val threadpool = if (debug.isDefined || processors == 1)
       java.util.concurrent.Executors.newSingleThreadExecutor()
@@ -345,7 +327,7 @@ abstract class NodeCostNetworkManager(network: Network,
           network = this)).toSet
 
     // Initialize convergence iterations. This is not needed for the mutualExclusivityAnalysis but is needed for the bootstrapCalculator as it otherwise stops after any solution has converged.
-    network.getNodes().foreach(_.convergenceIteration = -1)
+    networkWithInitialProb.getNodes().foreach(_.convergenceIteration = -1)
 
     for (iteration <- 0 to iterations if (!converged())) {
 
@@ -357,7 +339,7 @@ abstract class NodeCostNetworkManager(network: Network,
         print(".")
       }
       if (storeNodePHistory && iteration % (iterations / storeNodePHistIter).ceil == 0) {
-        network.getNodes.foreach(node => node.probabilityHistory.add(node.posteriorProbability))
+        networkWithInitialProb.getNodes.foreach(node => node.probabilityHistory.add(node.posteriorProbability))
       }
 
       // Initialize subnetwork sizes
@@ -393,7 +375,7 @@ abstract class NodeCostNetworkManager(network: Network,
       /*
          * Update converge iteration value if score converged
          */
-      network.getNodes().foreach { node =>
+      networkWithInitialProb.getNodes().foreach { node =>
         if (node.convergenceIteration == -1 && (node.posteriorProbability > 0.95 || node.posteriorProbability < 0.05)) {
           node.convergenceIteration = iteration
         }

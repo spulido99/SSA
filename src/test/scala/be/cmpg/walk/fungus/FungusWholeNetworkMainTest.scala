@@ -22,6 +22,7 @@ import be.cmpg.walk.Path
 import collection.immutable.ListMap
 import java.io.FileWriter
 import be.cmpg.expression.ExpressionNetworkManager
+import be.cmpg.utils.weightByFlatInitialProbability
 
 object FungusWholeNetworkMainTest {
 
@@ -34,7 +35,8 @@ object FungusWholeNetworkMainTest {
   val PossibleGenes = new FileWriter(raw"C:\Users\Bram\Desktop/possibleGenes.txt")
 
   val interactions = NetworkReader.fromFile("src/test/resources/be/cmpg/graph/network_small_connected.txt")
-  val networkManager = new ExpressionNetworkManager(network = new Network(interactions), evaporation = 0.996)
+  val network = new Network(interactions)
+  val networkManager = new ExpressionNetworkManager(network , evaporation = 0.996,weightingScheme = new weightByFlatInitialProbability(network,0.5))
 
   new Network(interactions).genes.foreach(gene => PossibleGenes.write(gene + "\n"))
   PossibleGenes.close

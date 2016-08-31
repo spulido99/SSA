@@ -56,7 +56,8 @@ object NetworkReader {
         val direction = if (fields(2) == "pp" || fields(2) == "met_undirected") "undirected" else "directed"
         val regulatory = if (Set("pd", "srna", "sigma").contains(fields(2))) "regulatory" else "non-regulatory"
         val prob = if (fields.size > 3) fields(3).toDouble else 1.0
-        Interaction(Gene(fields(0)), Gene(fields(1)), fields(2), direction, regulatory, prob)
+//        Interaction(Gene(fields(0)), Gene(fields(1)), fields(2), direction, regulatory, prob)
+        Interaction(Gene(fields(0)), Gene(fields(1)), fields(2), direction, regulatory)
       }
     }
 
@@ -70,7 +71,8 @@ object NetworkReader {
         val direction = if (splitted(2) == "pp" || splitted(2) == "met_undirected") "undirected" else "directed"
         val regulatory = if (Set("pd", "srna", "sigma").contains(splitted(2))) "regulatory" else "non-regulatory"
         val prob = if (splitted.size > 3) splitted(3).toDouble else 1.0
-        Interaction(Gene(splitted(0)), Gene(splitted(1)), splitted(2), direction, regulatory, prob)
+ //       Interaction(Gene(splitted(0)), Gene(splitted(1)), splitted(2), direction, regulatory, prob)
+        Interaction(Gene(splitted(0)), Gene(splitted(1)), splitted(2), direction, regulatory)
       })
       .toSet
   }

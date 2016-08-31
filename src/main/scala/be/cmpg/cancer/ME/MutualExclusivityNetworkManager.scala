@@ -20,6 +20,7 @@ import scala.collection.immutable.TreeMap
 import org.apache.commons.math3.distribution.HypergeometricDistribution
 import be.cmpg.cancer.Polymorphism
 import be.cmpg.cancer.PolymorphismKey
+import be.cmpg.utils.weightByFlatInitialProbability
 
 /**
  * References:
@@ -41,7 +42,8 @@ class MutualExclusivityNetworkManager(network: Network,
   evaporation: Double = 0.996,
   ranked: Boolean = false,
   minProb: Double = 0.01,
-  statistical: Boolean = false) extends NodeCostNetworkManager(network: Network, pheromone: Double, evaporation: Double, ranked: Boolean, minProb: Double) {
+  initialProb:Double = 0.5,
+  statistical: Boolean = false) extends NodeCostNetworkManager(network: Network, pheromone: Double, evaporation: Double, new weightByFlatInitialProbability(network,initialProb), ranked: Boolean, minProb: Double,initialProb=initialProb) {
   
   println("MEManager")
   val all_samples = genePatientMatrix.map(_._1.sample).toSet//Set[String], // all the samples names (here to not need to analyse all keys of the genePatientMatrix)

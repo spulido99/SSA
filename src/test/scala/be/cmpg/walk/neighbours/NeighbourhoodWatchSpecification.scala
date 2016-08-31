@@ -20,10 +20,10 @@ class NeighbourhoodWatchSpecification extends Specification {
         depth = 1,
         network = new InteractionCostNetworkManager(new Network(
           interactions = Set(
-            Interaction(Gene("from"), Gene("to"), probability = 1),
-            Interaction(Gene("end_1"), Gene("end_3"), probability = 1),
-            Interaction(Gene("to"), Gene("end_1"), probability = 1),
-            Interaction(Gene("to"), Gene("end_2"), probability = 1)))))
+            Interaction(Gene("from"), Gene("to")),
+            Interaction(Gene("end_1"), Gene("end_3")),
+            Interaction(Gene("to"), Gene("end_1")),
+            Interaction(Gene("to"), Gene("end_2"))))))
 
       val result = watch.selectSubNetwork()
 

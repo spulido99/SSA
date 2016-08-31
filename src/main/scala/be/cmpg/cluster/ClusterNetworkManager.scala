@@ -6,14 +6,17 @@ import be.cmpg.graph.Interaction
 import scala.collection.Map
 import scala.collection.Set
 import be.cmpg.walk.SubNetworkSelector
+import be.cmpg.utils.weightByDegreeExponentialdistribution
+import be.cmpg.utils.weightByFlatInitialProbability
 
 
-class MushthofaNetworkManager(network: Network,
+class ClusterNetworkManager(network: Network,
   genePValueMatrix: Map[String, Double], // (EntrezGeneId, PatientId) -> chrom:start-end
   pheromone: Double = 0.005,
   evaporation: Double = 0.996,
+  initialProb:Double = 0.5,
   ranked: Boolean = false,
-  minProb: Double = 0.01) extends NodeCostNetworkManager(network: Network, pheromone: Double, evaporation: Double, ranked: Boolean, minProb: Double) {
+  minProb: Double = 0.01) extends NodeCostNetworkManager(network: Network, pheromone: Double, evaporation: Double, new weightByDegreeExponentialdistribution(network,initialProb), ranked: Boolean, minProb: Double, initialProb= initialProb) {
   
   println("MEManager")
   println("Genes: "+genePValueMatrix.size)

@@ -22,7 +22,7 @@ class PathSpecification extends Specification {
       "it should be expandable only when it can take an interaction" in {
         val path = new Path(Gene("from"))
 
-        val firstInteraction = Interaction(Gene("from"), Gene("to"), "typ", probability = 1)
+        val firstInteraction = Interaction(Gene("from"), Gene("to"), "typ")
 
         path.canTakeInteraction(firstInteraction) must beTrue
         path.expand(firstInteraction)
@@ -35,18 +35,18 @@ class PathSpecification extends Specification {
       "it should throw an IllegalArgumentException when an element is added that cannot used to expand the RandomWalk" in {
         val walk = new Path(Gene("from"))
 
-        val firstInteraction = Interaction(Gene("from"), Gene("to"), "typ", probability = 1)
+        val firstInteraction = Interaction(Gene("from"), Gene("to"), "typ")
         walk.expand(firstInteraction)
 
         "when it revisits a node already visited by the RandomWalk" in {
-          val secondInteraction = Interaction(Gene("to"), Gene("from"), "typ", probability = 1)
+          val secondInteraction = Interaction(Gene("to"), Gene("from"), "typ")
 
           walk.canTakeInteraction(secondInteraction) must beFalse
           walk.expand(secondInteraction) must throwA[IllegalArgumentException]
         }
 
         "when an interaction is added which is not connected with the current endpoint" in {
-          val secondInteraction = Interaction(Gene("to_1"), Gene("from_1"), "typ", probability = 1)
+          val secondInteraction = Interaction(Gene("to_1"), Gene("from_1"), "typ")
 
           walk.canTakeInteraction(secondInteraction) must beFalse
           walk.expand(secondInteraction) must throwA[IllegalArgumentException]
@@ -56,7 +56,7 @@ class PathSpecification extends Specification {
       "it should be resetable" in {
         val walk = new Path(Gene("from"))
 
-        val firstInteraction = Interaction(Gene("from"), Gene("to"), "typ", probability = 1)
+        val firstInteraction = Interaction(Gene("from"), Gene("to"), "typ")
         walk.expand(firstInteraction)
 
         walk.reset

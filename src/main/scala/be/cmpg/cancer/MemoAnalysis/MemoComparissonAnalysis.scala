@@ -35,7 +35,7 @@ object MemoComparissonAnalysis extends App {
   val mAS_perGene = 3
 
 
-  val interactions = NetworkFactory.loadNetwork(refNetwork,inputFolderPath)
+  val interactions = NetworkFactory.loadNetwork(refNetwork,inputFolderPath).interactions
 
   val network = new Network(interactions)
 

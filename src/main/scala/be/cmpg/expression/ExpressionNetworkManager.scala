@@ -6,10 +6,13 @@ import be.cmpg.graph.Interaction
 import scala.collection.Set
 import be.cmpg.graph.Gene
 import be.cmpg.walk.SubNetworkSelector
+import be.cmpg.utils.NetworkWeighting
 
 class ExpressionNetworkManager(network: Network,
+  initialProb:Double =0.5,
   pheromone: Double = 0.05,
-  evaporation: Double = 0.996) extends NodeCostNetworkManager(network: Network, pheromone: Double, evaporation: Double) {
+  evaporation: Double = 0.996,
+  weightingScheme: NetworkWeighting) extends NodeCostNetworkManager(network: Network, pheromone: Double, evaporation: Double,weightingScheme: NetworkWeighting ) {
 
   var geneExpression: Map[Gene, Double] = _
   

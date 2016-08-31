@@ -23,6 +23,7 @@ import scala.collection.mutable.HashMap
 import be.cmpg.expression.ExpressionNetworkManager
 import be.cmpg.expression.ExpressionNetworkManager
 import org.apache.commons.math3.distribution.NormalDistribution
+import be.cmpg.utils.weightByFlatInitialProbability
 
 object ROCPlotSimulatedData extends App {
 
@@ -162,7 +163,7 @@ object ROCPlotSimulatedData extends App {
 
       println("---> " + r)
 
-      val networkManager = new ExpressionNetworkManager(network = network)
+      val networkManager = new ExpressionNetworkManager(network = network,weightingScheme = new weightByFlatInitialProbability(network,0.5))
       
       println("- Network Manager created")
       

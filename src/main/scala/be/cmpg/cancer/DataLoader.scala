@@ -301,7 +301,7 @@ object DataLoader {
     def loadData(config: Config, FunctionalData: Boolean) = {
     val excludedGenesList = if (config.excludedGenes==""){List[String]()} 
     else{Source.fromFile(new File(config.excludedGenes)).getLines.toList}
-    val interactions = NetworkFactory.loadNetwork(config.refNetwork, config.inputFolder,excludedGenesList)
+    val interactions = NetworkFactory.loadNetwork(config.refNetwork, config.inputFolder,excludedGenesList).interactions
     val network = new Network(interactions)
     val networkFolder = config.inputFolder
 

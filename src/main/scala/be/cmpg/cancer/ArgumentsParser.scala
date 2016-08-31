@@ -40,7 +40,7 @@ object ArgumentsParser {
 
       opt[Seq[String]]('n', "refNetwork") action { (x, c) =>
         c.copy(refNetwork = x)
-      } text ("The reference network as a sequence of strings ('HT' (hint), 'hiII14' (interactome), 'reactome' or 'MEMo' (MEMo reference network)). HT, hiII14 and reactome together used by default.)")
+      } text ("The reference network as a sequence of strings ('HT' (hint), 'hiII14' (interactome), 'reactome' or 'MEMo' (MEMo reference network)). HT, hiII14 and reactome together used by default. note that interactions are viewed as undirected interactions.)")
 
       opt[Boolean]("patterns") action { (x, c) =>
         c.copy(patterns = x)

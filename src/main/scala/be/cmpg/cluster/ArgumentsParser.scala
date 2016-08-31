@@ -36,7 +36,7 @@ object ArgumentsParser {
 
       opt[String]('n', "refNetwork") required () action { (x, c) =>
         c.copy(refNetwork = x)
-      } text ("Path to the network file")
+      } text ("Path to the network file. Interactions must be undirected. Directed interactions are NOT supported yet.")
 
       opt[Boolean]("patterns") action { (x, c) =>
         c.copy(patterns = x)
@@ -62,7 +62,7 @@ object ArgumentsParser {
         c.copy(inputFolder = x)
       } text ("Path to folder where network html scaffold is located. SHOULD BE REFACTORED.")
 
-      opt[String]('e', "ecludedGenes") required () action { (x, c) =>
+      opt[String]('e', "excludedGenes") action { (x, c) =>
         c.copy(excludedGenes = x)
       } text ("Path to file which is a list with genes to exclude from the analysis (e.g. large hubs known to influence the analysis too much).")
     }

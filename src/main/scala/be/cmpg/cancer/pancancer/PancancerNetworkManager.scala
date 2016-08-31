@@ -6,13 +6,15 @@ import be.cmpg.graph.Gene
 import be.cmpg.graph.interaction.NodeCostNetworkManager
 import be.cmpg.graph.Interaction
 import be.cmpg.walk.SubNetworkSelector
+import be.cmpg.utils.weightByFlatInitialProbability
 
 class PancancerNetworkManager(network: Network,
                               genePValues: Map[Gene, PValueInfo],
                               pheromone: Double,
                               evaporation: Double,
                               ranked: Boolean,
-                              convergenceThreshold:Double) extends NodeCostNetworkManager(network: Network, pheromone: Double, evaporation: Double, ranked: Boolean, convergenceThreshold:Double) {
+                              initialProb:Double,
+                              convergenceThreshold:Double) extends NodeCostNetworkManager(network: Network, pheromone: Double, evaporation: Double, new weightByFlatInitialProbability(network,initialProb), ranked: Boolean, convergenceThreshold:Double) {
 
   def scoreSubnetwork(subnetwork: Set[Interaction], selector: Option[SubNetworkSelector] = None): Double = {
     val genes = subnetwork.map(_.genes).flatten

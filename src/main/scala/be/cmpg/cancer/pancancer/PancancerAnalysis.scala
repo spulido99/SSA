@@ -22,7 +22,7 @@ object PancancerAnalysis extends App {
     outputPrefix: String,
     inputFolder: String = "",
     convergence: Double = 0.0,
-   
+
     outputFolder: String = "",
     files: Seq[File] = Seq(),
     debug: Seq[String] = Seq())
@@ -33,7 +33,7 @@ object PancancerAnalysis extends App {
       c.copy(iterations = x)
     } text ("iterations is the number of iterations (default: 5000)")
 
-    opt[String]('b', "inputFolder") required() action { (x, c) =>
+    opt[String]('b', "inputFolder") required () action { (x, c) =>
       c.copy(inputFolder = x)
     } text ("The folder which contains the networks and gene lists.")
 
@@ -108,7 +108,7 @@ object PancancerAnalysis extends App {
 
   val config = configOpt.get
 
-  val interactions = NetworkFactory.loadNetwork(config.refNetwork, config.inputFolder)
+  val interactions = NetworkFactory.loadNetwork(config.refNetwork, config.inputFolder).interactions
   val network = new Network(interactions)
   val translateGenesToEntrez: Map[String, String] = network.genes.map(g => (g.name, g.name)).toMap
 
@@ -182,7 +182,7 @@ object PancancerAnalysis extends App {
     pheromone = config.reinforcement,
     evaporation = config.forgetfulness,
     ranked = config.useRank,
-
+    initialProb = 0.5,
     convergenceThreshold = config.convergence)
 
   //val stats = new DescriptiveStatistics

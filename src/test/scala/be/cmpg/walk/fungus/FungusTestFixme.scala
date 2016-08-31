@@ -8,32 +8,33 @@ import be.cmpg.graph.Gene
 import java.util.concurrent.Callable
 import scala.collection.Set
 import be.cmpg.expression.ExpressionNetworkManager
+import be.cmpg.utils.weightByFlatInitialProbability
 
 object FungusTestFixme {
 
   val interactions = Set(
-    Interaction(Gene("1"), Gene("2"), probability = 1),
-    Interaction(Gene("2"), Gene("3"), probability = 1),
-    Interaction(Gene("3"), Gene("4"), probability = 1),
-    Interaction(Gene("4"), Gene("5"), probability = 1),
-    Interaction(Gene("4"), Gene("6"), probability = 1),
-    Interaction(Gene("4"), Gene("7"), probability = 1),
-    Interaction(Gene("6"), Gene("8"), probability = 1),
-    Interaction(Gene("7"), Gene("8"), probability = 1),
-    Interaction(Gene("7"), Gene("10"), probability = 1),
-    Interaction(Gene("8"), Gene("9"), probability = 1),
-    Interaction(Gene("10"), Gene("11"), probability = 1),
-    Interaction(Gene("11"), Gene("12"), probability = 1),
-    Interaction(Gene("11"), Gene("14"), probability = 1),
-    Interaction(Gene("12"), Gene("14"), probability = 1),
-    Interaction(Gene("12"), Gene("13"), probability = 1),
-    Interaction(Gene("13"), Gene("18"), probability = 1),
-    Interaction(Gene("14"), Gene("15"), probability = 1),
-    Interaction(Gene("15"), Gene("16"), probability = 1),
-    Interaction(Gene("16"), Gene("17"), probability = 1),
-    Interaction(Gene("17"), Gene("18"), probability = 1))
+    Interaction(Gene("1"), Gene("2")),
+    Interaction(Gene("2"), Gene("3")),
+    Interaction(Gene("3"), Gene("4")),
+    Interaction(Gene("4"), Gene("5")),
+    Interaction(Gene("4"), Gene("6")),
+    Interaction(Gene("4"), Gene("7")),
+    Interaction(Gene("6"), Gene("8")),
+    Interaction(Gene("7"), Gene("8")),
+    Interaction(Gene("7"), Gene("10")),
+    Interaction(Gene("8"), Gene("9")),
+    Interaction(Gene("10"), Gene("11")),
+    Interaction(Gene("11"), Gene("12")),
+    Interaction(Gene("11"), Gene("14")),
+    Interaction(Gene("12"), Gene("14")),
+    Interaction(Gene("12"), Gene("13")),
+    Interaction(Gene("13"), Gene("18")),
+    Interaction(Gene("14"), Gene("15")),
+    Interaction(Gene("15"), Gene("16")),
+    Interaction(Gene("16"), Gene("17")),
+    Interaction(Gene("17"), Gene("18")))
   val network = new Network(interactions)
-  val networkManager = new ExpressionNetworkManager(network = network)
+  val networkManager = new ExpressionNetworkManager(network = network, weightingScheme= new weightByFlatInitialProbability(network,0.5))
   
   val notWantedScore = 10;
   val wantedScore = 3;

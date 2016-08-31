@@ -1,10 +1,11 @@
 package be.cmpg.cancer
 
 import be.cmpg.graph.Interaction
+import be.cmpg.graph.Network
 import be.cmpg.graph.NetworkReader
 
 object NetworkFactory {
-  def loadNetwork(networks: Seq[String], networkFolder: String,excludedGenes:List[String]=List()): Set[Interaction] = {
+  def loadNetwork(networks: Seq[String], networkFolder: String,excludedGenes:List[String]=List()): Network = {
 
     val interactionsMap = scala.collection.mutable.Map[Interaction, Set[String]]()
 
@@ -52,9 +53,10 @@ object NetworkFactory {
 
     val interactions = interactionsMap.map(interaction => {
       val coreInteraction = interaction._1
-      Interaction(coreInteraction.from, coreInteraction.to, coreInteraction.typ, coreInteraction.direction, coreInteraction.regulatory, coreInteraction.probability, evidence = interaction._2.toSet)
+      //Interaction(coreInteraction.from, coreInteraction.to, coreInteraction.typ, coreInteraction.direction, coreInteraction.regulatory, coreInteraction.probability, evidence = interaction._2.toSet)
+      Interaction(coreInteraction.from, coreInteraction.to, coreInteraction.typ, coreInteraction.direction, coreInteraction.regulatory, evidence = interaction._2.toSet)
     }).toSet
 
-    interactions.filter(interaction =>{!(excludedGenes.contains(interaction.from.name) || excludedGenes.contains(interaction.to.name))})
+    new Network(interactions.filter(interaction =>{!(excludedGenes.contains(interaction.from.name) || excludedGenes.contains(interaction.to.name))}))
   }
 }

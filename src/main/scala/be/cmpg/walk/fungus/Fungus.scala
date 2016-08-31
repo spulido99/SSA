@@ -16,9 +16,9 @@ import collection.JavaConversions._
 import be.cmpg.graph.Interaction
 
 class Fungus(startGene: Gene,
-             endGenes: Set[Gene] = Set(),
-             _geneNumberVariable: Double = 3,
-             network: NetworkManager[_]) extends SubNetworkSelector(network) {
+    endGenes: Set[Gene] = Set(),
+    _geneNumberVariable: Double = 3,
+    network: NetworkManager[_]) extends SubNetworkSelector(network) {
 
   if (!network.getGenes.contains(startGene))
     throw new IllegalArgumentException("Starting gene " + startGene + " does not exist in the network");
@@ -28,18 +28,24 @@ class Fungus(startGene: Gene,
   private var extendableNodes = new HashSet[Node]
   //val posibleInteractions = new HashSet[(Node, Node)]
 
+  visitedNodes = new HashSet[Node]
+  visitedNodes += startNode
+
+  extendableNodes = new HashSet[Node]
+  extendableNodes += startNode
+
   var currentScore: Double = _
   var geneNumberVariable = _geneNumberVariable
 
   override def setGeneNumberVariable(value: Double) = {
     geneNumberVariable = value
   }
-  
+
   override def getGeneNumberVariable() = geneNumberVariable
 
   override def getStartGene(): Gene = startGene
-  
-	override def getStartNode(): Node = startNode
+
+  override def getStartNode(): Node = startNode
 
   override def getPossibleInteractions(): List[Interaction] = throw new RuntimeException
 
@@ -50,23 +56,25 @@ class Fungus(startGene: Gene,
   }
 
   def getRandomInteraction(): Option[(Node, Node)] = {
-    
+    // Note that every interaction is viewed as an undirected interaction
     val randomNode = extendableNodes.toList(Random.nextInt(extendableNodes.size))
     val posibleInteractions = randomNode.getInteractions().filter(e => !visitedNodes.contains(e._2))
-    
+
     if (posibleInteractions.isEmpty) {
-    	
+
       extendableNodes -= randomNode
     }
-    
-    val sum = posibleInteractions.foldLeft(0.0)((x, y) => x + math.max(y._2.posteriorProbability, 0.01))
+
+    //   val sum = posibleInteractions.foldLeft(0.0)((x, y) => x + math.max(y._2.posteriorProbability, 0.01))
+    val sum = posibleInteractions.foldLeft(0.0)((x, y) => x + y._2.posteriorProbability)
     var ran = Random.nextDouble() * sum
     var selected: (InteractionType.Value, Node) = null
-    
+
     for (i <- posibleInteractions) {
-      ran -= math.max(i._2.posteriorProbability, 0.01)
+      ran -= i._2.posteriorProbability
+      //      ran -= math.max(i._2.posteriorProbability, 0.01)
       selected = i
-      if (ran <= 0) {
+      if (ran < 0) {
         return Some(randomNode, selected._2)
       }
     }
@@ -81,24 +89,22 @@ class Fungus(startGene: Gene,
     currentScore = startNode.score
     val visitedInteractions = new HashSet[(Node, Node)]
 
-    visitedNodes = new HashSet[Node]
-    visitedNodes += startNode 
-
-    extendableNodes = new HashSet[Node]
-    extendableNodes += startNode 
-
     //posibleInteractions.clear()
     //posibleInteractions ++= startNode.getInteractions().map(e => (startNode, e._2))
 
     /*
      * Select subnetwork
      */
-    while (allowAddMoreNodes) {
+    
+    // Done and Nonecounter are used to terminate the process when no additional interaction can be added to the network after multiple tries
+    var done = false
+    var NoneCounter = 0
 
+    while (allowAddMoreNodes && !(done)) {
       val interaction = getRandomInteraction
 
       if (interaction.isDefined) {
-
+        NoneCounter = 0
         val selectedNode = if (visitedNodes contains interaction.get._1)
           interaction.get._2
         else
@@ -115,6 +121,9 @@ class Fungus(startGene: Gene,
         //  .filter(e => !visitedNodes.contains(interaction.get._1) || !visitedNodes.contains(interaction.get._2))
 
         currentScore += selectedNode.score
+      } else {
+        NoneCounter = NoneCounter + 1
+        if (NoneCounter > 50) { done = true }
       }
     }
 

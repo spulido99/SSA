@@ -9,6 +9,8 @@ import be.cmpg.graph.NetworkReader
 import be.cmpg.graph.Network
 import collection.immutable.ListMap
 import java.io.FileWriter
+import be.cmpg.expression.ExpressionNetworkManager
+import be.cmpg.utils.weightByFlatInitialProbability
 
 @RunWith(classOf[JUnitRunner])
 class UniformNetworkTest extends Specification {
@@ -22,7 +24,7 @@ class UniformNetworkTest extends Specification {
 
       val mutationList = new MutationListGenerator(mutationDirectoryPath, geneReferenceFilePath).getExtendedMutationList
 
-      val mutationScoringMap = new MutationScoresGenerator(mutationList).getScoresCount
+      val mutationScoringMap = new MutationScoresGenerator(mutationList).getScoresCount.map(mutScore => (Gene(mutScore._1),mutScore._2.split("\t")(0).toDouble)).toMap
 
       val network = new Network(NetworkReader.fromFile(raw"src\test\resources\be\cmpg\NeighbourhoodScoring\graph\Network.txt"))
 
@@ -30,7 +32,11 @@ class UniformNetworkTest extends Specification {
 
       val searchdepth = 3
 
-      val normalizedScore = new NeighbourhoodTreeGenerator(startGene, searchdepth, null).expand
+      val networkManager = new ExpressionNetworkManager(network, weightingScheme = new weightByFlatInitialProbability(network, 0.5))
+
+      networkManager.geneExpression = mutationScoringMap
+      
+      val normalizedScore = new NeighbourhoodTreeGenerator(startGene, searchdepth, networkManager).expand
 
       normalizedScore._1 must be equalTo 5
 

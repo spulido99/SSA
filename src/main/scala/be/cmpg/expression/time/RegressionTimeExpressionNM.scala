@@ -12,6 +12,7 @@ import be.cmpg.graph.interaction.NodeCostNetworkManager
 import util.MyGLSMultipleLinearRegression
 import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression
 import be.cmpg.walk.SubNetworkSelector
+import be.cmpg.utils.weightByFlatInitialProbability
 
 class RegressionTimeExpressionNM(network: Network,
   timeExpressionMatrix: Map[String, Array[Array[Double]]], // gene -> Matrix[5 Samples][5 Time Points]
@@ -19,8 +20,9 @@ class RegressionTimeExpressionNM(network: Network,
   all_samples: Set[String], // all the samples names (here to not need to analyse all keys of the genePatientMatrix)
   mAS_perGene: Int, // minFreqGene: minimum frequency of mutation for a gene to be considered in the analysis
   pheromone: Double = 0.05,
+  initialProb:Double = 0.5,
   evaporation: Double = 0.996,
-  ranked: Boolean = false) extends NodeCostNetworkManager(network: Network, pheromone: Double, evaporation: Double, ranked: Boolean) {
+  ranked: Boolean = false) extends NodeCostNetworkManager(network: Network, pheromone: Double, evaporation: Double, new weightByFlatInitialProbability(network,initialProb), ranked: Boolean) {
 
   override def scoreSubnetwork(subnetwork: Set[Interaction], selector: Option[SubNetworkSelector] = None): Double = {
 

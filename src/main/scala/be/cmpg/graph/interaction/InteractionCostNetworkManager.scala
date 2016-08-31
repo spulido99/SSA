@@ -44,7 +44,8 @@ class InteractionCostNetworkManager(
   }
 
   override def getPosteriorProbability(interaction: Interaction): Double =
-    probabilityMap(interaction) * interaction.probability
+  //  probabilityMap(interaction) * interaction.probability
+    probabilityMap(interaction)
     
     /**
    * Selects a random interaction from a list of Interactions based on the posterior probability as defined

@@ -26,20 +26,20 @@ class DFungusSpecification extends Specification {
         endGenes = Set(Gene("end_1"), Gene("end_2")),
         network = new InteractionCostNetworkManager(network = new Network(
           interactions = Set(
-            Interaction(Gene("from"), Gene("to"), probability = 1),
-            Interaction(Gene("from"), Gene("useless_1"), probability = 1),
-            Interaction(Gene("useless_2"), Gene("useless_1"), probability = 1),
-            Interaction(Gene("to"), Gene("end_1"), probability = 1),
-            Interaction(Gene("to"), Gene("end_2"), probability = 1)))))
+            Interaction(Gene("from"), Gene("to")),
+            Interaction(Gene("from"), Gene("useless_1")),
+            Interaction(Gene("useless_2"), Gene("useless_1")),
+            Interaction(Gene("to"), Gene("end_1")),
+            Interaction(Gene("to"), Gene("end_2"))))))
 
       val interactionSet = fungus.selectSubNetwork()
 
       interactionSet must not beEmpty
 
       interactionSet.get must contain(exactly(
-        Interaction(Gene("from"), Gene("to"), probability = 1),
-        Interaction(Gene("to"), Gene("end_1"), probability = 1),
-        Interaction(Gene("to"), Gene("end_2"), probability = 1)))
+        Interaction(Gene("from"), Gene("to")),
+        Interaction(Gene("to"), Gene("end_1")),
+        Interaction(Gene("to"), Gene("end_2"))))
     }
   }
 }

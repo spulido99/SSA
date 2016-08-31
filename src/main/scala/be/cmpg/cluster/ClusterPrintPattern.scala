@@ -36,7 +36,7 @@ object PValuesPrintPattern extends App {
 
   val (interactions, network, pValueMap, geneList) = DataLoader.loadData(config)
 
-  val networkManager = new MushthofaNetworkManager(
+  val networkManager = new ClusterNetworkManager(
     network = network,
     genePValueMatrix = pValueMap,
     evaporation = 0,
