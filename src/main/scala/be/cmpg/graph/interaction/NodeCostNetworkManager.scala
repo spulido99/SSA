@@ -233,29 +233,26 @@ abstract class NodeCostNetworkManager(network: Network,
 
   def evaporate(geneScores: Map[Gene, Double] = Map()) = {
 
-    /*
-     * Given that all genes belonged to at least one path, re-center them at 0.5
-     */
-
-    //var sum = 0.0
     var min = Double.MaxValue
     var max = Double.MinValue
     networkWithInitialProb.getNodes().foreach(node => {
       node.posteriorProbability = ((node.posteriorProbability * evaporation) min 1.0) // check to not minProv <= value <= 1.0
-      //sum += node.posteriorProbability
-      min = min.min(node.posteriorProbability)
-      max = max.max(node.posteriorProbability)
-    })
+      })
+      
+      // ===> Why would you recenter around the initial prob? It has problems for posteriorProbabilities of 0 or very low (when weighted out) and it makes convergence of some nodes difficult as you are centering towards the initial prob
+      
+/*      min = min.min(node.posteriorProbability)
+      max = max.max(node.posteriorProbability)*/
     /*
-     * Given that all genes belonged to at least one path, re-center them at 0.5
+     * Given that all genes belonged to at least one path, re-center them at 0.5 => But this is not necessarily true
      */
-    val mid = (min + max) / 2.0
+/*    val mid = (min + max) / 2.0
     //val mid = sum / networkWithInitialProb.getNodes().size
 
     networkWithInitialProb.getNodes().foreach(node => {
       node.posteriorProbability = (((node.posteriorProbability - mid + initialProb) min 1.0))
       //node.posteriorProbability = ((node.posteriorProbability min 1.0) max minProb)
-    })
+    })*/
   }
 
   override def getPosteriorProbability(gene: Gene): Double = {

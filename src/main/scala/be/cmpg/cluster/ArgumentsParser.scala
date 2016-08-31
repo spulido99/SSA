@@ -20,7 +20,7 @@ object ArgumentsParser {
 
       opt[Double]('f', "forgetfulness") action { (x, c) =>
         c.copy(forgetfulness = x)
-      } text ("The forgetfulness after each iteration (default: 0.9996)")
+      } text ("The forgetfulness after each iteration (default: 0.9995)")
 
       opt[String]('o', "outputFolder") required () action { (x, c) =>
         c.copy(outputFolder = x)
@@ -72,7 +72,7 @@ case class PvalueConfig(
 
   iterations: Int = 5000,
   reinforcement: Double = 0.0005,
-  forgetfulness: Double = 0.9996,
+  forgetfulness: Double = 0.9995,
   outputFolder: String = "",
   seedGenesMutations: Double = 0.1,
   outputPrefix: String = "CLUST",

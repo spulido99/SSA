@@ -87,7 +87,7 @@ object PValuesPrintPattern extends App {
         nodes.put(geneInfo)
         try {
           val node = networkManager.getNetwork().getNode(g)
-          out_nodes.write(g.name + "\t" + node.posteriorProbability + "\t" + genes.contains(g) + "\t" + node.convergenceIteration + "\t"  + node.bestSubnetwork._1 + "\t" + node.bestSubnetwork._2 + "\n")
+          out_nodes.write(g.name + "\t" + node.posteriorProbability + "\t" + genes.contains(g) + "\t" + node.convergenceIteration + "\t"  + node.bestSubnetwork._1.toString().replaceAll("\t",",").replaceAll("Set\\(","").replaceAll("\\)","")+ "\t" + node.bestSubnetwork._2 + "\n")
         } catch {
           case t: Throwable => out_nodes.write(g.name + "\t" + "NA" + "\t" + genes.contains(g) + "\t" + "NA" +  "\t" + "NA" + "\n")
         }

@@ -8,6 +8,7 @@ import scala.collection.Set
 import be.cmpg.walk.SubNetworkSelector
 import be.cmpg.utils.weightByDegreeExponentialdistribution
 import be.cmpg.utils.weightByFlatInitialProbability
+import be.cmpg.utils.testWeighting
 
 
 class ClusterNetworkManager(network: Network,
@@ -16,7 +17,7 @@ class ClusterNetworkManager(network: Network,
   evaporation: Double = 0.996,
   initialProb:Double = 0.5,
   ranked: Boolean = false,
-  minProb: Double = 0.01) extends NodeCostNetworkManager(network: Network, pheromone: Double, evaporation: Double, new weightByDegreeExponentialdistribution(network,initialProb), ranked: Boolean, minProb: Double, initialProb= initialProb) {
+  minProb: Double = 0.01) extends NodeCostNetworkManager(network: Network, pheromone: Double, evaporation: Double, new testWeighting(network,initialProb,List("1956"),0), ranked: Boolean, minProb: Double, initialProb= initialProb) {
   
   println("MEManager")
   println("Genes: "+genePValueMatrix.size)
