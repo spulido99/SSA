@@ -28,12 +28,6 @@ class Fungus(startGene: Gene,
   private var extendableNodes = new HashSet[Node]
   //val posibleInteractions = new HashSet[(Node, Node)]
 
-  visitedNodes = new HashSet[Node]
-  visitedNodes += startNode
-
-  extendableNodes = new HashSet[Node]
-  extendableNodes += startNode
-
   var currentScore: Double = _
   var geneNumberVariable = _geneNumberVariable
 
@@ -55,6 +49,7 @@ class Fungus(startGene: Gene,
     currentScore < geneNumberVariable && !extendableNodes.isEmpty
   }
 
+  // Something is wrong here... The interactions are too random (they do not form subnetworks). Might have something to do with
   def getRandomInteraction(): Option[(Node, Node)] = {
     // Note that every interaction is viewed as an undirected interaction
     val randomNode = extendableNodes.toList(Random.nextInt(extendableNodes.size))
@@ -89,13 +84,19 @@ class Fungus(startGene: Gene,
     currentScore = startNode.score
     val visitedInteractions = new HashSet[(Node, Node)]
 
+    visitedNodes = new HashSet[Node]
+    visitedNodes += startNode
+
+    extendableNodes = new HashSet[Node]
+    extendableNodes += startNode
+
     //posibleInteractions.clear()
     //posibleInteractions ++= startNode.getInteractions().map(e => (startNode, e._2))
 
     /*
      * Select subnetwork
      */
-    
+
     // Done and Nonecounter are used to terminate the process when no additional interaction can be added to the network after multiple tries
     var done = false
     var NoneCounter = 0
@@ -128,7 +129,6 @@ class Fungus(startGene: Gene,
     }
 
     prune()
-
     Some(visitedInteractions.map(i => Interaction(i._1.gene, i._2.gene)).toSet)
   }
 
@@ -139,6 +139,16 @@ class Fungus(startGene: Gene,
     if (!endGenes.isEmpty) {
       // TODO do pruning
     }
+  }
+
+  private def connectedSubnetwork(interactions: Set[Interaction]): Boolean = {
+    var connected = true
+    interactions.foreach(interaction => {
+      val otherInteractions = interactions.-(interaction)
+      val otherGenes = otherInteractions.toList.map(interaction => interaction.genes).flatten.map(gene => gene.name)
+      if (!(otherGenes.contains(interaction.from.name)) && !(otherGenes.contains(interaction.to.name))) { connected = false }
+    })
+    connected
   }
 
   /*

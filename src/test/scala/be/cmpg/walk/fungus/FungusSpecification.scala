@@ -33,11 +33,23 @@ class FungusSpecification extends Specification {
           Interaction(Gene("to"), Gene("end_1")),
           Interaction(Gene("to"), Gene("end_2")),
           Interaction(Gene("to"), Gene("end_3"))))
+
+      val networkEnd_3Downweighted = new Network(
+        interactions = Set(
+          Interaction(Gene("from"), Gene("to")),
+          Interaction(Gene("to"), Gene("end_1")),
+          Interaction(Gene("to"), Gene("end_2")),
+          Interaction(Gene("to"), Gene("end_3")),
+          Interaction(Gene("end_1"), Gene("end_5")),
+          Interaction(Gene("end_1"), Gene("end_4"))))
+
+      val downweightedNetworkManager_3 = new ExpressionNetworkManager(networkEnd_3Downweighted, weightingScheme = new testWeighting(networkEnd_3Downweighted, 0.5, List("end_1"), 0))
       
       val downweightedNetworkManager = new ExpressionNetworkManager(networkEnd_2Downweighted, weightingScheme = new testWeighting(networkEnd_2Downweighted, 0.5, List("end_2"), 0))
 
-      "it should contain only the start node on initialization" in {
+      "it should contain the start node when having selected a subnetwork" in {
         val fungus = new Fungus(Gene("from"), Set(), 1, networkManager)
+        fungus.selectSubNetwork()
         fungus.visitedNodes.contains(networkFlatWeighted.getNode(Gene("from"))) must beTrue
       }
 
@@ -61,6 +73,18 @@ class FungusSpecification extends Specification {
         selectedGenes should not contain ("end_2")
       }
 
+      "it should select a subnetwork which is defined as a connected set of edges" in {
+        val fungus_1 = new Fungus(Gene("from"), Set(), 100, downweightedNetworkManager_3)
+        val selectedSubnetwork = fungus_1.selectSubNetwork().get
+        var connected = true
+        selectedSubnetwork.foreach(interaction => {
+          val otherInteractions = selectedSubnetwork.-(interaction)
+          val otherGenes = otherInteractions.toList.map(interaction => interaction.genes).flatten.map(gene => gene.name)
+          if (!(otherGenes.contains(interaction.from.name)) && !(otherGenes.contains(interaction.to.name))){connected = false}
+        })
+        connected should beEqualTo(true)
+      }
+      
     }
   }
 }
