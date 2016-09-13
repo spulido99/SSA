@@ -21,6 +21,8 @@ object PrintFiles {
     val printM2 = new PrintWriter(new File(outputFolder + output + ".m2"));
     val printBySample = new PrintWriter(new File(outputFolder + output + ".bySample.stats"));
     val printTbs = new PrintWriter(new File(outputFolder + output + ".tbs"));
+
+    printTbs.println("column\trow\ttype\tmutation\tcnvAmp\tcnvDel\tscore")
     genePatientMatrix.groupBy(_._1.sample).foreach {
       case (sample, map) =>
         if (map.size > seedGenesMutations) {
@@ -28,11 +30,9 @@ object PrintFiles {
           map.foreach {
             case (key, poli) =>
               if (weighted == true) {
-                printTbs.println("column\trow\ttype\tmutation\tcnvAmp\tcnvDel\tscore")
                 printM2.print("\t" + key.gene.name + "," + poli.score)
                 printTbs.println(key.sample + "\t" + key.gene.name + "\t" + (if (poli.source == "mut") 1 else if (poli.source == "amp") 2 else 3) + "\t" + (if (poli.source == "mut") 1 else 0) + "\t" + (if (poli.source == "amp") 1 else 0) + "\t" + (if (poli.source == "del") 1 else 0 + "\t" + poli.score))
               } else {
-                printTbs.println("column\trow\ttype\tmutation\tcnvAmp\tcnvDel")
                 printM2.print("\t" + key.gene.name)
                 printTbs.println(key.sample + "\t" + key.gene.name + "\t" + (if (poli.source == "mut") 1 else if (poli.source == "amp") 2 else 3) + "\t" + (if (poli.source == "mut") 1 else 0) + "\t" + (if (poli.source == "amp") 1 else 0) + "\t" + (if (poli.source == "del") 1 else 0))
               }
@@ -65,10 +65,10 @@ object PrintFiles {
     }
 
   }
-  
+
   // This function writes the html network file as well as the _edges.tsv and the _nodes.tsv and the _pattern.tsv files
-def printPattern(outputPrefix: String, genes: List[Gene], networkManager: NodeCostNetworkManager, genePatientMatrix: Map[PolymorphismKey, Polymorphism], outputFolder:String, inputFolder:String, additional: Map[Gene, Map[String, Any]] = Map(), otherPositiveGeneSetLists:Set[Gene]=Set()) = {
-                                        
+  def printPattern(outputPrefix: String, genes: List[Gene], networkManager: NodeCostNetworkManager, genePatientMatrix: Map[PolymorphismKey, Polymorphism], outputFolder: String, inputFolder: String, additional: Map[Gene, Map[String, Any]] = Map(), otherPositiveGeneSetLists: Set[Gene] = Set()) = {
+
     val results = new JSONObject
 
     val edges = new JSONArray
@@ -84,68 +84,68 @@ def printPattern(outputPrefix: String, genes: List[Gene], networkManager: NodeCo
           g -> Map[String, Any]("pvalue" -> 0.0, "origin" -> "unkown")
       }.toMap[Gene, Map[String, Any]]
     } else {
-       additional 
+      additional
     }
 
-    val out_edges = new FileWriter(outputFolder+outputPrefix + "_edges.tsv")
+    val out_edges = new FileWriter(outputFolder + outputPrefix + "_edges.tsv")
     out_edges.write("GeneA\tGeneB\tMEScore\n")
     networkManager.getAllInteractions
       .filter { i => i.to != i.from && genes.contains(i.from) && genes.contains(i.to) }
       .foreach { i =>
         {
           val score = { val score = networkManager.scoreSubnetwork(Set(i)); if (score.isNaN) 0.0 else score }
-          
+
           val edgeInfo = new JSONObject()
             .accumulate("source", i.from.name)
             .accumulate("target", i.to.name)
             .accumulate("score", score)
-            .accumulate("evidence",i.evidence.mkString(","))
+            .accumulate("evidence", i.evidence.mkString(","))
           edges.put(edgeInfo)
           out_edges.write(i.from.name + "\t" + i.to.name + "\t" + score + "\n")
         }
       }
 
     out_edges.close()
-    
-    def getKnownCancerLists(gene:Gene) = {
+
+    def getKnownCancerLists(gene: Gene) = {
       var toReturn = 0;
-      
+
       if (otherPositiveGeneSetLists.contains(gene)) toReturn += 1
       if (DataLoader.cgcGenes(inputFolder).contains(gene)) toReturn += 1
       if (DataLoader.ncgGenes(inputFolder).contains(gene)) toReturn += 1
-      
+
       toReturn
-    }  
-    
+    }
+
     val truePositiveGeneList = DataLoader.cgcGenes(inputFolder) ++ DataLoader.ncgGenes(inputFolder) ++ otherPositiveGeneSetLists;
-    
+
     val nodes = new JSONArray
 
-    val out_nodes = new FileWriter(outputFolder+outputPrefix + "_nodes.tsv")
+    val out_nodes = new FileWriter(outputFolder + outputPrefix + "_nodes.tsv")
     out_nodes.write("GeneSymbol\tPosteriorP\tSelected\tConvergenceIter\tKnownCancerGene\t\tBestSSN\n")
     println("GeneSymbol\tOtherPositive\tCGC\tNCG")
     genes
       .foreach(g => {
-        
-        println(g.name+"\t"+otherPositiveGeneSetLists.contains(g)+"\t"+DataLoader.cgcGenes(inputFolder).contains(g)+"\t"+DataLoader.ncgGenes(inputFolder).contains(g))
-        
+
+        println(g.name + "\t" + otherPositiveGeneSetLists.contains(g) + "\t" + DataLoader.cgcGenes(inputFolder).contains(g) + "\t" + DataLoader.ncgGenes(inputFolder).contains(g))
+
         val geneInfo = new JSONObject()
           .accumulate("name", g.name)
           .accumulate("selected", genes.contains(g))
-          .accumulate("knownCancerGene",("["+(DataLoader.cgcGenes(inputFolder).contains(g),otherPositiveGeneSetLists.contains(g),DataLoader.ncgGenes(inputFolder).contains(g)).toString+"]").replace("(","").replace(")","").replace("\"",""))
+          .accumulate("knownCancerGene", ("[" + (DataLoader.cgcGenes(inputFolder).contains(g), otherPositiveGeneSetLists.contains(g), DataLoader.ncgGenes(inputFolder).contains(g)).toString + "]").replace("(", "").replace(")", "").replace("\"", ""))
           .accumulate("inTPLists", getKnownCancerLists(g))
-          
+
         val additionalInfo = additionalNodeInfo.get(g)
         if (additionalInfo.isDefined) {
           additionalInfo.get.foreach { e =>
             geneInfo.accumulate(e._1, e._2)
           }
         }
-        
+
         nodes.put(geneInfo)
         try {
-        	val node = networkManager.getNetwork().getNode(g)
-        	out_nodes.write(g.name + "\t" + node.posteriorProbability+ "\t" + genes.contains(g) + "\t" + node.convergenceIteration + "\t" + truePositiveGeneList.contains(g) + "\t" + node.bestSubnetwork._1+"\t"+node.bestSubnetwork._2+"\n")
+          val node = networkManager.getNetwork().getNode(g)
+          out_nodes.write(g.name + "\t" + node.posteriorProbability + "\t" + genes.contains(g) + "\t" + node.convergenceIteration + "\t" + truePositiveGeneList.contains(g) + "\t" + node.bestSubnetwork._1 + "\t" + node.bestSubnetwork._2 + "\n")
         } catch {
           case t: Throwable => out_nodes.write(g.name + "\t" + "NA" + "\t" + genes.contains(g) + "\t" + "NA" + "\t" + truePositiveGeneList.contains(g) + "\t" + "NA" + "\n")
         }
@@ -156,10 +156,10 @@ def printPattern(outputPrefix: String, genes: List[Gene], networkManager: NodeCo
     results.put("edges", edges)
     results.put("nodes", nodes)
 
-    val html = Source.fromInputStream(new FileInputStream(inputFolder+"NetworkOutput.html")).mkString
+    val html = Source.fromInputStream(new FileInputStream(inputFolder + "NetworkOutput.html")).mkString
 
-    val out_json = new FileWriter(outputFolder+outputPrefix + "_network.html")
-    out_json.write(html.replace("$${graph}$$", results.toString.replace("\"[","[").replace("]\"","]")))
+    val out_json = new FileWriter(outputFolder + outputPrefix + "_network.html")
+    out_json.write(html.replace("$${graph}$$", results.toString.replace("\"[", "[").replace("]\"", "]")))
 
     out_json.close()
 
@@ -169,19 +169,19 @@ def printPattern(outputPrefix: String, genes: List[Gene], networkManager: NodeCo
       var mutationCounts = 0
       for (sample <- all_samples) {
         // Location not yet implemented here !
-        if (genePatientMatrix contains (PolymorphismKey(gene, sample,0))) {
+        if (genePatientMatrix contains (PolymorphismKey(gene, sample, 0))) {
           mutationCounts += 1
         }
       }
       var mutualExScore = 0.0
       for (sample <- all_samples) {
         // Location not yet implemented here !
-        if (genePatientMatrix contains (PolymorphismKey(gene, sample,0))) {
+        if (genePatientMatrix contains (PolymorphismKey(gene, sample, 0))) {
 
           var nonMutualGenes = 0.0
           for (other <- genes) {
             // Location not yet implemented here !
-            if (genePatientMatrix.contains(PolymorphismKey(other, sample,0))) {
+            if (genePatientMatrix.contains(PolymorphismKey(other, sample, 0))) {
               nonMutualGenes += 1
             }
           }
@@ -196,7 +196,7 @@ def printPattern(outputPrefix: String, genes: List[Gene], networkManager: NodeCo
 
     val toPrint = new HashMap[String, List[String]]
 
-    val out = new FileWriter(outputFolder+outputPrefix + "_pattern.tsv")
+    val out = new FileWriter(outputFolder + outputPrefix + "_pattern.tsv")
 
     val header = {
       out.append("Gene")
@@ -214,7 +214,7 @@ def printPattern(outputPrefix: String, genes: List[Gene], networkManager: NodeCo
     val samplesStr = all_samples.map(sample => (sample, {
       val sb = new StringBuilder
       // Location not yet implemented here !
-      geneMutScoreCounts.foreach(gMsc => sb.append("\t").append(genePatientMatrix.getOrElse(PolymorphismKey(gMsc._1, sample,0), Polymorphism("Nothing", score = 9)).score.toShort))
+      geneMutScoreCounts.foreach(gMsc => sb.append("\t").append(genePatientMatrix.getOrElse(PolymorphismKey(gMsc._1, sample, 0), Polymorphism("Nothing", score = 9)).score.toShort))
       sb.toString
     })).toList.sortBy(_._2)
 
@@ -222,5 +222,5 @@ def printPattern(outputPrefix: String, genes: List[Gene], networkManager: NodeCo
       samplesStr.foreach(s => out.append("\n").append(s._1).append(s._2.replaceAll("9", "")))
     }
   }
-  
+
 }
