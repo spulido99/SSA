@@ -340,6 +340,9 @@ abstract class NodeCostNetworkManager(network: Network,
           endGenes = endNodes,
           network = this)).toSet
 
+   // Initialize convergence iterations. This is not needed for the mutualExclusivityAnalysis but is needed for the bootstrapCalculator as it otherwise stops after any solution has converged.
+    network.getNodes().foreach(_.convergenceIteration = -1)
+          
     for (iteration <- 0 to iterations if (!converged())) {
 
       if (debug.isEmpty && iteration % (iterations / 5).ceil == 0) {

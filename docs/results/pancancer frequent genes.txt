@@ -1,0 +1,32 @@
+BCL2L1 (zogezegd niet in CGC/malacards/network of cancer genes) (66%) => Bijna altijd gain of copy number. Redelijk frequente mutaties (vaak > 20 mutaties). Komt voor in OV, BLCA, COADREAD, LUAD, UCEC, LUSC met hogere ranks. In BRCA is dit een linker gene maar het is wel het laagst gerankte gen dat geselecteerd is op basis van PPV. In GBM heeft dit 2 mutaties maar rankt het op de laatste plaats en is het niet geselecteerd in het subnetwerk op basis van PPV cutoff
+
+=> BCL2L1 is altijd geassocieerd met TP53/PIK3CA en wordt dus wel "binnengetrokken" (zie BRCA) maar bereikt enkel hogere ranks als het beter geassocieerd is (meer mutaties heeft). (known oncogene)
+
+MYC (wel in CGC/malacards/network of cancer genes, als controle hier toegevoegd) (72%) goed beschreven in meerder soorten kanker (frequente copy number variations (>20 meestal) , meestal gain of copy number, hetgeen de dataset ook reflecteert). Usual suspect
+
+TK1 (zogezegd niet in CGC/malacards/network of cancer genes)(50%) beschreven in colorectal kanker en long kanker (gene cards). Ook biomarker pan-cancer (Mol Clin Oncol. 2013 Jan;1(1):18-28. Epub 2012 Sep 4.). Maar bij ons gevonden in BLCA (10 patienten met amplificatie (dus ook overexpressie want de CNV's moeten positief gecorreleerd zijn met expressie)), OV als linker gen en in LUSC (16 mutaties,16 amplifications). In de rest PPV cutoff niet overleefd (te laag gerankt). Wel altijd met TP53 in beste subnetwerken (mogelijks binnengetrokken)
+
+SETDB1 (zogezegd niet in CGC/malacards/network of cancer genes). Bij ons in 5 kankers (41%) (LUSC (34 mutaties, 31 amp), COADREAD (12 mutaties,meeste amp) buiten PPV, GMB buiten PPV (1 mut), STAD buiten PPV (20 mut, meeste amp), UCEC buiten PPV (45 mut, meeste amp). Veel papers (sinds 2006) brengen SETDB1 in verband met kanker, maar meestal op het niveau van overexpressie. Er zijn ook papers die het over amplificatie hebben (http://www.ncbi.nlm.nih.gov/pubmed/?term=SETDB1+AND+cancer+AND+amplification) in longkanker en melanoom
+
+UBE2I (zogezegd niet in CGC/malacards/network of cancer genes). encodes a member of the E2 ubiquitin-conjugating enzyme family. Geimpliceerd in fibrosarcoma. bij ons in 5 kankers (OV als linker, STAD als linker, LUAD met 1 mutatie maar laag gerankt, HNSC als linker, COADREAD 2 mutaties maar buiten PPV. Vaak met TP53 en SMAD4 geassocieerd => zou goed vals positief kunnen zijn. Correlatie met kanker genen in OV aangetoond (Oncol Rep. 2012 Jan;27(1):286-92. doi: 10.3892/or.2011.1483. Epub 2011 Oct 3.). Voor de rest zeer weinig papers
+
+PPP1CA (zogezegd niet in CGC/malacards/network of cancer genes). Komt voor in 3 kankers maar telkens als linker gene en geassocieerd met TP53. Ook niets in literatuur van dit gen => wellicht vals positief
+
+VCAN (zogezegd niet in CGC/malacards/network of cancer genes). Komt voor in 4 kankers bij ons (STAD 14 mut, UCEC 5 mut, LUAD 62 mut, BLCA, 29 mut). Beetje literatuur in relatie tot kanker (expressie van gen met longkanker: PLoS One. 2016 Aug 11;11(8):e0161007. doi: 10.1371/journal.pone.0161007. eCollection 2016.), expressie in relatie tot colon kanker (Carcinogenesis. 2016 Jun 9. pii: bgw069. [Carcinogenesis. 2016 Jun 9. pii: bgw069 Epub ahead of print]) en leukemie (Eur J Cancer. 2016 Apr;57:87-90. doi: 10.1016/j.ejca.2015.12.031. Epub 2016 Feb 19.). Ook oudere papers wijzen op deze expressie patronen (http://www.ncbi.nlm.nih.gov/pubmed/?term=VCAN+AND+cancer)
+=> Niet in CGC omdat gecorreleerd door expressie, niet door mutaties in al die papers.
+
+USP7 zogezegd niet in CGC/malacards/network of cancer genes). ubiquitinyl hydrolases. Deubiquitineert proteinen zoals p53 en WASH. Bij ons in 3 kankers (HNSC 6 mut, BLCA 31 mut => 8 mut, 21 amp, 2 del, LUAD 11 mut) . Ook in STAD (niet over PPV treshold, 4 mut) en GBM (niet over PPv treshold, 1 mut)
+
+CRK (zogezegd niet in CGC/malacards/network of cancer genes). Adapter protein that binds to tyrosine-phosphorylated proteins. Involved in several signaling pathways. Bij ons in 3 kankers (BRCA 1 mut, UCEC 1 mut en KIRC linker). Geassocieerd met PIK3CA maar in KIRC met DDX41 en ABL1. Reeds geassocieerd met veschillende soorten kankers (vooral op basis van expressie, vandaar niet in CGC) en mode of action lijkt opgehelderd in longkanker (Oncotarget. 2016 May 10;7(19):27094-107. doi: 10.18632/oncotarget.8314.)
+
+SP1 (zogezegd niet in CGC/malacards/network of cancer genes). Zink vinger TF betrokken bij apoptosis, celgroei, cel differentiatie. Is reeds gekend als betrokken bij BRCA en pancreas kanker. ge Bij ons in 3 kankers (STAD haalt PPV cutoff net niet, 8 mut => 2 SNV 3 amp 3 del, COADREAD haalt PPV cutoff net niet 3 SNV's, GBM 1SNV)
+
+TFDP1 (zogezegd niet in CGC/malacards/network of cancer genes). Uit familie van TF's die heterodimerizeren met E2F proteinen om DNA binding activiteit te vergroten en zo targets van E2F target genen bindingsactiviteit vergroten. Bij ons in 3 kankers (LUAD 24 mut => 6 SNV 7 amp 11 del, OV 3 SNV, UCEC valt buiten PPV 19 mut => 4 SNV, 12 amp, 3 del). 
+
+
+
+
+
+
+
+

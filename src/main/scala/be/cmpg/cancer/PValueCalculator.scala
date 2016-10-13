@@ -75,21 +75,20 @@ object PValueCalculator extends App {
     .drop(1) // remove Header
     .map { fields => Gene(fields(0)) }.toList
 
-  /**
-   * For Coment 2 of Reviewer 1
-   *
-   * {
-   * val (interactions, network, genePatientMatrix, all_samples, geneList) = helper.loadData(config)
-   *
-   * val writer = new PrintWriter(config.outputPrefix + "_bla.tsv")
-   * genePatientMatrix.filter { case (key, p) => rankedGenes.contains(key.gene) }
-   * .keys.groupBy { x => x.gene }
-   * //.filter(_._2.size > 0)
-   * .foreach { case (gene, values) => writer.println(gene.name + "\t" + values.size)}
-   * writer.close()
-   * println("bla "+config.outputPrefix + "_bla.tsv")
-   * }
-   *
+    /**
+   {
+     val (interactions, network, genePatientMatrix, all_samples, geneList) = helper.loadData(config)
+     
+     val writer = new PrintWriter(config.outputPrefix + "_bla.tsv")
+     genePatientMatrix.filter { case (key, p) => rankedGenes.contains(key.gene) }
+       .keys.groupBy { x => x.gene }
+       //.filter(_._2.size > 0)
+       .foreach { case (gene, values) => writer.println(gene.name + "\t" + values.size)}
+       writer.close()
+       println("bla "+config.outputPrefix + "_bla.tsv")
+   }
+   
+    * For Coment 2 of Reviewer 1
    * Done.
    */
 

@@ -28,22 +28,24 @@ object MutualExclusivityPrepareInput extends App {
     } text ("The number of mutated samples required in a gene to be included (default: 1)")
     
     opt[Int]("maxQtyMutations") action { (x, c) =>
-      c.copy(seedGenesMutations = x)
+      c.copy(maxQtyMutations = x)
     } text ("Maximum number of mutations for a sample. If more, the sample is removed. (default: 500)")
     
     opt[Int]("maxQtyCopyNumber") action { (x, c) =>
-      c.copy(seedGenesMutations = x)
+      c.copy(maxQtyCopyNumber = x)
     } text ("Maximum number of copy number variations for a sample. If more, the sample is removed. (default: 500)")
     
     opt[File]('m', "maf") action { (x, c) =>
       c.copy(maf = Some(x))
     } text ("Mutation .maf file")
+    
     opt[Map[String, File]]('e', "expression") action { (x, c) =>
       c.copy(expression = x)
     } text ("expression file and GISTIC files (... -e corr=<file1>,gistic=<file2> OR" +
         " -e gistic=<file1>,exp=<file2>,cnv_thresholds=<file3> ...)." +
         " gistic folder should be a GISTIC output folder containing the files: all_thresholded.by_genes.txt, amp_genes.conf_99.txt and del_genes.conf_99.txt. " +
         " Correlation file should be tab delimited file (gene, corr, p-value, q-value).")
+        
     opt[Double]("acceptedCorrelationQVal") action { (x, c) =>
         c.copy(acceptedCorrelationQVal = x)
     } text ("q-value of the correlation to take into account (default: 0.05)")
@@ -61,7 +63,7 @@ object MutualExclusivityPrepareInput extends App {
         //val genePatientMatrix = new HashMap[PolimorphismKey, Polimorphism]  
         val mutationMatrix = if (config.maf.isDefined) {
         	println("Loading mutation file...")        
-        	helper.loadMaf(config.maf.get, config.maxQtyMutations)
+        	helper.loadMaf(config.maf.get, maxQtyMutations = config.maxQtyMutations)
         } else {
           Map[PolimorphismKey, Polimorphism]()
         }

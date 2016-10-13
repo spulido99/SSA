@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+line.link {
+	fill: none;
+	stroke: #aaa;
+	opacity: 0.6;
+	stroke-width: 2px;
+}
+
+.node {
+	fill: #ccc;
+	opacity: 0.3;
+	font: 9px sans-serif;
+}
+
+.node.important {
+	fill: gray;
+	stroke: gray;
+	stroke-width: 0;
+	opacity: 0.95;
+}
+
+.node.important.coding {
+	fill: #2D8677;
+	opacity: 0.95;
+}
+
+.node.important.promoter {
+	fill: #37588B;
+	opacity: 0.95;
+}
+
+.node.important.enhancer {
+	fill: #D3A047;
+	opacity: 0.95;
+}
+
+.node.important.lncrna {
+	fill: #D38047;
+	opacity: 0.95;
+}
+
+.node.important.cgc {
+	fill: #2D8677;
+	stroke-width: 0;
+	opacity: 0.95;
+}
+
+.node.important.other {
+	fill: #37588B;
+	stroke-width: 0;
+	opacity: 0.95;
+}
+
+.node.important.ncg {
+	fill: #D3A047;
+	stroke-width: 0;
+	opacity: 0.95;
+}
+
+
+text {
+	font: 9px sans-serif;
+}
+
+text.shadow {
+	stroke: #fff;
+	stroke-width: 2px;
+	stroke-opacity: .8;
+}
+</style>
+<head>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+	<script src="http://d3js.org/d3.v3.js"></script>
+	<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+	<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+	<script src="http://code.jquery.com/color/jquery.color.plus-names-2.1.2.js"></script>
+</head>
+<body>
+	<div id="controls" style="width: 100%">
+		<div style="width: 800px;">
+		  <label for="showgenes">Genes:</label>
+		  <input type="text" id="showgenes" readonly style="border:0; color:#f6931f; font-weight:bold;">
+		  <div id="slider-range"></div>
+		</div>
+		<!--
+		<span>Start condition: </span>
+		<select></select>
+		<span>End condition: </span>
+		<select></select>
+		 -->
+	</div>
+	<div id="network" style="width: 100%; height: 1500px"></div>
+
+</body>
+<script>
+
+	var graph = {"edges":[{"source":"RHOA","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"FYN"},{"source":"ERBB2","evidence":"hint. pmid:16273093 evidence code:0089 high throughput","score":6.069009428568352,"target":"VAV2"},{"source":"CDH1","evidence":"reactome paper:10.1093/nar/gkn863","score":6.57444578254611,"target":"DLG1"},{"source":"CTNNB1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CDKN1B"},{"source":"JAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.188901059316734,"target":"RHOA"},{"source":"ATM","evidence":"reactome paper:10.1093/nar/gkn863","score":10.56155281280883,"target":"TP53"},{"source":"CDC42","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RAC1"},{"source":"APC","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CDC42"},{"source":"CTNNB1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CCND1"},{"source":"CDC42","evidence":"hint. pmid:16169070 evidence code:0018 high throughput,hint. pmid:16169070 evidence code:0398 high throughput","score":0,"target":"TP53"},{"source":"PDGFRB","evidence":"reactome paper:10.1093/nar/gkn863","score":1.8251407699364424,"target":"AKT1"},{"source":"IL2RA","evidence":"reactome paper:10.1093/nar/gkn863","score":3.8643284505408246,"target":"STAT3"},{"source":"CRK","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"PAK1"},{"source":"AKT1","evidence":"reactome paper:10.1093/nar/gkn863","score":4.7382356553358225,"target":"MCL1"},{"source":"JAK2","evidence":"reactome paper:10.1093/nar/gkn863","score":2.885800941716264,"target":"STAT3"},{"source":"RHOA","evidence":"reactome paper:10.1093/nar/gkn863","score":1.5731321849709863,"target":"AKT1"},{"source":"DAB1","evidence":"reactome paper:10.1093/nar/gkn863","score":3.091650066335189,"target":"RELN"},{"source":"FOXA1","evidence":"reactome paper:10.1093/nar/gkn863","score":4.963331653185348,"target":"CDKN1B"},{"source":"CDC42","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CTNNB1"},{"source":"DAB1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.9208096264818897,"target":"PIK3R1"},{"source":"GAB2","evidence":"reactome paper:10.1093/nar/gkn863","score":5.921096785339531,"target":"IL2RA"},{"source":"MAX","evidence":"reactome paper:10.1093/nar/gkn863","score":1.9840593925343335,"target":"PDGFRB"},{"source":"GAB2","evidence":"reactome paper:10.1093/nar/gkn863","score":12.192936731081529,"target":"PIK3CA"},{"source":"JAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.029982436718843,"target":"AKT1"},{"source":"EPHA2","evidence":"reactome paper:10.1093/nar/gkn863","score":10.281112089116753,"target":"PIK3CA"},{"source":"DAB1","evidence":"reactome paper:10.1093/nar/gkn863","score":9.644388247046287,"target":"PIK3CA"},{"source":"AR","evidence":"reactome paper:10.1093/nar/gkn863","score":3.674234614174767,"target":"MDM2"},{"source":"GAB2","evidence":"reactome paper:10.1093/nar/gkn863","score":5.259879592538201,"target":"JAK1"},{"source":"CDH1","evidence":"reactome paper:10.1093/nar/gkn863","score":6.7327581777238095,"target":"PIK3R1"},{"source":"TP53","evidence":"hint. pmid:21900206 evidence code:0018 high throughput","score":0,"target":"UFD1L"},{"source":"MAX","evidence":"reactome paper:10.1093/nar/gkn863","score":2.0907702751760278,"target":"ITGB4"},{"source":"EPHA2","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RAC1"},{"source":"CTNNA1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CTNNB1"},{"source":"CDH1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CTNNB1"},{"source":"VAV2","evidence":"reactome paper:10.1093/nar/gkn863","score":1.5731321849709863,"target":"RHOA"},{"source":"AKT1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.8865562529568844,"target":"CDKN1B"},{"source":"CDC42","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RPS6KB1"},{"source":"EPHA2","evidence":"reactome paper:10.1093/nar/gkn863","score":3.1256512932642897,"target":"PIK3R1"},{"source":"JAK2","evidence":"reactome paper:10.1093/nar/gkn863","score":9.94427190999916,"target":"PIK3CA"},{"source":"STAT3","evidence":"reactome paper:10.1093/nar/gkn863","score":7.220675407593914,"target":"CCND1"},{"source":"CTNNA1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RAC1"},{"source":"PIK3R1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.668801041516433,"target":"PRKCD"},{"source":"PAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":12.352965604812887,"target":"PIK3CA"},{"source":"DGCR8","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RNASEN"},{"source":"PIK3R1","evidence":"reactome paper:10.1093/nar/gkn863","score":6.246872846389789,"target":"RPS6KB1"},{"source":"NFYC","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"TP53"},{"source":"ESR1","evidence":"reactome paper:10.1093/nar/gkn863","score":1.5731321849709863,"target":"AKT1"},{"source":"CTNNA1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.8371173070873836,"target":"EGFR"},{"source":"E2F1","evidence":"reactome paper:10.1093/nar/gkn863","score":3.297483460520232,"target":"CDKN1B"},{"source":"IL2RA","evidence":"reactome paper:10.1093/nar/gkn863","score":2.7686595939953778,"target":"AKT1"},{"source":"CTNNB1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"DLG1"},{"source":"EPHA2","evidence":"reactome paper:10.1093/nar/gkn863","score":5.2090892340188955,"target":"PAK1"},{"source":"CDKN1A","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RB1"},{"source":"PIK3R1","evidence":"reactome paper:10.1093/nar/gkn863","score":3.605551275463989,"target":"STAT3"},{"source":"CCND1","evidence":"reactome paper:10.1093/nar/gkn863","score":7.232050807568877,"target":"MYB"},{"source":"JAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.992511824357958,"target":"STAT3"},{"source":"CTNNB1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"EPHA2"},{"source":"AKT1","evidence":"reactome paper:10.1093/nar/gkn863","score":4.930011286667337,"target":"RPS6KB1"},{"source":"RPS6KB1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CRK"},{"source":"BRCA1","evidence":"reactome paper:10.1093/nar/gkn863","score":4.329260560141604,"target":"CDKN1B"},{"source":"CDC42","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"MAP3K1"},{"source":"RAC1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CDH1"},{"source":"PIK3R1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.5098824189185422,"target":"VAV2"},{"source":"MAX","evidence":"reactome paper:10.1093/nar/gkn863","score":3.045474875554776,"target":"CDKN1B"},{"source":"FRS2","evidence":"reactome paper:10.1093/nar/gkn863","score":6.259914814074806,"target":"PAK1"},{"source":"GAB2","evidence":"reactome paper:10.1093/nar/gkn863","score":4.6441107181924535,"target":"AKT1"},{"source":"DLG1","evidence":"reactome paper:10.1093/nar/gkn863","score":3.4610880329096947,"target":"PIK3R1"},{"source":"PIK3CA","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RAC1"},{"source":"ITIH1","evidence":"hint. pmid:18624398 evidence code:0018 high throughput","score":9.958236433584458,"target":"PIK3CA"},{"source":"AR","evidence":"reactome paper:10.1093/nar/gkn863","score":9.637392330932423,"target":"PIK3CA"},{"source":"TP53","evidence":"reactome paper:10.1093/nar/gkn863","score":9.999867950325557,"target":"RB1"},{"source":"CTNNA1","evidence":"reactome paper:10.1093/nar/gkn863","score":1.7677669529663689,"target":"RHOA"},{"source":"IL2RA","evidence":"reactome paper:10.1093/nar/gkn863","score":2.927578216593269,"target":"RHOA"},{"source":"MAPK14","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"STAT3"},{"source":"DDX5","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"DGCR8"},{"source":"IL2RA","evidence":"reactome paper:10.1093/nar/gkn863","score":3.3844284683411257,"target":"JAK1"},{"source":"VAV2","evidence":"reactome paper:10.1093/nar/gkn863","score":4.707106781186548,"target":"PAK1"},{"source":"PAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":5.533985905294664,"target":"STAT3"},{"source":"APC","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CTNNB1"},{"source":"PAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":7.5373604199024715,"target":"CCND1"},{"source":"E2F1","evidence":"reactome paper:10.1093/nar/gkn863","score":5.0155946010522525,"target":"MCL1"},{"source":"ESR1","evidence":"reactome paper:10.1093/nar/gkn863","score":9.824261837368898,"target":"PIK3CA"},{"source":"FYN","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"JAK1"},{"source":"MAPK14","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"TP53"},{"source":"MAX","evidence":"reactome paper:10.1093/nar/gkn863","score":6.057340420944722,"target":"ERBB2"},{"source":"CTNNA1","evidence":"reactome paper:10.1093/nar/gkn863","score":4.834652370381325,"target":"PAK1"},{"source":"APC","evidence":"reactome paper:10.1093/nar/gkn863","score":5.58113883008419,"target":"PAK1"},{"source":"PIK3CA","evidence":"reactome paper:10.1093/nar/gkn863","score":10.602584305176858,"target":"PIK3R1"},{"source":"PIK3R1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.5098824189185422,"target":"AKT1"},{"source":"CRK","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RAC1"},{"source":"CDKN1B","evidence":"reactome paper:10.1093/nar/gkn863","score":4.790589906567471,"target":"RB1"},{"source":"E2F1","evidence":"reactome paper:10.1093/nar/gkn863","score":3.8106163923171468,"target":"RB1"},{"source":"MAX","evidence":"reactome paper:10.1093/nar/gkn863","score":9.04400374531753,"target":"TP53"},{"source":"CRK","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"PIK3R1"},{"source":"PIK3CA","evidence":"reactome paper:10.1093/nar/gkn863","score":9.44427190999916,"target":"PRKCD"},{"source":"EGFR","evidence":"reactome paper:10.1093/nar/gkn863","score":6.985131333343329,"target":"ERBB2"},{"source":"RHOA","evidence":"reactome paper:10.1093/nar/gkn863","score":4.628203566526079,"target":"GAB2"},{"source":"EPHA2","evidence":"reactome paper:10.1093/nar/gkn863","score":2.188901059316734,"target":"RHOA"},{"source":"PAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":5.802775637731995,"target":"PIK3R1"},{"source":"JAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":9.937281465859739,"target":"PIK3CA"},{"source":"AKT1","evidence":"reactome paper:10.1093/nar/gkn863","score":3.1565965239697253,"target":"MDM2"},{"source":"MAPK14","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"AR"},{"source":"ATM","evidence":"reactome paper:10.1093/nar/gkn863","score":3.618033988749895,"target":"E2F1"},{"source":"JAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":3.1256512932642897,"target":"PIK3R1"},{"source":"AR","evidence":"reactome paper:10.1093/nar/gkn863","score":3.0275205091235833,"target":"PIK3R1"},{"source":"APC","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RAC1"},{"source":"PIK3CA","evidence":"reactome paper:10.1093/nar/gkn863","score":10.726059786519368,"target":"RELN"},{"source":"EGFR","evidence":"hint. pmid:15284024 evidence code:0019 ","score":3.09557356477856,"target":"JAK2"},{"source":"SP1","evidence":"reactome paper:10.1093/nar/gkn863","score":9.536685539481937,"target":"TP53"},{"source":"CDC42","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CDH1"},{"source":"GAB2","evidence":"reactome paper:10.1093/nar/gkn863","score":5.7397795747379,"target":"PIK3R1"},{"source":"MAX","evidence":"reactome paper:10.1093/nar/gkn863","score":2.188901059316734,"target":"SP1"},{"source":"VAV2","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RAC1"},{"source":"ESR1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.668801041516433,"target":"PIK3R1"},{"source":"PDGFRB","evidence":"reactome paper:10.1093/nar/gkn863","score":2.9208096264818897,"target":"PIK3R1"},{"source":"MDM2","evidence":"reactome paper:10.1093/nar/gkn863","score":10.568902576395608,"target":"TP53"},{"source":"JAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":5.68177459907297,"target":"MAP3K1"},{"source":"CTNNB1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"EGFR"},{"source":"FYN","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RELN"},{"source":"FYN","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"PIK3CA"},{"source":"MYC","evidence":"reactome paper:10.1093/nar/gkn863","score":6.752747823542217,"target":"SP1"},{"source":"ERBB2","evidence":"hint. pmid:16273093 evidence code:0089 high throughput","score":6.684778302914099,"target":"JAK1"},{"source":"ESR1","evidence":"reactome paper:10.1093/nar/gkn863","score":3.6499075851994496,"target":"FOXA1"},{"source":"E2F1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.850084796318772,"target":"MYB"},{"source":"CRK","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RHOA"},{"source":"JAK2","evidence":"reactome paper:10.1093/nar/gkn863,hint. pmid:17474147 evidence code:0081 high throughput","score":3.0275205091235833,"target":"PIK3R1"},{"source":"DAB1","evidence":"hint. pmid:16273093 evidence code:0089 high throughput","score":6.479936636131699,"target":"ERBB2"},{"source":"ESR1","evidence":"reactome paper:10.1093/nar/gkn863","score":6.522879653276819,"target":"MYC"},{"source":"PIK3CA","evidence":"reactome paper:10.1093/nar/gkn863","score":9.658363676170627,"target":"RHOA"},{"source":"PDGFRB","evidence":"reactome paper:10.1093/nar/gkn863","score":4.106395752988369,"target":"PTEN"},{"source":"FYN","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"PIK3R1"},{"source":"PIK3CA","evidence":"reactome paper:10.1093/nar/gkn863","score":12.89115144748395,"target":"RPS6KB1"},{"source":"PAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":4.707106781186548,"target":"AKT1"},{"source":"MYC","evidence":"reactome paper:10.1093/nar/gkn863","score":7.623610939600996,"target":"CDKN1B"},{"source":"PIK3CA","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"BCL2L1"},{"source":"CRK","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"PIK3CA"},{"source":"IL2RA","evidence":"reactome paper:10.1093/nar/gkn863","score":7.333389933170897,"target":"MYC"},{"source":"DDX5","evidence":"reactome paper:10.1093/nar/gkn863","score":1.9318516525781364,"target":"RNASEN"},{"source":"MTOR","evidence":"reactome paper:10.1093/nar/gkn863","score":3.605551275463989,"target":"STAT3"},{"source":"CRK","evidence":"hint. pmid:16273093 evidence code:0089 high throughput","score":0,"target":"ERBB2"},{"source":"CDH1","evidence":"reactome paper:10.1093/nar/gkn863","score":6.086747487343951,"target":"CTNNA1"},{"source":"RAC1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"MAP3K1"},{"source":"E2F1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"NGFR"},{"source":"CTNNA1","evidence":"reactome paper:10.1093/nar/gkn863","score":9.644388247046287,"target":"PIK3CA"},{"source":"TP53","evidence":"reactome paper:10.1093/nar/gkn863","score":9.958217307690626,"target":"APC"},{"source":"EGFR","evidence":"reactome paper:10.1093/nar/gkn863","score":5.5181427670900955,"target":"PAK1"},{"source":"PIK3R1","evidence":"reactome paper:10.1093/nar/gkn863","score":4.991652010170202,"target":"PTEN"},{"source":"E2F1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CDKN1A"},{"source":"ERBB2","evidence":"hint. pmid:16273093 evidence code:0089 high throughput,hint. pmid:11940572 evidence code:0019 ","score":6.504422891877308,"target":"STAT3"},{"source":"CTNNB1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"MYC"},{"source":"CTNNA1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.9208096264818897,"target":"PIK3R1"},{"source":"AGAP2","evidence":"reactome paper:10.1093/nar/gkn863","score":9.651378691185707,"target":"PIK3CA"},{"source":"MAX","evidence":"reactome paper:10.1093/nar/gkn863,hint. pmid:10319872 evidence code:0018 ","score":6.522879653276819,"target":"MYC"},{"source":"DGCR8","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"TP53"},{"source":"PIK3R1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"BCL2L1"},{"source":"CCND1","evidence":"interactome paper: http://dx.doi.org/10.1016/j.cell.2014.10.050","score":7.538778387860491,"target":"CDKN1B"},{"source":"FOXA1","evidence":"reactome paper:10.1093/nar/gkn863","score":11.014693182963201,"target":"TP53"},{"source":"CTNNA1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.4409096442821903,"target":"EPHA2"},{"source":"RAC1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CTNNB1"},{"source":"EGFR","evidence":"reactome paper:10.1093/nar/gkn863","score":3.09557356477856,"target":"ITGB4"},{"source":"PIK3CA","evidence":"reactome paper:10.1093/nar/gkn863","score":9.451256894984079,"target":"VAV2"},{"source":"NFYC","evidence":"hint. pmid:20936779 evidence code:0398 high throughput,hint. pmid:20936779 evidence code:0018 high throughput","score":0,"target":"SP1"},{"source":"CTNNB1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RHOA"},{"source":"PIK3CA","evidence":"reactome paper:10.1093/nar/gkn863","score":13.139603866679437,"target":"CCND1"},{"source":"PIK3CA","evidence":"reactome paper:10.1093/nar/gkn863","score":10.602584305176858,"target":"MTOR"},{"source":"FRS2","evidence":"reactome paper:10.1093/nar/gkn863","score":4.200691399388354,"target":"PIK3R1"},{"source":"FYN","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CDH1"},{"source":"NGFR","evidence":"hint. pmid:21900206 evidence code:0018 high throughput","score":0,"target":"UFD1L"},{"source":"BRCA1","evidence":"reactome paper:10.1093/nar/gkn863","score":10.232050807568877,"target":"TP53"},{"source":"PIK3CA","evidence":"reactome paper:10.1093/nar/gkn863","score":11.81069938475125,"target":"PTEN"},{"source":"PAK1","evidence":"reactome paper:10.1093/nar/gkn863,hint. pmid:20936779 evidence code:0398 high throughput,hint. pmid:11030651 evidence code:0055 ","score":0,"target":"RAC1"},{"source":"MYC","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"NFYC"},{"source":"MYB","evidence":"reactome paper:10.1093/nar/gkn863","score":7.388905057061258,"target":"MYC"},{"source":"CRK","evidence":"hint. pmid:17474147 evidence code:0081 high throughput","score":0,"target":"SP1"},{"source":"JAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"MAPK14"},{"source":"FOXA1","evidence":"reactome paper:10.1093/nar/gkn863","score":4.106757836947306,"target":"SP1"},{"source":"EGFR","evidence":"reactome paper:10.1093/nar/gkn863","score":3.569168114656261,"target":"MTOR"},{"source":"TP53","evidence":"reactome paper:10.1093/nar/gkn863","score":9.48528137423857,"target":"EGFR"},{"source":"PDGFRB","evidence":"reactome paper:10.1093/nar/gkn863","score":9.644388247046287,"target":"PIK3CA"},{"source":"CDH1","evidence":"reactome paper:10.1093/nar/gkn863","score":12.193333294122823,"target":"PIK3CA"},{"source":"MYC","evidence":"reactome paper:10.1093/nar/gkn863","score":12.038633162381373,"target":"TP53"},{"source":"ATM","evidence":"reactome paper:10.1093/nar/gkn863","score":4.73606797749979,"target":"BRCA1"},{"source":"AKT1","evidence":"reactome paper:10.1093/nar/gkn863","score":6.3639610306789285,"target":"MYC"},{"source":"JAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"BCL2L1"},{"source":"PAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":8.2671309559281,"target":"MAP3K1"},{"source":"AR","evidence":"reactome paper:10.1093/nar/gkn863","score":3.4608128488913787,"target":"BRCA1"},{"source":"PIK3CA","evidence":"reactome paper:10.1093/nar/gkn863","score":10.602584305176858,"target":"STAT3"},{"source":"AGAP2","evidence":"reactome paper:10.1093/nar/gkn863","score":2.802775637731995,"target":"PIK3R1"},{"source":"PRKCD","evidence":"reactome paper:10.1093/nar/gkn863","score":2.668801041516433,"target":"STAT3"},{"source":"BRCA1","evidence":"reactome paper:10.1093/nar/gkn863","score":4.940789726067152,"target":"FOXA1"},{"source":"ITGB4","evidence":"reactome paper:10.1093/nar/gkn863","score":1.9318516525781364,"target":"AKT1"},{"source":"CDC42","evidence":"reactome paper:10.1093/nar/gkn863,hint. pmid:20936779 evidence code:0398 high throughput,hint. pmid:10802735 evidence code:0492 ","score":0,"target":"PAK1"},{"source":"MYC","evidence":"reactome paper:10.1093/nar/gkn863","score":6.7748882382422755,"target":"PDGFRB"},{"source":"NGFR","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RAC1"},{"source":"BRCA1","evidence":"reactome paper:10.1093/nar/gkn863","score":3.102093381284228,"target":"MAX"},{"source":"ERBB2","evidence":"reactome paper:10.1093/nar/gkn863","score":6.468267628508069,"target":"JAK2"},{"source":"PRKCD","evidence":"reactome paper:10.1093/nar/gkn863","score":9.258422469430084,"target":"TP53"},{"source":"NEDD9","evidence":"hint. pmid:18624398 evidence code:0018 high throughput","score":10.916277250063503,"target":"PIK3CA"},{"source":"CDH1","evidence":"reactome paper:10.1093/nar/gkn863","score":6.323764384984374,"target":"ITGB4"},{"source":"CDH1","evidence":"reactome paper:10.1093/nar/gkn863","score":6.1924797712960045,"target":"EPHA2"},{"source":"CCND1","evidence":"interactome paper: http://dx.doi.org/10.1016/j.cell.2014.10.050","score":0,"target":"CDKN1A"},{"source":"DAB1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"FYN"},{"source":"TP53","evidence":"reactome paper:10.1093/nar/gkn863","score":11.148349666211134,"target":"PTEN"},{"source":"SP1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.904014485616485,"target":"APC"},{"source":"PIK3R1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RAC1"},{"source":"MAX","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"NFYC"},{"source":"JAK2","evidence":"reactome paper:10.1093/nar/gkn863","score":1.9318516525781364,"target":"VAV2"},{"source":"IL2RA","evidence":"reactome paper:10.1093/nar/gkn863","score":10.733061187477869,"target":"PIK3CA"},{"source":"DAB1","evidence":"reactome paper:10.1093/nar/gkn863","score":1.8251407699364424,"target":"AKT1"},{"source":"MTOR","evidence":"reactome paper:10.1093/nar/gkn863","score":6.074192828341624,"target":"RPS6KB1"},{"source":"ERBB2","evidence":"1351056,0493","score":6.907957768249819,"target":"PIK3R1"},{"source":"CCND1","evidence":"8657154,0493","score":0,"target":"CDKN1A"},{"source":"PIK3CA","evidence":"reactome paper:10.1093/nar/gkn863","score":9.451256894984079,"target":"AKT1"},{"source":"EGFR","evidence":"reactome paper:10.1093/nar/gkn863","score":3.6736043311189652,"target":"STAT3"},{"source":"APC","evidence":"reactome paper:10.1093/nar/gkn863","score":3.23945122526189,"target":"DLG1"},{"source":"RPS6KB1","evidence":"reactome paper:10.1093/nar/gkn863","score":5.430011286667337,"target":"E2F1"},{"source":"CTNNA1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.776346383927595,"target":"DLG1"},{"source":"PIK3R1","evidence":"reactome paper:10.1093/nar/gkn863","score":3.9240959812916367,"target":"RELN"},{"source":"CDC42","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"MTOR"},{"source":"FYN","evidence":"hint. pmid:17474147 evidence code:0081 high throughput","score":0,"target":"SP1"},{"source":"AR","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CTNNB1"},{"source":"CDKN1A","evidence":"hint. pmid:21900206 evidence code:0018 high throughput","score":0,"target":"NGFR"},{"source":"JAK2","evidence":"reactome paper:10.1093/nar/gkn863","score":5.5836438149322625,"target":"MAP3K1"},{"source":"MAX","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CDKN1A"},{"source":"NGFR","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"PIK3CA"},{"source":"DLG1","evidence":"reactome paper:10.1093/nar/gkn863","score":10.351495028232835,"target":"PIK3CA"},{"source":"EGFR","evidence":"reactome paper:10.1093/nar/gkn863,1372092,0047","score":3.6736043311189652,"target":"PIK3R1"},{"source":"AR","evidence":"reactome paper:10.1093/nar/gkn863","score":4.0086270528066,"target":"FOXA1"},{"source":"TP53","evidence":"reactome paper:10.1093/nar/gkn863","score":9.536685539481937,"target":"EPHA2"},{"source":"CDH1","evidence":"reactome paper:10.1093/nar/gkn863","score":5.793854268530499,"target":"RHOA"},{"source":"RB1","evidence":"reactome paper:10.1093/nar/gkn863","score":7.988085705405834,"target":"MYC"},{"source":"AR","evidence":"reactome paper:10.1093/nar/gkn863","score":6.724744871391589,"target":"CCND1"},{"source":"PIK3R1","evidence":"reactome paper:10.1093/nar/gkn863","score":3.605551275463989,"target":"MTOR"},{"source":"AGAP2","evidence":"reactome paper:10.1093/nar/gkn863","score":6.184332356238209,"target":"CCND1"},{"source":"ITGB4","evidence":"reactome paper:10.1093/nar/gkn863","score":10.069290883733974,"target":"PIK3CA"},{"source":"PDGFRB","evidence":"reactome paper:10.1093/nar/gkn863","score":1.9840593925343335,"target":"PRKCD"},{"source":"PIK3CA","evidence":"hint. pmid:18624398 evidence code:0018 high throughput","score":0,"target":"UFD1L"},{"source":"ESR1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.188901059316734,"target":"SP1"},{"source":"SP1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CDKN1A"},{"source":"JAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":6.870539766709696,"target":"MYC"},{"source":"NFYC","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"PDGFRB"},{"source":"RAC1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"MYC"},{"source":"AKT1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.5098824189185422,"target":"MTOR"},{"source":"NGFR","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"TP53"},{"source":"MCL1","evidence":"reactome paper:10.1093/nar/gkn863","score":11.393027809394143,"target":"TP53"},{"source":"CDH1","evidence":"reactome paper:10.1093/nar/gkn863","score":10.053937764610565,"target":"ERBB2"},{"source":"PIK3R1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.668801041516433,"target":"RHOA"},{"source":"CDKN1B","evidence":"reactome paper:10.1093/nar/gkn863","score":3.045474875554776,"target":"RHOA"},{"source":"MYC","evidence":"reactome paper:10.1093/nar/gkn863","score":6.634713834792322,"target":"ITGB4"},{"source":"PAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":4.691451143813855,"target":"RHOA"},{"source":"BRCA1","evidence":"hint. pmid:17474147 evidence code:0081 high throughput","score":4.038843615231785,"target":"PIK3R1"},{"source":"PIK3R1","evidence":"reactome paper:10.1093/nar/gkn863","score":7.220675407593914,"target":"CCND1"},{"source":"RELN","evidence":"reactome paper:10.1093/nar/gkn863","score":2.82842712474619,"target":"AKT1"},{"source":"NGFR","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"PIK3R1"},{"source":"FYN","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CTNNA1"},{"source":"BCL2L1","evidence":"hint. pmid:16151013 evidence code:0107 ","score":0,"target":"TP53"},{"source":"IL2RA","evidence":"reactome paper:10.1093/nar/gkn863","score":3.8643284505408246,"target":"PIK3R1"},{"source":"BRCA1","evidence":"reactome paper:10.1093/nar/gkn863","score":7.537830798705729,"target":"MYC"},{"source":"ITGB4","evidence":"reactome paper:10.1093/nar/gkn863","score":3.0275205091235833,"target":"PIK3R1"},{"source":"CDC42","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"VAV2"},{"source":"EGFR","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RAC1"},{"source":"DDX5","evidence":"hint. pmid:18624398 evidence code:0018 high throughput","score":9.451256894984079,"target":"PIK3CA"},{"source":"APC","evidence":"hint. pmid:20936779 evidence code:0398 high throughput,hint. pmid:20936779 evidence code:0018 high throughput","score":2.699172818834085,"target":"CTNNA1"},{"source":"CCND1","evidence":"reactome paper:10.1093/nar/gkn863","score":8.134375911089627,"target":"RB1"},{"source":"MAP3K1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"MAPK14"},{"source":"STAT3","evidence":"reactome paper:10.1093/nar/gkn863","score":7.204749769685186,"target":"MYC"},{"source":"CDH1","evidence":"reactome paper:10.1093/nar/gkn863","score":6.969848206979755,"target":"EGFR"},{"source":"RNASEN","evidence":"reactome paper:10.1093/nar/gkn863","score":9.54400374531753,"target":"TP53"},{"source":"ATM","evidence":"reactome paper:10.1093/nar/gkn863","score":4.8727894958092755,"target":"MDM2"},{"source":"FRS2","evidence":"reactome paper:10.1093/nar/gkn863","score":10.838738580486137,"target":"PIK3CA"},{"source":"CDC42","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CTNNA1"},{"source":"DDX5","evidence":"reactome paper:10.1093/nar/gkn863","score":9.051315688243536,"target":"TP53"},{"source":"MYC","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CDKN1A"},{"source":"FYN","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"GAB2"},{"source":"CRK","evidence":"9642287,0493","score":0,"target":"EGFR"},{"source":"MYC","evidence":"reactome paper:10.1093/nar/gkn863","score":10.192589809543446,"target":"ERBB2"},{"source":"SP1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.4409096442821903,"target":"E2F1"},{"source":"AKT1","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"CDKN1A"},{"source":"RHOA","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RAC1"},{"source":"JAK1","evidence":"reactome paper:10.1093/nar/gkn863","score":2.5476205269238843,"target":"JAK2"},{"source":"CDKN1A","evidence":"reactome paper:10.1093/nar/gkn863,hint. pmid:15664194 evidence code:0030 ","score":0,"target":"TP53"},{"source":"NGFR","evidence":"reactome paper:10.1093/nar/gkn863","score":0,"target":"RHOA"}],"nodes":[{"rank":0,"selected":true,"knownCancerGene":[true,true,true],"name":"PIK3CA","pvalue":9,"inTPLists":3},{"rank":1,"selected":true,"knownCancerGene":[true,true,true],"name":"TP53","pvalue":9,"inTPLists":3},{"rank":2,"selected":true,"knownCancerGene":[true,true,true],"name":"CCND1","pvalue":9,"inTPLists":3},{"rank":3,"selected":true,"knownCancerGene":[true,true,true],"name":"MYC","pvalue":9,"inTPLists":3},{"rank":3,"selected":true,"knownCancerGene":[true,true,true],"name":"PTEN","pvalue":9,"inTPLists":3},{"rank":4,"selected":true,"knownCancerGene":[false,true,false],"name":"PAK1","pvalue":9,"inTPLists":1},{"rank":4,"selected":true,"knownCancerGene":[true,true,true],"name":"PIK3R1","pvalue":9,"inTPLists":3},{"rank":5,"selected":true,"knownCancerGene":[true,true,true],"name":"CDH1","pvalue":9,"inTPLists":3},{"rank":6,"selected":true,"knownCancerGene":[true,false,true],"name":"DDX5","pvalue":9,"inTPLists":2},{"rank":6,"selected":true,"knownCancerGene":[true,true,true],"name":"ERBB2","pvalue":9,"inTPLists":3},{"rank":7,"selected":true,"knownCancerGene":[false,false,false],"name":"RPS6KB1","pvalue":9,"inTPLists":0},{"rank":8,"selected":true,"knownCancerGene":[false,false,false],"name":"UFD1L","pvalue":9,"inTPLists":0},{"rank":9,"selected":true,"knownCancerGene":[true,true,true],"name":"RB1","pvalue":9,"inTPLists":3},{"rank":10,"selected":true,"knownCancerGene":[true,true,true],"name":"APC","pvalue":9,"inTPLists":3},{"rank":10,"selected":true,"knownCancerGene":[true,true,true],"name":"STAT3","pvalue":9,"inTPLists":3},{"rank":11,"selected":true,"knownCancerGene":[false,false,false],"name":"GAB2","pvalue":9,"inTPLists":0},{"rank":12,"selected":true,"knownCancerGene":[false,false,false],"name":"EPHA2","pvalue":9,"inTPLists":0},{"rank":13,"selected":true,"knownCancerGene":[true,true,true],"name":"FOXA1","pvalue":9,"inTPLists":3},{"rank":13,"selected":true,"knownCancerGene":[true,true,true],"name":"EGFR","pvalue":9,"inTPLists":3},{"rank":14,"selected":true,"knownCancerGene":[false,false,false],"name":"VAV2","pvalue":9,"inTPLists":0},{"rank":15,"selected":true,"knownCancerGene":[true,false,true],"name":"MAP3K1","pvalue":9,"inTPLists":2},{"rank":16,"selected":true,"knownCancerGene":[false,false,false],"name":"CRK","pvalue":9,"inTPLists":0},{"rank":16,"selected":true,"knownCancerGene":[true,true,true],"name":"BRCA1","pvalue":9,"inTPLists":3},{"rank":17,"selected":true,"knownCancerGene":[true,true,true],"name":"AKT1","pvalue":9,"inTPLists":3},{"rank":18,"selected":true,"knownCancerGene":[false,false,false],"name":"NGFR","pvalue":9,"inTPLists":0},{"rank":19,"selected":true,"knownCancerGene":[true,true,true],"name":"MDM2","pvalue":9,"inTPLists":3},{"rank":20,"selected":true,"knownCancerGene":[true,true,true],"name":"RHOA","pvalue":9,"inTPLists":3},{"rank":21,"selected":true,"knownCancerGene":[false,false,false],"name":"MCL1","pvalue":9,"inTPLists":0},{"rank":22,"selected":true,"knownCancerGene":[true,false,true],"name":"MYB","pvalue":9,"inTPLists":2},{"rank":23,"selected":true,"knownCancerGene":[true,true,true],"name":"ATM","pvalue":9,"inTPLists":3},{"rank":23,"selected":true,"knownCancerGene":[false,true,true],"name":"CDC42","pvalue":9,"inTPLists":2},{"rank":23,"selected":true,"knownCancerGene":[false,true,false],"name":"BCL2L1","pvalue":9,"inTPLists":1},{"rank":23,"selected":true,"knownCancerGene":[true,true,true],"name":"MTOR","pvalue":9,"inTPLists":3},{"rank":23,"selected":true,"knownCancerGene":[true,true,true],"name":"AR","pvalue":9,"inTPLists":3},{"rank":24,"selected":true,"knownCancerGene":[false,false,false],"name":"PRKCD","pvalue":9,"inTPLists":0},{"rank":25,"selected":true,"knownCancerGene":[true,true,true],"name":"PDGFRB","pvalue":9,"inTPLists":3},{"rank":26,"selected":true,"knownCancerGene":[true,false,true],"name":"MAX","pvalue":9,"inTPLists":2},{"rank":26,"selected":true,"knownCancerGene":[false,false,false],"name":"IL2RA","pvalue":9,"inTPLists":0},{"rank":27,"selected":true,"knownCancerGene":[true,true,true],"name":"RAC1","pvalue":9,"inTPLists":3},{"rank":27,"selected":true,"knownCancerGene":[false,false,false],"name":"RNASEN","pvalue":9,"inTPLists":0},{"rank":28,"selected":true,"knownCancerGene":[false,false,false],"name":"NEDD9","pvalue":9,"inTPLists":0},{"rank":29,"selected":true,"knownCancerGene":[true,false,true],"name":"JAK1","pvalue":9,"inTPLists":2},{"rank":29,"selected":true,"knownCancerGene":[true,true,true],"name":"CTNNB1","pvalue":9,"inTPLists":3},{"rank":30,"selected":true,"knownCancerGene":[false,false,false],"name":"AGAP2","pvalue":9,"inTPLists":0},{"rank":31,"selected":true,"knownCancerGene":[true,true,true],"name":"ESR1","pvalue":9,"inTPLists":3},{"rank":32,"selected":true,"knownCancerGene":[false,false,false],"name":"DGCR8","pvalue":9,"inTPLists":0},{"rank":33,"selected":true,"knownCancerGene":[false,false,false],"name":"ITGB4","pvalue":9,"inTPLists":0},{"rank":34,"selected":true,"knownCancerGene":[false,true,false],"name":"SP1","pvalue":9,"inTPLists":1},{"rank":34,"selected":true,"knownCancerGene":[false,false,false],"name":"ITIH1","pvalue":9,"inTPLists":0},{"rank":34,"selected":true,"knownCancerGene":[true,true,true],"name":"CDKN1B","pvalue":9,"inTPLists":3},{"rank":35,"selected":true,"knownCancerGene":[false,false,true],"name":"RELN","pvalue":9,"inTPLists":1},{"rank":36,"selected":true,"knownCancerGene":[false,false,false],"name":"CTNNA1","pvalue":9,"inTPLists":0},{"rank":36,"selected":true,"knownCancerGene":[false,false,true],"name":"FYN","pvalue":9,"inTPLists":1},{"rank":37,"selected":true,"knownCancerGene":[false,false,false],"name":"FRS2","pvalue":9,"inTPLists":0},{"rank":38,"selected":true,"knownCancerGene":[true,false,true],"name":"JAK2","pvalue":9,"inTPLists":2},{"rank":39,"selected":true,"knownCancerGene":[false,false,false],"name":"NFYC","pvalue":9,"inTPLists":0},{"rank":39,"selected":true,"knownCancerGene":[false,true,false],"name":"E2F1","pvalue":9,"inTPLists":1},{"rank":40,"selected":true,"knownCancerGene":[false,true,true],"name":"CDKN1A","pvalue":9,"inTPLists":2},{"rank":41,"selected":true,"knownCancerGene":[false,false,false],"name":"DLG1","pvalue":9,"inTPLists":0},{"rank":41,"selected":true,"knownCancerGene":[false,true,false],"name":"MAPK14","pvalue":9,"inTPLists":1},{"rank":41,"selected":true,"knownCancerGene":[false,false,false],"name":"DAB1","pvalue":9,"inTPLists":0}]}
+
+	$( "#slider-range" ).slider({
+	      range: true,
+	      min: 0,
+	      max: graph.nodes.length,
+	      values: [ 0, Math.min(25, graph.nodes.length) ],
+	      change: function( event, ui ) {
+			console.log("*******************************")
+			/*circles.style("opacity", function(d) {
+
+					return geneOpacity(d.name, ui.values[0], ui.values[1])
+				})*/
+			text.style("opacity", function(d) {
+					return textOpacity(d.name, ui.values[0], ui.values[1])
+				})
+
+			path.style("opacity", function(d) {
+				return linkOpacity(d, ui.values[0], ui.values[1])
+			})
+			
+			pies.style("opacity",function(d){
+			    return piesOpacity(d.name,ui.values[0], ui.values[1])
+			})
+
+			$( "#showgenes" ).val( ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+	      }
+	    });
+
+	function linkOpacity(link, minRankValue, maxRankValue) {
+		var toLower = 0.6	
+		var sourceOp = geneOpacity(link.source.name, minRankValue, maxRankValue) * toLower;
+		var targetOp = geneOpacity(link.target.name, minRankValue, maxRankValue) * toLower;
+		var byRank = Math.min(sourceOp, targetOp);
+		return byRank
+	}
+
+	function geneOpacity(name, minRankValue, maxRankValue) {
+		var node = nodeMap[name]
+		if (minRankValue <= node.rank && node.rank <= maxRankValue) {
+			return 1 - 0.75 * node.rank / maxRank;
+		} else {
+			return 0.0
+		}
+	}
+	
+		function piesOpacity (name,minRankValue,maxRankValue) {
+		var node = nodeMap[name]
+		if (minRankValue <= node.rank && node.rank <= maxRankValue) {
+			return 1 - 0.8 * node.rank / maxRank;
+		} else {
+			return 0.0
+		}
+	}
+
+	function textOpacity(name, minRankValue, maxRankValue) {
+		var geneO = geneOpacity(name, minRankValue, maxRankValue);
+		if (geneO == 0) {
+			return 0;
+		}
+		else {
+			return Math.min(1, geneO + 0.3)
+		}
+
+	}
+
+var radius = 8;
+
+	$( "#showgenes" ).val( $( "#slider-range" ).slider( "values", 0 ) + " - " + $( "#slider-range" ).slider( "values", 1 ) );
+
+	var w = 1200, h = 800;
+
+	var nodeMap = {};
+	var count = 0
+	var maxRank = 0;
+	var nodeNames = {};
+	graph.nodes.forEach(function(node) {
+		if (node.rank == undefined) {
+			node.rank = count++;
+		}
+		maxRank = Math.max(maxRank, node.rank);
+		nodeMap[node.name] = node;
+		knownCancerGene = node.knownCancerGene;
+		nodeNames[node.name] = {
+			name : node.name
+		};
+	});
+
+	var maxScore = 0;
+	graph.edges.forEach(function(link) {
+		link.source = nodeNames[link.source];
+		link.target = nodeNames[link.target];
+		maxScore = Math.max(maxScore, link.score);
+	});
+
+	var svg = d3.select("#network").append("svg:svg").attr("width", w).attr("height", h);
+
+	var force = d3.layout.force()
+					.nodes(d3.values(nodeNames))
+					.links(graph.edges)
+					.size([ w, h ])
+					.linkDistance(50)
+					.charge(-500)
+					.gravity(0.5)
+					.on("tick", tick)
+					.start();
+
+	var node_drag = d3.behavior.drag().on("dragstart", dragstart).on("drag", dragmove).on("dragend", dragend);
+
+	function dragstart(d, i) {
+		force.stop() // stops the force auto positioning before you start dragging
+	}
+
+	function dragmove(d, i) {
+		d.px += d3.event.dx;
+		d.py += d3.event.dy;
+		d.x += d3.event.dx;
+		d.y += d3.event.dy;
+		tick(); // this is the key to make it work together with updating both px,py,x,y on d !
+	}
+
+	function dragend(d, i) {
+		d.fixed = true; // of course set the node to fixed so the force doesnt include the node in its auto positioning stuff
+		tick();
+		force.resume();
+	}
+
+	var svgs = svg.append("svg:g")
+
+	var interpolatorImportant = d3.interpolateRgb("#eee", "green");
+	var interpolatorNoImportant = d3.interpolateRgb("#eee", "#aaa");
+
+	var path = svgs.selectAll("line")
+		.data(force.links())
+			.enter()
+				.append("svg:line")
+				.attr("class", "link")
+				.style("stroke", "#000")
+				.style("opacity", function(d) {
+					return linkOpacity(d, 0, maxRank);
+				})
+				.style("stroke-width", "4px")
+	            .on('click', function(d) {alert(d.evidence)}, true);
+				/*
+				.style("stroke", function(d) {
+					var source = nodeMap[d.source.name]
+					var target = nodeMap[d.target.name]
+					if (source.selected && target.selected) {
+						return interpolatorImportant(d.score);
+					} else {
+						return interpolatorNoImportant(d.score);
+					}
+				}).style("stroke-width", function(d) {
+					var source = nodeMap[d.source.name]
+					var target = nodeMap[d.target.name]
+					if (source.selected && target.selected) {
+						return "4px";
+					} else {
+						return "2px";
+					}
+				})
+
+	var circles = svgs.selectAll("svg")
+		.data(force.nodes())
+		.enter().append("svg:circle")
+				.attr("r", function(d) {
+					var node = nodeMap[d.name];
+					return Math.max(4, node.pvalue)
+				}).attr("class", function(d) {
+					var node = nodeMap[d.name];
+					if (node.selected) {
+						return "node important "+node.knownCancerGene;
+					}
+					return "node";
+				}).attr("class","arc")
+				.style("opacity", function(d) {
+					return geneOpacity(d.name, 0, maxRank);
+				}).attr("id", function(d) {
+					return d.name;
+				}).call(node_drag);*/
+
+	var pies = svg.append("svg:g").selectAll("svg")
+      .data(force.nodes())
+     .enter()
+     .append("g")
+     .call(node_drag)
+     .attr("class", "arc")
+
+	var text = svgs.selectAll("g").data(force.nodes()).enter().append("svg:g");
+
+	//A copy of the text with a thick white stroke for legibility.
+	text.append("svg:text")
+		.attr("x", 2)
+		.attr("y", -5)
+		.attr("class", "shadow")
+		.text(function(d) {
+			return d.name;
+		}).style("opacity", function(d) {
+			return textOpacity(d.name, 0, maxRank);
+		});
+
+	text.append("svg:text")
+		.attr("x", 2)
+		.attr("y", -5)
+		.attr("target", "_blank")
+		.attr("class", function(d) {
+			var node = nodeMap[d.name];
+			if (node.selected) {
+				var knownClass = "";
+				if (node.knownCancerGene[0]) {
+					knownClass = "cgc"
+				} else if (node.knownCancerGene[1]) {
+					knownClass = "other"
+				} else if (node.knownCancerGene[2]) {
+					knownClass = "ncg"
+				}
+				return "node important "+knownClass;
+			}
+			return "node";
+
+		}).text(function(d) { return d.name;})
+		.on('dblclick', clickit, true);;
+
+	function clickit() {
+		var node = nodeMap[this.innerHTML];
+		if (node.selected) {
+			window.open("http://www.malacards.org/search/results/"+node.name, '_blank');
+		}
+	}
+
+
+	function tick() {
+		path.attr("x1", function(d) {
+			return d.source.x;
+		}).attr("y1", function(d) {
+			return d.source.y;
+		}).attr("x2", function(d) {
+			return d.target.x;
+		}).attr("y2", function(d) {
+			return d.target.y;
+		});
+
+		/*circles.attr("transform", function(d) {
+			return "translate(" + d.x + "," + d.y + ")";
+		});*/
+
+		pies.attr("transform", function (d) {
+              return "translate(" + d.x + "," + d.y + ")";
+          });
+
+		text.attr("transform", function(d) {
+			return "translate(" + d.x + "," + d.y + ")";
+		});
+	}
+
+	jQuery.Color.hook("fill stroke");
+
+	$(document).ready(function() {
+		$("#network").hide();
+		for (var i = 0; i < 200; ++i) {
+			force.tick();
+		}
+		//force.stop();
+		$("#network").show();
+		console.log("done.");
+	});
+
+	// class, label
+	var colors = [ ["cgc", "CGC"],
+	               ["other", "Other"],
+	               ["ncg", "NCG"],
+	               ["unknown", "NA" ] ];
+	/*
+	var colors = [ ["coding", "Coding"],
+	               ["promoter", "Promoter"],
+	               ["enhancer", "Enhancer"],
+	               ["lncrna", "lncRNA"],
+	               ["unknown", "NA" ] ];
+	*/
+	var legend = svg.append("g")
+.attr("class", "legend")
+//.attr("x", w - 65)
+//.attr("y", 50)
+.attr("height", 100)
+.attr("width", 100)
+.attr('transform', 'translate(-20,50)');
+
+	var legendRect = legend.selectAll('rect').data(colors);
+
+	legendRect.enter()
+	    .append("rect")
+	    .attr("x", w - 65)
+	    .attr("width", 10)
+	    .attr("height", 10);
+
+	legendRect
+	    .attr("y", function(d, i) {
+	        return i * 20;
+	    })
+	    .attr("class", function(d) {
+			return "node important "+d[0];
+		});
+
+	var legendText = legend.selectAll('text').data(colors);
+
+	legendText.enter()
+	    .append("text")
+	    .attr("x", w - 52);
+
+	legendText
+	    .attr("y", function(d, i) {
+	        return i * 20 + 9;
+	    })
+	    .text(function(d) {
+	        return d[1];
+	    });
+
+var classes = ["cgc", "other", "ncg"]
+
+function numberOfClasses(node) {
+	return node.knownCancerGene[0] + node.knownCancerGene[1] + node.knownCancerGene[2];
+}
+
+function getStartAngle(node, position) {
+	var nc = numberOfClasses(node)
+	if (nc == 0) {
+		return 0;
+	}
+
+	var angle = 360 / nc
+
+	var realPos = 0
+	for (i = 0; i <= position; i++) {
+		realPos += node.knownCancerGene[i]
+	}
+
+	return realPos * angle * Math.PI / 180;
+}
+
+function getEndAngle(node, position) {
+	var nc = numberOfClasses(node);
+	if (nc == 0) {
+		return 360 * Math.PI / 180
+	}
+
+	if (!node.knownCancerGene[position]) {
+		return getStartAngle(node, position)
+	}
+
+	var angle = 360 / nc
+
+	var realPos = 0
+	for (i = 0; i <= position; i++) {
+		realPos += node.knownCancerGene[i]
+	}
+
+	return (realPos + 1)* angle * Math.PI / 180;
+}
+
+function addMutatorArc(position, color) {
+
+      var arc = d3.svg.arc()
+              .outerRadius(radius)
+              .innerRadius(0)
+              .startAngle(function(d,i) {
+              	return getStartAngle(nodeMap[d.name], position);
+              }) //converting from degs to radians
+              .endAngle(function(d,i) {
+              	return getEndAngle(nodeMap[d.name], position);
+              });
+
+      pies.append("path")
+              .attr("d", arc)
+                  .attr("class", function (d, i) {
+                      if (nodeMap[d.name].knownCancerGene[position]) {
+                          return "node important "+classes[position];
+                      }
+                      else {
+                      	return "node important";
+                      }
+                  }).style("opacity", function(d) {
+						return geneOpacity(d.name, 0, maxRank);
+				   });
+              }
+
+addMutatorArc(-1);
+addMutatorArc(0);
+addMutatorArc(1);
+addMutatorArc(2);
+
+</script>

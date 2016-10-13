@@ -1,0 +1,20 @@
+GeneSymbol	PosteriorP	Selected	ConvergenceIter	KnownCancerGene		BestSSN
+TP53	0.5	true	-1	true	Set()	0.0
+DNMT3A	0.5	true	-1	true	Set()	0.0
+MYC	0.5	true	-1	true	Set()	0.0
+MAX	0.5	true	-1	true	Set()	0.0
+ZHX1	0.5	true	-1	false	Set()	0.0
+PTPN11	0.5	true	-1	true	Set()	0.0
+NRAS	0.5	true	-1	true	Set()	0.0
+IDH1	0.5	true	-1	true	Set()	0.0
+KIT	0.5	true	-1	true	Set()	0.0
+HNRNPK	0.5	true	-1	true	Set()	0.0
+HDAC3	0.5	true	-1	false	Set()	0.0
+GRB2	0.5	true	-1	true	Set()	0.0
+GOLGA2	0.5	true	-1	false	Set()	0.0
+CEBPA	0.5	true	-1	true	Set()	0.0
+ZCCHC10	0.5	true	-1	false	Set()	0.0
+PPP1CA	0.5	true	-1	false	Set()	0.0
+TK1	0.5	true	-1	false	Set()	0.0
+DISC1	0.5	true	-1	false	Set()	0.0
+SMAD4	0.5	true	-1	true	Set()	0.0

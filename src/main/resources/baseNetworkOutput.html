@@ -41,6 +41,43 @@ line.link {
 	opacity: 0.95;
 }
 
+.node.important.Intron {
+	fill: #540002;
+	stroke-width: 0;
+	opacity: 0.95;
+}
+.node.important.Promoter {
+	fill: #A8383B;
+	stroke-width: 0;
+	opacity: 0.95;
+}
+.node.important.UTR {
+	fill: #AA6B39;
+	stroke-width: 0;
+	opacity: 0.95;
+}
+.node.important.missense_variant {
+	fill: #226765;
+	stroke-width: 0;
+	opacity: 0.95;
+}
+.node.important.splice_variant {
+	fill: #679B99;
+	stroke-width: 0;
+	opacity: 0.95;
+}
+.node.important.stop_gained {
+	fill: #328A2E;
+	stroke-width: 0;
+	opacity: 0.95;
+}
+.node.important.stop_lost {
+	fill: #8DCF8A;
+	stroke-width: 0;
+	opacity: 0.95;
+}
+
+
 .node.important.cgc {
 	fill: #2D8677;
 	stroke-width: 0;
@@ -349,27 +386,18 @@ var radius = 8;
 		console.log("done.");
 	});
 
-	// class, label
-	var colors = [ ["cgc", "CGC"],
-	               ["other", "Other"],
-	               ["ncg", "NCG"],
-	               ["unknown", "NA" ] ];
-	/*
-	var colors = [ ["coding", "Coding"],
-	               ["promoter", "Promoter"],
-	               ["enhancer", "Enhancer"],
-	               ["lncrna", "lncRNA"],
-	               ["unknown", "NA" ] ];
-	*/
-	var legend = svg.append("g")
-.attr("class", "legend")
-//.attr("x", w - 65)
-//.attr("y", 50)
-.attr("height", 100)
-.attr("width", 100)
-.attr('transform', 'translate(-20,50)');
+	var classes = graph.colorClasses
 
-	var legendRect = legend.selectAll('rect').data(colors);
+
+	var legend = svg.append("g")
+		.attr("class", "legend")
+		//.attr("x", w - 65)
+		//.attr("y", 50)
+		.attr("height", 200)
+		.attr("width", 100)
+		.attr('transform', 'translate(-20,50)');
+
+	var legendRect = legend.selectAll('rect').data(classes);
 
 	legendRect.enter()
 	    .append("rect")
@@ -382,10 +410,10 @@ var radius = 8;
 	        return i * 20;
 	    })
 	    .attr("class", function(d) {
-			return "node important "+d[0];
+			return "node important "+d;
 		});
 
-	var legendText = legend.selectAll('text').data(colors);
+	var legendText = legend.selectAll('text').data(classes);
 
 	legendText.enter()
 	    .append("text")
@@ -396,80 +424,85 @@ var radius = 8;
 	        return i * 20 + 9;
 	    })
 	    .text(function(d) {
-	        return d[1];
+	        return d;
 	    });
 
-var classes = ["cgc", "other", "ncg"]
+	var cp = graph.colorProperty
+	var classes = graph.colorClasses
 
-function numberOfClasses(node) {
-	return node.knownCancerGene[0] + node.knownCancerGene[1] + node.knownCancerGene[2];
-}
-
-function getStartAngle(node, position) {
-	var nc = numberOfClasses(node)
-	if (nc == 0) {
-		return 0;
+	function numberOfClasses(node) {
+		var sum = 0;
+		for (var c = 0; c < node[cp].length; c++) {
+			sum = sum + node[cp][c];
+		}
+		return sum;
 	}
 
-	var angle = 360 / nc
+	function getStartAngle(node, position) {
+		var nc = numberOfClasses(node)
+		if (nc == 0) {
+			return 0;
+		}
 
-	var realPos = 0
-	for (i = 0; i <= position; i++) {
-		realPos += node.knownCancerGene[i]
+		var base = 360.0 / nc
+
+		var realPos = 0
+		for (var i = 0; i < position; i++) {
+			realPos += node[cp][i]
+		}
+
+		var angle = realPos * base
+		return angle * Math.PI / 180;
 	}
 
-	return realPos * angle * Math.PI / 180;
-}
-
-function getEndAngle(node, position) {
-	var nc = numberOfClasses(node);
-	if (nc == 0) {
-		return 360 * Math.PI / 180
+	function getEndAngle(node, position) {
+		var nc = numberOfClasses(node);
+		if (nc == 0) {
+			return 360 * Math.PI / 180
+		}
+		if (position < 0) {
+			return 0;
+		}
+		if (node[cp][position] == 0) {
+			var angle = getStartAngle(node, position);
+			return angle;
+		}
+		var base = 360.0 / nc
+		var realPos = 0
+		for (var i = 0; i < position; i++) {
+			realPos += node[cp][i]
+		}
+		var angle = (realPos + node[cp][position]) * base
+		return angle * Math.PI / 180;
 	}
 
-	if (!node.knownCancerGene[position]) {
-		return getStartAngle(node, position)
+	function addMutatorArc(position, color) {
+	      var arc = d3.svg.arc()
+	              .outerRadius(radius)
+	              .innerRadius(0)
+	              .startAngle(function(d,i) {
+	              	return getStartAngle(nodeMap[d.name], position);
+	              }) //converting from degs to radians
+	              .endAngle(function(d,i) {
+	              	return getEndAngle(nodeMap[d.name], position);
+	              });
+
+	      pies.append("path")
+	              .attr("d", arc)
+	                  .attr("class", function (d, i) {
+	                      if (nodeMap[d.name][cp][position] > 0) {
+	                          return "node important "+classes[position];
+	                      }
+	                      else {
+	                      	return "node important";
+	                      }
+	                  }).style("opacity", function(d) {
+							return geneOpacity(d.name, 0, maxRank);
+					   });
 	}
 
-	var angle = 360 / nc
-
-	var realPos = 0
-	for (i = 0; i <= position; i++) {
-		realPos += node.knownCancerGene[i]
+	for (var k = -1; k < graph.nodes[0][cp].length; k++) {
+		addMutatorArc(k);
 	}
-
-	return (realPos + 1)* angle * Math.PI / 180;
-}
-
-function addMutatorArc(position, color) {
-
-      var arc = d3.svg.arc()
-              .outerRadius(radius)
-              .innerRadius(0)
-              .startAngle(function(d,i) {
-              	return getStartAngle(nodeMap[d.name], position);
-              }) //converting from degs to radians
-              .endAngle(function(d,i) {
-              	return getEndAngle(nodeMap[d.name], position);
-              });
-
-      pies.append("path")
-              .attr("d", arc)
-                  .attr("class", function (d, i) {
-                      if (nodeMap[d.name].knownCancerGene[position]) {
-                          return "node important "+classes[position];
-                      }
-                      else {
-                      	return "node important";
-                      }
-                  }).style("opacity", function(d) {
-						return geneOpacity(d.name, 0, maxRank);
-				   });
-              }
-
-addMutatorArc(-1);
-addMutatorArc(0);
-addMutatorArc(1);
-addMutatorArc(2);
 
 </script>

@@ -1,5 +1,6 @@
 package be.cmpg.cancer.pcawg
 
+@Deprecated
 object FunSeq2Helper {
 
   def getBaseArgParser(name:String) = new scopt.OptionParser[Config](name) {
@@ -40,17 +41,25 @@ object FunSeq2Helper {
       c.copy(samplesFile = Some(x))
     } text ("File with the samples to analyse (all samples by default)")
     
+    /*
     opt[Boolean]("codingMutations") required() action { (x, c) =>
       c.copy(codingMutations = x)
     } text ("True: Coding Mutations. False: Non Coding Mutations")
+     */
     
-    opt[Seq[String]]("mutType") required () action { (x, c) =>
-      c.copy(mutType = Some(x))
-    } text ("non-coding annotations: enhancer, promoter, lncrna, etc. For coding: misssense, stop_codon, etc")
+    
+    opt[Seq[String]]("mutType") action { (x, c) =>
+      c.copy(mutType = x)
+    } text ("annotations: Intron,Promoter,UTR,missense_variant,splice_variant,stop_gained,stop_lost (All by default)")
     
     opt[Int]("outputGenes") action { (x, c) =>
       c.copy(outputGenes = x)
     } text ("Number of genes to select (default: 200)")
+    
+    opt[Double]("funSeq2Threshold") action { (x, c) =>
+      c.copy(funSeq2Threshold = x)
+    } text ("Threhold to filter FunSeq2 scores (default: 2.0)")
+    
     
     opt[Boolean]("printInputs") action { (x, c) =>
       c.copy(printInputs = x)
@@ -77,8 +86,9 @@ case class Config (
     convergence: Double = 0.0,
     outputGenes:Int = 200,
     dir:String = "mumbai/",
-    codingMutations: Boolean = true, // misssense, stop_codon, etc. vs NCD (coding vs non-coding)
-    mutType: Option[Seq[String]] = None, // Only for NCD: enhancer, promoter, lncrna 
+    //codingMutations: Boolean = true, // misssense, stop_codon, etc. vs NCD (coding vs non-coding)
+    funSeq2Threshold:Double = 2.0,
+    mutType: Seq[String] = List("Intron", "Promoter", "UTR", "missense_variant", "splice_variant", "stop_gained", "stop_lost"), // Only for NCD: enhancer, promoter, lncrna 
     printInputs:Boolean = false,
     debug:Seq[String]=List(),
     samplesFile:Option[String]=None,

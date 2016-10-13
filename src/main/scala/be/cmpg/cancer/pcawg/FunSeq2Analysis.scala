@@ -10,7 +10,11 @@ import scala.util.Failure
 import scala.util.Success
 import java.io.PrintWriter
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
+import be.cmpg.graph.Gene
+import org.json.JSONArray
+import be.cmpg.cancer.ColorInfo
 
+@Deprecated
 object FunSeq2Analysis extends App {
 
   val parser = getArgParser
@@ -46,9 +50,16 @@ object FunSeq2Analysis extends App {
    * - filter by genes in the network
    */
   
-  val bla = ""
   
-  val geneFunSeqScore = (List.range(1, 23) ++ List("X", "Y")).toStream.map { input => 
+  val geneFunSeqScore = Source.fromFile(config.dir + "mutations.funseq2.tbs")
+                            .getLines()
+                            .map { line => line.split("\t") }
+                            .map { f => FunSeqData(f(0), Gene(f(1)), f(2).toDouble, f(3))}
+                            .filter { d => config.mutType.contains(d.typ) }
+                            .filter { d => d.score > config.funSeq2Threshold }
+                            .toList
+    
+    /*(List.range(1, 23) ++ List("X", "Y")).toStream.map { input => 
                             val filename = config.dir+"chr"+input+".vcf.data.tsv"
                             Try {
                               Source.fromFile(filename, "latin1")
@@ -80,20 +91,19 @@ object FunSeq2Analysis extends App {
                                 None
                             }
                         }.flatten.flatten.toList
+                        * 
                         
   
   if (config.printInputs) {
     
-    if (config.mutType.get.size != 1)
-      throw new RuntimeException("Only works for one mut type")
-    
-    val writer = new PrintWriter(config.mutType.get(0)+".tsv", "UTF-8");
+    val writer = new PrintWriter("ssame.funseq2.tsv", "UTF-8");
     geneFunSeqScore.foreach { fsd =>
       writer.println(fsd.sample+"\t"+fsd.gene.name+"\t"+fsd.score)
     }
     writer.close
     System.exit(0);
   }
+  */
   
   /*
    * Some statas about the FunSeqScores
@@ -136,8 +146,20 @@ object FunSeq2Analysis extends App {
   
   val (rankedGenes, networkManager) = run(config, seedGenes, network, geneFunSeqScore)
   
-  val exitName = config.outputPrefix+".funseq."+(if (config.codingMutations) "coding" else "noncoding")
-  MutualExclusivityPrintPattern.printPattern(exitName, rankedGenes, networkManager, Map())
+  val exitName = config.outputPrefix+".funseq"
+  
+  val byGene = geneFunSeqScore
+                  .filter { d => rankedGenes.contains(d.gene) }
+                  .groupBy { g => g.gene }
+                  
+  val pie: Map[Gene, Map[String, Any]] = rankedGenes.map { g =>
+                     val l = byGene.getOrElse(g, List())
+                     val byType = l.groupBy { _.typ }.mapValues { _.size }
+                     val info = config.mutType.map { typ => byType.getOrElse(typ, 0) }
+                     (g, Map("mutTypes" -> new JSONArray(info.toArray)))
+                  }.toMap
+  
+  MutualExclusivityPrintPattern.printPattern(exitName, rankedGenes, networkManager, Map(), pie, colorInfo=ColorInfo("mutTypes", new JSONArray(config.mutType.toArray)))
   
   println("Network in " + exitName + "_network.html ["+rankedGenes.size+" genes selected]")
   
@@ -169,5 +191,5 @@ object FunSeq2Analysis extends App {
   
 }
 
-case class FunSeqData(gene:Gene, sample:String, score:Double)
+case class FunSeqData(sample:String, gene:Gene, score:Double, typ:String)
 case class Data(sample:String, chromosome:String, location:Int, gene:String, muttyp:String, cdsScore:Double, ncdScore:Double)

@@ -63,7 +63,7 @@ object MutualExclusivityPrintPattern extends App {
 
   printPattern(config.outputPrefix+".selected", config.genes.map { n => Gene(n) }, networkManager, genePatientMatrix, otherPositiveGeneSetLists=otherPositiveSet)
 
-  def printPattern(outputPrefix: String, genes: List[Gene], networkManager: NodeCostNetworkManager, genePatientMatrix: Map[PolimorphismKey, Polimorphism], additional: Map[Gene, Map[String, Any]] = Map(), otherPositiveGeneSetLists:Set[Gene]=Set()) = {
+  def printPattern(outputPrefix: String, genes: List[Gene], networkManager: NodeCostNetworkManager, genePatientMatrix: Map[PolimorphismKey, Polimorphism], additional: Map[Gene, Map[String, Any]] = Map(), otherPositiveGeneSetLists:Set[Gene]=Set(), colorInfo:ColorInfo=ColorInfo("knownCancerGene", new JSONArray(Array("cgc", "other", "ncg")))) = {
 
     val helper = new CancerHelper
                                         
@@ -107,9 +107,9 @@ object MutualExclusivityPrintPattern extends App {
     def getKnownCancerGene(gene:Gene) = {
       val toReturn = new JSONArray();
       
-      toReturn.put(helper.cgc.contains(gene))
-      toReturn.put(otherPositiveGeneSetLists.contains(gene))
-      toReturn.put(helper.ncg.contains(gene))
+      toReturn.put(if(helper.cgc.contains(gene)) 1 else 0)
+      toReturn.put(if(otherPositiveGeneSetLists.contains(gene)) 1 else 0)
+      toReturn.put(if(helper.ncg.contains(gene)) 1 else 0)
 
       toReturn
     }  
@@ -145,7 +145,7 @@ object MutualExclusivityPrintPattern extends App {
         val additionalInfo = additionalNodeInfo.get(g)
         if (additionalInfo.isDefined) {
           additionalInfo.get.foreach { e =>
-            geneInfo.accumulate(e._1, e._2)
+            geneInfo.put(e._1, e._2)
           }
         }
         nodes.put(geneInfo)
@@ -158,10 +158,11 @@ object MutualExclusivityPrintPattern extends App {
       })
 
     out_nodes.close()
-
+    
     results.put("edges", edges)
     results.put("nodes", nodes)
-
+    results.put("colorProperty", colorInfo.property)
+    results.put("colorClasses", colorInfo.classes)
     val html = Source.fromInputStream(getClass.getResourceAsStream("/baseNetworkOutput.html")).mkString
 
     val out_json = new FileWriter(outputPrefix + "_network.html")
@@ -226,3 +227,5 @@ object MutualExclusivityPrintPattern extends App {
   }
   
 }
+
+case class ColorInfo(property:String, classes:JSONArray);

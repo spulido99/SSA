@@ -1,0 +1,525 @@
+Gene	TP53	PIK3CA	EGFR	RB1	E2F1	PTEN	EPHA2	APC	MYC	CTNNB1	ATM	MDM2	USP7	CHD3	BRCA1	PLK3	TRRAP	TFDP1	SH2D1A	SFN	UNC119	CREB3	BCL2L1	PIK3R1	EIF2S2	TAP1	BCL6	MLH1	BARD1	ZHX1	SIK1	DDX5	ERBB2	FOXA1	TP73	VCAN	SMARCA4	PMS2	PRKDC	NEDD8	XRCC5	AKT1	PRMT5	PPP1CA	MAPK14	CDC42	HGF	SIRT1	MCL1	PIAS2	MAX	FBXO11	PRDM1	CSE1L	BMP1	CASP8	RIF1	XRCC6	HDAC2	BDKRB2	KAT2B	UBE2I	CTSD	CCT5	LAMA4	SKP2	CDKN2A	SAT1	ATXN1	STX5	TK1	CDKN1A	COPS5	SCN3B	SETD7	RAC1	DKK1	SERPINE1	CASP1	GSK3B	TRIM28	HTT	FAS	AR	NFYC	DDB2	WDR33	NLRC4	UFD1L	TNFRSF10A	ATR	VDR	NOTCH1	PRKAB1	HIF1A	SP1	HINFP	NGFR	APAF1	JUN
+Rank	0.0	1.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0	10.0	11.0	12.0	13.0	14.0	15.0	16.0	17.0	18.0	19.0	20.0	21.0	22.0	23.0	24.0	25.0	26.0	27.0	28.0	29.0	30.0	31.0	32.0	33.0	34.0	35.0	36.0	37.0	38.0	39.0	40.0	41.0	42.0	43.0	44.0	45.0	46.0	47.0	48.0	49.0	50.0	51.0	52.0	53.0	54.0	55.0	56.0	57.0	58.0	59.0	60.0	61.0	62.0	63.0	64.0	65.0	66.0	67.0	68.0	69.0	70.0	71.0	72.0	73.0	74.0	75.0	76.0	77.0	78.0	79.0	80.0	81.0	82.0	83.0	84.0	85.0	86.0	87.0	88.0	89.0	90.0	91.0	92.0	93.0	94.0	95.0	96.0	97.0	98.0	99.0
+GeneName	TP53	PIK3CA	EGFR	RB1	E2F1	PTEN	EPHA2	APC	MYC	CTNNB1	ATM	MDM2	USP7	CHD3	BRCA1	PLK3	TRRAP	TFDP1	SH2D1A	SFN	UNC119	CREB3	BCL2L1	PIK3R1	EIF2S2	TAP1	BCL6	MLH1	BARD1	ZHX1	SIK1	DDX5	ERBB2	FOXA1	TP73	VCAN	SMARCA4	PMS2	PRKDC	NEDD8	XRCC5	AKT1	PRMT5	PPP1CA	MAPK14	CDC42	HGF	SIRT1	MCL1	PIAS2	MAX	FBXO11	PRDM1	CSE1L	BMP1	CASP8	RIF1	XRCC6	HDAC2	BDKRB2	KAT2B	UBE2I	CTSD	CCT5	LAMA4	SKP2	CDKN2A	SAT1	ATXN1	STX5	TK1	CDKN1A	COPS5	SCN3B	SETD7	RAC1	DKK1	SERPINE1	CASP1	GSK3B	TRIM28	HTT	FAS	AR	NFYC	DDB2	WDR33	NLRC4	UFD1L	TNFRSF10A	ATR	VDR	NOTCH1	PRKAB1	HIF1A	SP1	HINFP	NGFR	APAF1	JUN
+MutualExclScore	124.31154401154399	29.15198412698411	20.267857142857135	8.152380952380952	4.580158730158731	5.20952380952381	5.620634920634921	3.433369408369409	1.1027777777777779	1.5666666666666667	3.3095238095238098	8.822655122655123	2.1539682539682543	2.1634920634920634	2.333333333333333	1.676190476190476	5.499242424242425	4.441666666666666	1.2	1.8345238095238094	0.6666666666666666	8.616666666666667	0.5333333333333333	3.0761904761904764	5.131349206349206	0.9678571428571427	1.075	0.7416666666666667	2.2416666666666663	1.125	1.2	0.3666666666666667	6.236111111111112	0.7095238095238094	1.8273809523809523	5.734523809523809	5.3428571428571425	1.45	5.73174603174603	1.425	3.3261904761904764	3.7928571428571427	2.001190476190476	0.3333333333333333	0.5833333333333333	0.575	2.3027777777777776	0.8666666666666667	0.6761904761904762	0.8373015873015872	0.2	1.3777777777777778	1.7694444444444444	0.6190476190476191	0.46785714285714286	13.446825396825393	3.301190476190476	0.41666666666666663	0.3333333333333333	2.269047619047619	0.29166666666666663	0.0	1.851190476190476	0.4583333333333333	4.071067821067821	0.8111111111111111	78.01630591630597	1.0595238095238093	1.0333333333333332	1.5666666666666667	0.0	0.0	0.45	1.8333333333333333	1.040909090909091	3.2861111111111114	0.34090909090909094	1.551190476190476	0.3666666666666667	0.16666666666666666	1.9777777777777779	3.7595238095238104	0.8749999999999999	1.9916666666666667	0.5333333333333333	1.4916666666666667	2.1857142857142855	1.8242424242424242	0.1111111111111111	0.5833333333333333	4.8988455988455994	0.5333333333333333	26.629004329004317	0.9833333333333334	1.0333333333333332	0.5611111111111111	1.325	0.14285714285714285	2.5047619047619047	0.3333333333333333
+MutQty	354	92	70	28	18	13	24	18	6	4	14	26	6	11	10	4	21	13	5	8	2	30	2	8	21	5	5	4	8	5	3	2	21	4	8	24	19	6	21	7	12	14	9	1	2	3	10	3	3	4	1	6	6	3	3	51	13	2	1	11	2	0	7	3	21	4	268	4	4	4	0	0	2	3	4	13	2	6	2	1	7	14	4	6	2	4	8	9	1	2	22	2	104	4	4	3	6	1	12	1
+TCGA-D6-6517-01	1	1	1																																																																1																																	
+TCGA-CV-6960-01	1	1	1																																																																																																	
+TCGA-T2-A6WZ-01	1	1		1	1																				1	1									1																																																																	
+TCGA-CR-7374-01	1	1		1		1																												1																																													1																					
+TCGA-CN-5360-01	1	1		1																														1																																	1																																	
+TCGA-CR-7399-01	1	1		1																																1				1		1	1				1																																																					
+TCGA-CX-7082-01	1	1		1																																																																																																
+TCGA-CV-6948-01	1	1			1			1	1			1	1												1																																										1																																	
+TCGA-UF-A7JF-01	1	1				1										1																																																			1																																	
+TCGA-CV-7438-01	1	1					1					1																																																					1		1																																	
+TCGA-IQ-A61E-01	1	1					1																																																												1																										1							
+TCGA-CV-6935-01	1	1						1				1					1																																																																																			
+TCGA-CN-5373-01	1	1									1			1					1																																																1																																	
+TCGA-CN-6024-01	1	1									1			1																											1																																																									1	1	
+TCGA-UF-A7JO-01	1	1										1		1																			1																				1			1											1																								1									
+TCGA-CN-6994-01	1	1										1																														1																		1																																	1							
+TCGA-DQ-5630-01	1	1												1																1																																																																						
+TCGA-CN-6013-01	1	1															1												1																																						1																																	
+TCGA-CV-A461-01	1	1															1																								1							1																																																				
+TCGA-CR-7401-01	1	1																				1																																																																														
+TCGA-CN-6998-01	1	1																					1																							1																					1																																	
+TCGA-CQ-A4C6-01	1	1																													1																																				1																										1							
+TCGA-UF-A71B-01	1	1																														1																																			1																																1	
+TCGA-CN-6021-01	1	1																																1																																	1																										1							
+TCGA-CV-7424-01	1	1																																		1																											1				1													1																				
+TCGA-HD-8634-01	1	1																																		1																															1																			1														
+TCGA-CN-4739-01	1	1																																					1																												1																														1		1	
+TCGA-CQ-6219-01	1	1																																					1																																																						1							
+TCGA-UF-A7J9-01	1	1																																																					1					1					1		1																																1	
+TCGA-CV-6436-01	1	1																																																						1											1																										1							
+TCGA-CV-A6JM-01	1	1																																																						1											1																										1							
+TCGA-CR-7394-01	1	1																																																						1											1																										1							
+TCGA-CQ-5331-01	1	1																																																						1											1																																	
+TCGA-CN-A49A-01	1	1																																																										1							1																																	
+TCGA-BA-A4IF-01	1	1																																																																	1																										1							
+TCGA-QK-AA3K-01	1	1																																																																	1																										1							
+TCGA-CV-A45R-01	1	1																																																																	1																											1						
+TCGA-D6-6515-01	1	1																																																																	1																																	
+TCGA-CV-6952-01	1	1																																																																	1																																	
+TCGA-CN-A498-01	1	1																																																																	1																																	
+TCGA-CN-5365-01	1	1																																																																	1																																	
+TCGA-F7-A61S-01	1	1																																																																	1																																	
+TCGA-BA-5557-01	1	1																																																																	1																																	
+TCGA-CV-7177-01	1	1																																																																	1																																	
+TCGA-BA-A8YP-01	1	1																																																																	1																																	
+TCGA-CV-6956-01	1	1																																																																	1																																	
+TCGA-P3-A6T0-01	1	1																																																																	1																																	
+TCGA-CV-6945-01	1	1																																																																																1																		
+TCGA-CV-7422-01	1	1																																																																																									1									
+TCGA-CQ-6218-01	1	1																																																																																									1									
+TCGA-CN-6010-01	1	1																																																																																																		
+TCGA-CV-5435-01	1	1																																																																																																		
+TCGA-F7-8489-01	1	1																																																																																																		
+TCGA-CQ-6222-01	1	1																																																																																																		
+TCGA-CR-7371-01	1	1																																																																																																		
+TCGA-CV-A460-01	1	1																																																																																																		
+TCGA-P3-A5Q6-01	1		1	1																																																															1																																	
+TCGA-UF-A7JK-01	1		1	1																																																															1																																	
+TCGA-BB-4224-01	1		1		1					1												1																																																																							1							
+TCGA-CV-6959-01	1		1		1																				1																																										1																										1							
+TCGA-MT-A7BN-01	1		1			1																																																																																														
+TCGA-BA-A6DE-01	1		1				1													1															1											1																					1																										1							
+TCGA-DQ-5629-01	1		1				1																										1								1																										1																																	
+TCGA-CV-7252-01	1		1				1																																																	1									1																																			
+TCGA-CN-4726-01	1		1				1																																																																																													
+TCGA-UF-A7JD-01	1		1				1																																																																																													
+TCGA-BA-4076-01	1		1						1																																																										1		1																								1							
+TCGA-BA-4075-01	1		1									1																																													1										1																								1		1							
+TCGA-UF-A7JH-01	1		1									1																																																							1																																	
+TCGA-KU-A66T-01	1		1									1																																																							1																																	
+TCGA-BA-6872-01	1		1												1							1																																													1																																	
+TCGA-BB-A5HY-01	1		1														1															1									1																										1																																	
+TCGA-CN-4742-01	1		1															1																																																	1																										1							
+TCGA-D6-A6EQ-01	1		1																			1														1																															1																																	
+TCGA-CV-5444-01	1		1																			1																																													1																			1							1							
+TCGA-IQ-7630-01	1		1																			1																																																																														
+TCGA-P3-A6T5-01	1		1																											1																																					1																																	
+TCGA-CV-5431-01	1		1																														1																																		1																																	
+TCGA-CV-7242-01	1		1																														1																																																										1									
+TCGA-QK-A8Z9-01	1		1																																1																																1																																	
+TCGA-QK-A8Z8-01	1		1																																	1																																																									1							
+TCGA-CR-7364-01	1		1																																			1									1																				1																1																	
+TCGA-BB-A5HU-01	1		1																																				1																																																													
+TCGA-CV-6934-01	1		1																																							1																		1																																								
+TCGA-CN-6997-01	1		1																																								1																								1																																	
+TCGA-BA-A6DG-01	1		1																																											1																					1																																	
+TCGA-CV-7095-01	1		1																																																					1		1							1																1																			
+TCGA-CV-6953-01	1		1																																																					1											1																																	
+TCGA-QK-A6IH-01	1		1																																																								1																																									
+TCGA-IQ-A61L-01	1		1																																																														1																																			
+TCGA-CN-A640-01	1		1																																																																1									1																								
+TCGA-CV-7180-01	1		1																																																																1															1			1															
+TCGA-H7-A6C4-01	1		1																																																																1																				1													
+TCGA-QK-A8Z7-01	1		1																																																																1																										1							
+TCGA-CV-7102-01	1		1																																																																1																																	
+TCGA-BA-7269-01	1		1																																																																1																																	
+TCGA-CN-4738-01	1		1																																																																1																																	
+TCGA-CV-5976-01	1		1																																																																1																																	
+TCGA-CQ-6229-01	1		1																																																																1																																	
+TCGA-CV-6941-01	1		1																																																																1																																	
+TCGA-CQ-5330-01	1		1																																																																1																																	
+TCGA-BA-A4II-01	1		1																																																																1																																	
+TCGA-DQ-5624-01	1		1																																																																	1																							1									
+TCGA-CV-7103-01	1		1																																																																																								1									
+TCGA-CV-7236-01	1		1																																																																																										1							
+TCGA-CV-6933-01	1		1																																																																																																	
+TCGA-CV-A6JT-01	1		1																																																																																																	
+TCGA-CR-6474-01	1		1																																																																																																	
+TCGA-CQ-A4CH-01	1		1																																																																																																	
+TCGA-CQ-7072-01	1		1																																																																																																	
+TCGA-C9-A47Z-01	1		1																																																																																																	
+TCGA-CQ-7069-01	1			1			1																																																																																1				1									
+TCGA-CV-6950-01	1			1							1																																																																																									
+TCGA-UF-A719-01	1			1										1																										1																											1																																	
+TCGA-CR-7370-01	1			1										1																																																					1																																	
+TCGA-CR-7398-01	1			1																																			1																																																													
+TCGA-CQ-6221-01	1			1																																																															1															1																		
+TCGA-IQ-A6SG-01	1			1																																																															1																					1												
+TCGA-CV-A6JN-01	1			1																																																																																																
+TCGA-MZ-A7D7-01	1				1								1												1																																										1																																	
+TCGA-CR-7397-01	1				1																				1											1																															1																																	
+TCGA-QK-A6IJ-01	1				1																				1											1																															1																																	
+TCGA-CQ-6220-01	1				1																				1																															1											1																										1							
+TCGA-QK-A6VB-01	1					1		1																1															1																	1																																											1	
+TCGA-CV-7238-01	1					1																1																																																																							1							
+TCGA-BA-4074-01	1					1																																																													1																																	
+TCGA-CV-7104-01	1						1															1																																																																														
+TCGA-BA-5152-01	1						1																																1								1					1														1	1														1								1											
+TCGA-BA-6873-01	1						1																																																	1											1																										1							
+TCGA-CQ-5334-01	1						1																																																	1																																					1							
+TCGA-CN-5355-01	1						1																																																												1																										1							
+TCGA-CN-A63T-01	1						1																																																																																				1		1							
+TCGA-CN-5364-01	1							1			1																																									1															1																																	
+TCGA-CV-7101-01	1							1				1					1																																																1		1								1		1											1			1		1							
+TCGA-CR-6484-01	1							1						1						1																																		1											1																																		1	
+TCGA-CV-7248-01	1							1							1				1																																									1																																								
+TCGA-CV-A6K1-01	1							1																			1																										1														1																					1					1				1			
+TCGA-UF-A7JA-01	1							1																				1																																							1																																	
+TCGA-UF-A7JT-01	1							1																															1											1															1		1									1															1					1				
+TCGA-UF-A7JJ-01	1							1																																	1								1																					1																														
+TCGA-CN-6020-01	1							1																																		1																									1															1																		
+TCGA-CV-7418-01	1							1																																																									1		1																																	
+TCGA-CV-6962-01	1							1																																																											1											1															1							
+TCGA-CV-5430-01	1							1																																																											1																																	
+TCGA-CV-7435-01	1							1																																																											1																																	
+TCGA-H7-8501-01	1								1								1																																							1	1						1				1											1																						
+TCGA-D6-6825-01	1								1																																																										1																																	
+TCGA-CX-7219-01	1										1							1																																																	1																																	
+TCGA-F7-A623-01	1										1																								1																						1										1														1																			
+TCGA-CV-A463-01	1										1																																													1											1																								1		1							
+TCGA-CR-7380-01	1										1																																																								1																										1							
+TCGA-BB-8601-01	1										1																																																																																									
+TCGA-T3-A92M-01	1											1																		1																																					1																																	
+TCGA-CV-A45Y-01	1											1																								1																																																																
+TCGA-CR-7383-01	1											1																									1																														1																																	
+TCGA-CN-A49B-01	1											1																											1																																																													
+TCGA-CN-4728-01	1											1																														1																									1																																	
+TCGA-IQ-A6SH-01	1											1																																																							1								1																									
+TCGA-CV-7430-01	1											1																																																							1																																	
+TCGA-BA-6870-01	1											1																																																							1																																	
+TCGA-CR-6478-01	1											1																																																							1																																	
+TCGA-CV-7091-01	1											1																																																								1																																
+TCGA-CR-7390-01	1											1																																																																																	1							
+TCGA-D6-A4ZB-01	1											1																																																																																								
+TCGA-D6-6826-01	1											1																																																																																								
+TCGA-DQ-7592-01	1											1																																																																																								
+TCGA-CV-A45Q-01	1												1												1											1																															1																				1						1							
+TCGA-D6-8568-01	1												1																																																																																							
+TCGA-CV-6936-01	1													1																												1																									1																																	
+TCGA-CV-7099-01	1														1					1																																				1											1																										1							
+TCGA-CV-7245-01	1														1																																1																		1		1																																	
+TCGA-CV-7097-01	1														1																																																				1																																	
+TCGA-D6-6823-01	1														1																																																				1																																	
+TCGA-CN-6023-01	1																1					1																													1																																								1									
+TCGA-CV-7407-01	1																1					1																																													1																																	
+TCGA-P3-A6T8-01	1																1								1																																										1																										1							
+TCGA-QK-AA3J-01	1																1																				1																														1																																1	
+TCGA-CV-A6JE-01	1																1																																												1						1			1														1																
+TCGA-CN-4740-01	1																1																																																		1																													1				
+TCGA-CV-A45U-01	1																1																																																		1																																	
+TCGA-CN-6988-01	1																1																																																																																			
+TCGA-CR-7372-01	1																	1				1																																																																														
+TCGA-CV-7414-01	1																	1							1								1																												1				1		1																	1																
+TCGA-CQ-6228-01	1																	1															1																								1																																											
+TCGA-WA-A7GZ-01	1																	1																			1															1																																												1				
+TCGA-RS-A6TO-01	1																	1																									1													1								1			1																																	
+TCGA-CV-7416-01	1																	1																																		1																																																
+TCGA-CN-5358-01	1																	1																																																																1																		
+TCGA-CN-5366-01	1																	1																																																																																		
+TCGA-BA-A6D8-01	1																		1																												1																																														1							
+TCGA-UF-A71A-01	1																			1																											1																				1																																	
+TCGA-D6-A6EP-01	1																			1																																															1																										1							
+TCGA-F7-8298-01	1																					1			1																																										1																																	
+TCGA-UF-A71D-01	1																					1								1																																					1																																	
+TCGA-IQ-A61G-01	1																					1											1																																		1															1																		
+TCGA-QK-A64Z-01	1																					1																																		1											1																																	
+TCGA-CV-7235-01	1																					1																																			1										1																																	
+TCGA-CQ-6224-01	1																					1																																													1		1																								1							
+TCGA-CN-5370-01	1																					1																																													1																					1												
+TCGA-QK-A8ZA-01	1																					1																																													1																										1		1					
+TCGA-CR-7376-01	1																					1																																													1																										1							
+TCGA-F7-A50G-01	1																					1																																													1																																	
+TCGA-BA-A6DL-01	1																					1																																													1																																	
+TCGA-CV-5439-01	1																					1																																																																							1							
+TCGA-CN-4737-01	1																					1																																																																														
+TCGA-CV-6940-01	1																					1																																																																														
+TCGA-CN-4729-01	1																							1																																											1															1											1							
+TCGA-BB-7870-01	1																							1																																											1																																	
+TCGA-CV-5970-01	1																								1																																1										1																																	
+TCGA-CV-7178-01	1																									1																																									1																																1	
+TCGA-CV-5432-01	1																											1					1														1																				1																																	
+TCGA-CN-A63W-01	1																												1							1			1			1																							1		1																										1							
+TCGA-BA-A6DD-01	1																												1																															1							1																																	
+TCGA-CN-4731-01	1																												1																																						1																												1					
+TCGA-D6-8569-01	1																												1																																						1																																	
+TCGA-CV-7437-01	1																												1																																																													1										
+TCGA-CN-A497-01	1																												1																																																																							
+TCGA-HD-7229-01	1																														1																																																																					
+TCGA-BB-4227-01	1																																1					1																													1																					1												
+TCGA-D6-A74Q-01	1																																1																																1		1																																	
+TCGA-CV-5434-01	1																																1																																		1																										1							
+TCGA-CQ-6225-01	1																																1																																																																			
+TCGA-CN-A63U-01	1																																		1																																																																	
+TCGA-CV-7254-01	1																																			1	1																												1		1																																	
+TCGA-CV-5966-01	1																																			1																				1											1																										1							
+TCGA-HD-8224-01	1																																			1																					1										1		1															1																
+TCGA-CR-7365-01	1																																			1																															1												1														1							
+TCGA-CV-A6JY-01	1																																			1																															1																										1							
+TCGA-CN-6018-01	1																																			1																															1																																	
+TCGA-CV-7432-01	1																																			1																															1																																	
+TCGA-CN-4725-01	1																																			1																																																																
+TCGA-CV-7253-01	1																																				1				1									1																																																		
+TCGA-BA-5151-01	1																																				1																			1																										1																		
+TCGA-CN-4727-01	1																																				1																											1	1		1																										1							
+TCGA-IQ-A61H-01	1																																				1																														1																																	
+TCGA-HD-A633-01	1																																				1																														1																																	
+TCGA-CQ-5326-01	1																																				1																														1																																	
+TCGA-CN-5356-01	1																																				1																																																						1									
+TCGA-UF-A718-01	1																																				1																																																															
+TCGA-CV-5973-01	1																																						1			1																		1							1																										1							
+TCGA-CV-6937-01	1																																						1																			1																																	1									
+TCGA-CR-7386-01	1																																						1																												1																								1									
+TCGA-CN-5367-01	1																																						1																												1																																	
+TCGA-CV-5440-01	1																																						1																												1																																	
+TCGA-CV-7446-01	1																																						1																																																	1			1									
+TCGA-CV-5436-01	1																																						1																																																						1							
+TCGA-HD-8635-01	1																																						1																																																						1							
+TCGA-CN-6012-01	1																																							1			1																								1						1																											
+TCGA-F7-7848-01	1																																							1																																										1									1			1						
+TCGA-CN-6992-01	1																																							1																																																									1			
+TCGA-CN-6995-01	1																																								1																								1																										1								1	
+TCGA-CV-6951-01	1																																									1																									1																																	
+TCGA-P3-A6T4-01	1																																										1																							1	1																	1																
+TCGA-CN-6016-01	1																																										1																								1																										1							
+TCGA-CV-A45X-01	1																																											1																							1																																	
+TCGA-CR-6477-01	1																																												1																						1																												1					
+TCGA-H7-A6C5-01	1																																												1																																																							1
+TCGA-CV-7243-01	1																																															1																			1																																	
+TCGA-H7-8502-01	1																																																				1														1																																	
+TCGA-BA-6869-01	1																																																				1																																															
+TCGA-CN-6989-01	1																																																					1													1															1					1				1		1							
+TCGA-CV-A45P-01	1																																																							1											1									1																					1			
+TCGA-CV-A6JD-01	1																																																							1											1									1																								
+TCGA-CR-7379-01	1																																																							1											1																										1							
+TCGA-QK-A6IG-01	1																																																							1											1																																	
+TCGA-CV-7413-01	1																																																							1											1																																	
+TCGA-CV-6943-01	1																																																							1											1																																	
+TCGA-CV-A468-01	1																																																							1																																					1							
+TCGA-P3-A6T2-01	1																																																							1																																												
+TCGA-HD-7753-01	1																																																								1			1							1																																	
+TCGA-CN-5359-01	1																																																								1										1																																	
+TCGA-DQ-7588-01	1																																																								1										1																																	
+TCGA-4P-AA8J-01	1																																																								1																																											
+TCGA-CV-7433-01	1																																																														1				1																										1							
+TCGA-CX-A4AQ-01	1																																																														1				1																																	
+TCGA-CV-7255-01	1																																																																1		1															1																		
+TCGA-CN-6011-01	1																																																																1		1																										1							
+TCGA-BA-4078-01	1																																																																		1									1																								
+TCGA-CV-7415-01	1																																																																		1														1																			
+TCGA-CQ-5332-01	1																																																																		1																					1												
+TCGA-CN-A6V3-01	1																																																																		1																									1								
+TCGA-F7-A50I-01	1																																																																		1																										1							
+TCGA-CV-6942-01	1																																																																		1																										1							
+TCGA-CV-A465-01	1																																																																		1																										1							
+TCGA-P3-A5QA-01	1																																																																		1																										1							
+TCGA-QK-A6II-01	1																																																																		1																										1							
+TCGA-CN-4736-01	1																																																																		1																										1							
+TCGA-CV-7089-01	1																																																																		1																										1							
+TCGA-CN-5363-01	1																																																																		1																										1							
+TCGA-BA-6868-01	1																																																																		1																										1							
+TCGA-QK-A652-01	1																																																																		1																										1							
+TCGA-P3-A6SX-01	1																																																																		1																												1					
+TCGA-CN-4735-01	1																																																																		1																																1	
+TCGA-CN-6019-01	1																																																																		1																																1	
+TCGA-CV-7434-01	1																																																																		1																																	
+TCGA-BB-A6UO-01	1																																																																		1																																	
+TCGA-QK-A6VC-01	1																																																																		1																																	
+TCGA-CV-7090-01	1																																																																		1																																	
+TCGA-CQ-7063-01	1																																																																		1																																	
+TCGA-CV-5977-01	1																																																																		1																																	
+TCGA-CN-6996-01	1																																																																		1																																	
+TCGA-BA-5558-01	1																																																																		1																																	
+TCGA-IQ-A61O-01	1																																																																		1																																	
+TCGA-CV-6003-01	1																																																																		1																																	
+TCGA-D6-A6EM-01	1																																																																		1																																	
+TCGA-CN-6022-01	1																																																																		1																																	
+TCGA-KU-A6H8-01	1																																																																		1																																	
+TCGA-D6-A4Z9-01	1																																																																		1																																	
+TCGA-F7-A61V-01	1																																																																		1																																	
+TCGA-CV-7423-01	1																																																																		1																																	
+TCGA-QK-A8ZB-01	1																																																																		1																																	
+TCGA-P3-A6T3-01	1																																																																		1																																	
+TCGA-F7-A61W-01	1																																																																		1																																	
+TCGA-UF-A71E-01	1																																																																		1																																	
+TCGA-CQ-A4CD-01	1																																																																		1																																	
+TCGA-CR-6491-01	1																																																																		1																																	
+TCGA-P3-A6T7-01	1																																																																		1																																	
+TCGA-CQ-A4C9-01	1																																																																		1																																	
+TCGA-CV-A6JU-01	1																																																																		1																																	
+TCGA-CR-7368-01	1																																																																			1																	1															
+TCGA-CR-7377-01	1																																																																									1																			1							
+TCGA-CQ-6223-01	1																																																																											1		1																						
+TCGA-CQ-7064-01	1																																																																													1																						
+TCGA-UF-A7JS-01	1																																																																																1																			
+TCGA-CX-7086-01	1																																																																																	1																		
+TCGA-BA-A6DI-01	1																																																																																	1																		
+TCGA-CQ-7065-01	1																																																																																												1							
+TCGA-CQ-5329-01	1																																																																																												1							
+TCGA-MT-A51W-01	1																																																																																												1							
+TCGA-DQ-5631-01	1																																																																																												1							
+TCGA-CV-A6JZ-01	1																																																																																																			
+TCGA-CQ-A4CE-01	1																																																																																																			
+TCGA-CV-7421-01	1																																																																																																			
+TCGA-CQ-A4C7-01	1																																																																																																			
+TCGA-BB-A5HZ-01	1																																																																																																			
+TCGA-CV-A464-01	1																																																																																																			
+TCGA-IQ-A61J-01	1																																																																																																			
+TCGA-HD-A6HZ-01	1																																																																																																			
+TCGA-CR-6493-01	1																																																																																																			
+TCGA-CN-6017-01	1																																																																																																			
+TCGA-CN-4733-01	1																																																																																																			
+TCGA-IQ-A61K-01	1																																																																																																			
+TCGA-CV-7263-01	1																																																																																																			
+TCGA-CQ-A4CB-01	1																																																																																																			
+TCGA-CV-5979-01	1																																																																																																			
+TCGA-CV-7247-01	1																																																																																																			
+TCGA-F7-A620-01	1																																																																																																			
+TCGA-BA-5555-01	1																																																																																																			
+TCGA-CV-5978-01	1																																																																																																			
+TCGA-D6-A6EO-01	1																																																																																																			
+TCGA-CN-A641-01	1																																																																																																			
+TCGA-BA-A6DB-01	1																																																																																																			
+TCGA-CR-7393-01	1																																																																																																			
+TCGA-HD-7831-01	1																																																																																																			
+TCGA-F7-A50J-01		1	1	1											1																																																																																					
+TCGA-HD-7832-01		1	1	1																																																																																			1						1							
+TCGA-CV-7250-01		1	1												1																		1				1																																																															
+TCGA-CR-7367-01		1	1																																		1																																							1																		1						
+TCGA-CR-6487-01		1		1																																																																																																
+TCGA-BB-4223-01		1			1																				1																																																1																											
+TCGA-BA-4077-01		1					1							1						1													1																																																																			
+TCGA-P3-A5QF-01		1					1										1																																																																																			
+TCGA-CR-6472-01		1						1																		1	1																																											1																														
+TCGA-CV-A45V-01		1							1																		1																													1											1																										1							
+TCGA-CV-A45O-01		1							1																																														1	1											1																																	
+TCGA-CN-A6V1-01		1									1			1	1																																										1																																											
+TCGA-HD-7754-01		1									1																									1																																																																
+TCGA-CR-7395-01		1									1																																									1				1																																					1							
+TCGA-CR-7404-01		1													1			1																																															1																																			
+TCGA-CN-4741-01		1														1											1																																																																									
+TCGA-TN-A7HL-01		1														1																					1						1						1																			1																									1							
+TCGA-CV-6955-01		1																				1																																													1																										1							
+TCGA-CR-5243-01		1																					1																																																																						1							
+TCGA-CV-7261-01		1																															1							1	1		1																								1																																	
+TCGA-CV-7406-01		1																																			1										1																		1																																			
+TCGA-P3-A5Q5-01		1																																																1																																		1																
+TCGA-CV-A6JO-01		1																																																						1																																												
+TCGA-CV-5442-01		1																																																										1						1											1																							
+TCGA-CQ-A4CG-01		1																																																													1																																					
+TCGA-H7-7774-01		1																																																																	1									1																								
+TCGA-CV-7411-01		1																																																																	1																										1							
+TCGA-UF-A7JV-01		1																																																																	1																																	
+TCGA-TN-A7HI-01		1																																																																									1																									
+TCGA-BA-5149-01		1																																																																																											1	1						
+TCGA-BA-A6DF-01		1																																																																																											1							
+TCGA-MZ-A6I9-01		1																																																																																																		
+TCGA-CR-5249-01		1																																																																																																		
+TCGA-CV-7410-01		1																																																																																																		
+TCGA-CR-6471-01		1																																																																																																		
+TCGA-D6-6824-01		1																																																																																																		
+TCGA-CV-6433-01			1		1																																				1	1																																																										
+TCGA-CV-6961-01			1																		1																												1																																																			
+TCGA-CV-7429-01			1																																				1								1																				1																																	
+TCGA-MT-A67A-01			1																																																														1		1																					1					1							
+TCGA-CV-7427-01			1																																																																1								1	1																	1							
+TCGA-F7-A622-01			1																																																																1																				1						1							
+TCGA-BB-8596-01			1																																																																1																										1							
+TCGA-IQ-7632-01			1																																																																1																																	
+TCGA-CV-A6K0-01			1																																																																																																	
+TCGA-BB-4228-01				1	1		1																		1										1							1																		1																																								
+TCGA-CV-6939-01				1	1																				1																																																																											
+TCGA-QK-A6V9-01				1	1																				1																																																																											
+TCGA-CN-A499-01				1		1																																																																																														
+TCGA-CQ-5327-01				1			1																																																	1											1																										1							
+TCGA-KU-A6H7-01				1													1																																																																		1								1									
+TCGA-CQ-7071-01				1																																		1																		1								1			1																			1		1					1							
+TCGA-UP-A6WW-01				1																																		1																																																							1							
+TCGA-CX-7085-01				1																																																				1											1									1																	1							
+TCGA-BB-7864-01				1																																																																																																
+TCGA-RS-A6TP-01					1		1																		1																																									1																																		
+TCGA-CV-5443-01					1																				1																	1																																																										
+TCGA-CV-5971-01					1																				1																																																																				1							
+TCGA-CR-6473-01					1																				1																																																																											
+TCGA-BB-7866-01					1																				1																																																																											
+TCGA-MT-A67F-01						1					1																										1																			1																										1																		
+TCGA-T2-A6X0-01						1											1																																																																																			
+TCGA-BB-A6UM-01						1															1																																				1																																											
+TCGA-D6-A6ES-01						1																											1																																		1																														1			
+TCGA-BA-5559-01						1																																																																																														
+TCGA-CR-7369-01						1																																																																																														
+TCGA-CV-7440-01							1										1																																																		1																																	
+TCGA-T2-A6X2-01							1																			1												1																	1	1											1																1										1							
+TCGA-CV-7425-01							1																					1					1		1																					1											1																																	
+TCGA-D6-A6EN-01							1																																																	1											1																										1							
+TCGA-CN-4734-01							1																																																	1																																												
+TCGA-T2-A6WX-01								1																										1																1						1							1				1											1																						
+TCGA-KU-A66S-01										1										1																1																															1														1																			
+TCGA-CV-6938-01										1																										1			1																	1																																					1							
+TCGA-P3-A6SW-01										1																																																																																										
+TCGA-HD-A4C1-01											1																															1														1				1							1																																	
+TCGA-CV-7428-01												1																																																							1																																	
+TCGA-BB-7872-01												1																																																																																								
+TCGA-DQ-7594-01												1																																																																																								
+TCGA-DQ-5625-01													1											1																1																											1																										1							
+TCGA-IQ-A61I-01													1																																																																																							
+TCGA-TN-A7HJ-01														1								1														1																															1																																	
+TCGA-CR-6481-01																1																																																																																				
+TCGA-IQ-7631-01																	1					1																																													1											1																						
+TCGA-CV-6954-01																	1									1																																																																	1								1	
+TCGA-UF-A7JC-01																	1																																																		1																																	
+TCGA-CR-5248-01																		1						1																																																																												
+TCGA-CR-7388-01																		1																																																																																		
+TCGA-CV-5441-01																			1																																	1																																									1							
+TCGA-D6-A6EK-01																			1																																					1											1																										1							
+TCGA-CN-A63V-01																				1																	1																																																															
+TCGA-CR-6488-01																						1																																													1																																	
+TCGA-WA-A7H4-01																						1																																																				1																										
+TCGA-CN-A49C-01																								1									1																																																																			
+TCGA-CR-6492-01																								1																													1														1																									1	1							
+TCGA-DQ-7596-01																								1																																																																												
+TCGA-CQ-5333-01																											1																													1																																					1				1			
+TCGA-CN-5369-01																												1		1						1			1																	1											1									1																	1							
+TCGA-CN-A642-01																													1																											1											1																							1										
+TCGA-BB-4225-01																															1																																																														1							
+TCGA-DQ-7589-01																																	1																																		1																																	
+TCGA-MT-A67G-01																																	1																																																						1													
+TCGA-CN-4730-01																																	1																																																																			
+TCGA-HD-A6I0-01																																			1																																1																										1							
+TCGA-CR-7373-01																																				1	1																																																															
+TCGA-BA-6871-01																																						1																													1																																	
+TCGA-CQ-5325-01																																							1																																																													
+TCGA-P3-A6T6-01																																									1																						1																				1																	
+TCGA-BA-A6DJ-01																																									1																										1									1																	1							
+TCGA-BB-7863-01																																									1																																																											
+TCGA-CV-A45W-01																																										1																																																										
+TCGA-CN-5374-01																																											1																																												1													
+TCGA-CV-6441-01																																															1						1																																															
+TCGA-T3-A92N-01																																																1						1													1																																	
+TCGA-CQ-5324-01																																																								1											1																																	
+TCGA-CR-7382-01																																																								1											1																																	
+TCGA-CQ-7068-01																																																								1											1																																	
+TCGA-MT-A67D-01																																																								1																																					1							
+TCGA-BA-5556-01																																																								1																																												
+TCGA-CV-A6K2-01																																																																			1														1																			
+TCGA-CQ-A4CA-01																																																																			1																										1							
+TCGA-C9-A480-01																																																																			1																																	
+TCGA-CR-5247-01																																																																			1																																	
+TCGA-HD-7917-01																																																																			1																																	
+TCGA-CR-5250-01																																																																					1							1																								
+TCGA-HD-8314-01																																																																						1																														
+TCGA-P3-A5QE-01																																																																										1																										
+TCGA-CN-A6V6-01																																																																																				1																
+TCGA-CN-5361-01																																																																																						1														
+TCGA-DQ-7591-01																																																																																																				
+TCGA-CR-7385-01																																																																																																				
+TCGA-BA-A4IH-01																																																																																																				
+TCGA-HD-A634-01																																																																																																				
+TCGA-CR-7392-01																																																																																																				
+TCGA-QK-A6IF-01																																																																																																				
+TCGA-CR-7389-01																																																																																																				
+TCGA-CV-7409-01																																																																																																				
+TCGA-H7-A76A-01																																																																																																				
+TCGA-BB-7871-01																																																																																																				
+TCGA-CQ-6227-01																																																																																																				
+TCGA-CQ-A4CI-01																																																																																																				
+TCGA-DQ-7593-01																																																																																																				
+TCGA-CV-A45T-01																																																																																																				
+TCGA-CV-7183-01																																																																																																				
+TCGA-MZ-A5BI-01																																																																																																				
+TCGA-D6-6827-01																																																																																																				
+TCGA-HL-7533-01																																																																																																				
+TCGA-BB-4217-01																																																																																																				
+TCGA-MT-A51X-01																																																																																																				
+TCGA-CQ-5323-01																																																																																																				
+TCGA-CN-4723-01																																																																																																				
+TCGA-CN-A63Y-01																																																																																																				
+TCGA-BA-A4IG-01																																																																																																				
+TCGA-CR-6482-01																																																																																																				
+TCGA-CR-6480-01																																																																																																				
+TCGA-F7-A624-01																																																																																																				
+TCGA-CQ-7067-01																																																																																																				
+TCGA-DQ-7595-01																																																																																																				
+TCGA-CR-7391-01																																																																																																				
+TCGA-BA-5153-01																																																																																																				
+TCGA-BB-7862-01																																																																																																				
+TCGA-CN-A6UY-01																																																																																																				
+TCGA-CR-7402-01																																																																																																				
+TCGA-BB-7861-01																																																																																																				
+TCGA-CR-6470-01																																																																																																				
+TCGA-CR-6467-01																																																				

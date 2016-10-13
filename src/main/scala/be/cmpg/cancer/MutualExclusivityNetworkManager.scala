@@ -157,7 +157,22 @@ class MutualExclusivityNetworkManager(network: Network,
         }}
         .toMap
         
-       return scorePerGene.map {sg => math.sqrt(sg._2)}.sum / allGenes.size
+        // Return NaN if the result is 95% the same without the starting gene
+        val n = allGenes.size
+        var sumAll = 0.0;
+        var sumMinusStart = 0.0;
+        scorePerGene.foreach { sg =>
+          val geneContribution = math.sqrt(sg._2);
+          sumAll += geneContribution
+          if (selector.isDefined && sg._1 != selector.get.getStartGene()) {
+            sumMinusStart += geneContribution
+          }
+        }
+
+        val result = sumAll / n
+        val resultMinusStart = sumMinusStart / (n - 1) 
+                
+        return if (result < resultMinusStart) Double.NaN else result
     }
   }
   

@@ -1,0 +1,577 @@
+TCGA-36-2552-01	60	mut -> 46,amp -> 7,del -> 7
+TCGA-36-1578-01	89	mut -> 45,amp -> 41,del -> 3
+TCGA-24-2036-01	268	amp -> 267,del -> 1
+TCGA-24-1103-01	113	mut -> 55,amp -> 57,del -> 1
+TCGA-61-1895-01	69	mut -> 49,amp -> 19,del -> 1
+TCGA-23-2641-01	193	mut -> 62,amp -> 131
+TCGA-13-0727-01	52	mut -> 19,amp -> 26,del -> 7
+TCGA-29-2434-01	291	mut -> 85,amp -> 206
+TCGA-13-0891-01	198	mut -> 20,amp -> 173,del -> 5
+TCGA-29-1688-01	116	mut -> 37,amp -> 47,del -> 32
+TCGA-25-1325-01	29	mut -> 29
+TCGA-10-0925-01	9	amp -> 9
+TCGA-42-2593-01	2	amp -> 2
+TCGA-29-1691-01	330	mut -> 142,amp -> 67,del -> 121
+TCGA-59-2351-01	164	mut -> 54,amp -> 110
+TCGA-09-2048-01	49	amp -> 49
+TCGA-25-1324-01	34	mut -> 34
+TCGA-29-1704-01	70	amp -> 67,del -> 3
+TCGA-25-2396-01	19	mut -> 16,amp -> 3
+TCGA-13-0889-01	67	mut -> 24,amp -> 42,del -> 1
+TCGA-09-1675-01	66	mut -> 49,amp -> 17
+TCGA-09-2054-01	8	amp -> 8
+TCGA-29-1764-01	78	mut -> 56,amp -> 15,del -> 7
+TCGA-29-1775-01	322	mut -> 82,amp -> 145,del -> 95
+TCGA-04-1519-01	30	mut -> 2,amp -> 28
+TCGA-57-1993-01	70	mut -> 34,amp -> 36
+TCGA-13-0768-01	55	amp -> 55
+TCGA-61-1917-01	138	amp -> 64,del -> 74
+TCGA-24-1431-01	36	mut -> 25,amp -> 11
+TCGA-13-0755-01	93	mut -> 73,amp -> 20
+TCGA-13-0793-01	158	mut -> 48,amp -> 110
+TCGA-10-0937-01	74	mut -> 31,amp -> 43
+TCGA-04-1648-01	43	mut -> 26,amp -> 14,del -> 3
+TCGA-61-2095-01	9	mut -> 8,del -> 1
+TCGA-36-2548-01	84	mut -> 38,amp -> 10,del -> 36
+TCGA-61-2614-01	102	mut -> 42,amp -> 60
+TCGA-24-2288-01	59	mut -> 3,amp -> 14,del -> 42
+TCGA-61-1918-01	148	amp -> 42,del -> 106
+TCGA-04-1331-01	238	mut -> 56,amp -> 181,del -> 1
+TCGA-09-2055-01	51	amp -> 51
+TCGA-04-1530-01	113	mut -> 50,amp -> 1,del -> 62
+TCGA-13-0807-01	141	mut -> 51,amp -> 90
+TCGA-04-1517-01	33	mut -> 16,amp -> 15,del -> 2
+TCGA-23-2081-01	116	mut -> 33,amp -> 83
+TCGA-04-1652-01	63	mut -> 43,amp -> 17,del -> 3
+TCGA-24-2260-01	84	mut -> 34,amp -> 26,del -> 24
+TCGA-09-1661-01	39	mut -> 33,amp -> 6
+TCGA-61-1738-01	295	mut -> 40,amp -> 245,del -> 10
+TCGA-23-1114-01	106	mut -> 82,del -> 24
+TCGA-24-2026-01	105	amp -> 87,del -> 18
+TCGA-59-2355-01	60	mut -> 15,amp -> 45
+TCGA-04-1348-01	227	mut -> 33,amp -> 194
+TCGA-30-1866-01	69	amp -> 67,del -> 2
+TCGA-13-0908-01	148	amp -> 148
+TCGA-13-0758-01	360	amp -> 300,del -> 60
+TCGA-24-2029-01	88	amp -> 86,del -> 2
+TCGA-25-2393-01	94	mut -> 41,amp -> 49,del -> 4
+TCGA-13-0916-01	222	mut -> 54,amp -> 168
+TCGA-24-1923-01	36	amp -> 35,del -> 1
+TCGA-30-1861-01	63	amp -> 63
+TCGA-59-2372-01	112	mut -> 68,amp -> 6,del -> 38
+TCGA-04-1343-01	75	mut -> 45,amp -> 30
+TCGA-23-1109-01	22	mut -> 6,amp -> 15,del -> 1
+TCGA-25-1878-01	33	amp -> 6,del -> 27
+TCGA-24-1930-01	78	del -> 78
+TCGA-10-0931-01	118	mut -> 21,amp -> 96,del -> 1
+TCGA-24-1434-01	55	mut -> 30,amp -> 25
+TCGA-24-1471-01	86	mut -> 19,amp -> 67
+TCGA-72-4234-01	102	amp -> 84,del -> 18
+TCGA-13-0899-01	39	mut -> 21,amp -> 8,del -> 10
+TCGA-24-1565-01	23	mut -> 23
+TCGA-31-1951-01	20	amp -> 20
+TCGA-13-1817-01	14	amp -> 10,del -> 4
+TCGA-13-2065-01	136	mut -> 39,amp -> 95,del -> 2
+TCGA-24-1435-01	115	mut -> 63,amp -> 49,del -> 3
+TCGA-13-1412-01	139	mut -> 28,amp -> 111
+TCGA-61-1733-01	39	mut -> 38,amp -> 1
+TCGA-59-2352-01	91	mut -> 55,amp -> 36
+TCGA-36-1568-01	141	mut -> 35,amp -> 106
+TCGA-25-1630-01	61	mut -> 34,amp -> 4,del -> 23
+TCGA-61-1722-01	118	mut -> 46,amp -> 61,del -> 11
+TCGA-25-1320-01	141	mut -> 23,amp -> 118
+TCGA-04-1336-01	68	mut -> 52,amp -> 12,del -> 4
+TCGA-61-1904-01	69	mut -> 66,amp -> 3
+TCGA-09-1666-01	206	mut -> 16,amp -> 189,del -> 1
+TCGA-04-1367-01	282	mut -> 62,amp -> 220
+TCGA-13-1403-01	124	mut -> 45,amp -> 75,del -> 4
+TCGA-WR-A838-01	26	amp -> 26
+TCGA-61-2017-01	89	amp -> 89
+TCGA-29-1766-01	115	mut -> 45,amp -> 19,del -> 51
+TCGA-13-0757-01	84	amp -> 60,del -> 24
+TCGA-23-1110-01	123	mut -> 80,amp -> 2,del -> 41
+TCGA-61-2098-01	149	amp -> 116,del -> 33
+TCGA-61-2101-01	29	mut -> 22,amp -> 4,del -> 3
+TCGA-36-2542-01	132	mut -> 55,amp -> 77
+TCGA-13-0893-01	183	mut -> 57,del -> 126
+TCGA-24-1563-01	148	mut -> 52,amp -> 95,del -> 1
+TCGA-24-0980-01	81	mut -> 30,amp -> 49,del -> 2
+TCGA-13-0795-01	114	mut -> 54,amp -> 49,del -> 11
+TCGA-24-1467-01	63	amp -> 63
+TCGA-24-1552-01	55	mut -> 28,amp -> 27
+TCGA-24-1556-01	40	mut -> 40
+TCGA-04-1347-01	138	mut -> 91,amp -> 24,del -> 23
+TCGA-13-0761-01	109	mut -> 43,amp -> 62,del -> 4
+TCGA-36-2530-01	185	mut -> 58,amp -> 123,del -> 4
+TCGA-25-1877-01	29	amp -> 29
+TCGA-57-1582-01	121	mut -> 46,amp -> 8,del -> 67
+TCGA-13-0797-01	118	amp -> 114,del -> 4
+TCGA-13-2060-01	122	mut -> 34,amp -> 40,del -> 48
+TCGA-30-1857-01	122	mut -> 67,amp -> 54,del -> 1
+TCGA-24-1551-01	102	mut -> 24,amp -> 78
+TCGA-36-2547-01	369	mut -> 108,amp -> 86,del -> 175
+TCGA-10-0928-01	79	mut -> 33,amp -> 42,del -> 4
+TCGA-24-1545-01	18	mut -> 18
+TCGA-23-2078-01	136	mut -> 48,amp -> 88
+TCGA-04-1369-01	58	mut -> 58
+TCGA-61-1998-01	65	mut -> 49,amp -> 16
+TCGA-61-1736-01	62	mut -> 17,amp -> 44,del -> 1
+TCGA-25-1631-01	86	mut -> 21,amp -> 1,del -> 64
+TCGA-09-0365-01	11	amp -> 11
+TCGA-09-2049-01	291	mut -> 94,amp -> 143,del -> 54
+TCGA-24-1470-01	124	mut -> 61,amp -> 63
+TCGA-13-1494-01	195	mut -> 7,amp -> 187,del -> 1
+TCGA-36-1570-01	46	mut -> 20,amp -> 2,del -> 24
+TCGA-20-1686-01	89	mut -> 62,amp -> 27
+TCGA-13-0924-01	82	mut -> 57,amp -> 22,del -> 3
+TCGA-36-2532-01	81	mut -> 34,amp -> 20,del -> 27
+TCGA-09-1662-01	46	mut -> 27,amp -> 18,del -> 1
+TCGA-42-2587-01	362	mut -> 105,amp -> 229,del -> 28
+TCGA-13-0762-01	66	mut -> 58,amp -> 8
+TCGA-09-1665-01	304	mut -> 66,amp -> 236,del -> 2
+TCGA-24-1553-01	207	mut -> 27,amp -> 140,del -> 40
+TCGA-61-2111-01	105	mut -> 28,amp -> 54,del -> 23
+TCGA-13-1495-01	163	mut -> 25,amp -> 138
+TCGA-36-1576-01	35	mut -> 11,amp -> 24
+TCGA-61-1901-01	147	mut -> 37,amp -> 108,del -> 2
+TCGA-23-1123-01	285	mut -> 71,del -> 214
+TCGA-61-1740-01	356	mut -> 129,amp -> 225,del -> 2
+TCGA-04-1646-01	69	mut -> 23,amp -> 46
+TCGA-30-1867-01	116	amp -> 93,del -> 23
+TCGA-36-2529-01	3	del -> 3
+TCGA-29-1692-01	115	amp -> 115
+TCGA-09-0364-01	50	mut -> 13,amp -> 36,del -> 1
+TCGA-23-1121-01	177	amp -> 177
+TCGA-13-0920-01	312	mut -> 85,amp -> 90,del -> 137
+TCGA-13-0751-01	164	mut -> 19,amp -> 71,del -> 74
+TCGA-61-2094-01	110	mut -> 1,amp -> 108,del -> 1
+TCGA-13-0726-01	60	mut -> 57,amp -> 1,del -> 2
+TCGA-61-1919-01	204	mut -> 30,amp -> 125,del -> 49
+TCGA-30-1891-01	89	mut -> 52,amp -> 35,del -> 2
+TCGA-30-1862-01	158	mut -> 32,amp -> 126
+TCGA-25-1632-01	119	mut -> 35,amp -> 84
+TCGA-61-2000-01	101	mut -> 4,amp -> 93,del -> 4
+TCGA-10-0933-01	50	mut -> 32,amp -> 18
+TCGA-24-1844-01	188	mut -> 121,amp -> 25,del -> 42
+TCGA-13-0766-01	42	amp -> 35,del -> 7
+TCGA-24-2297-01	151	amp -> 148,del -> 3
+TCGA-24-1567-01	50	mut -> 40,amp -> 8,del -> 2
+TCGA-61-1906-01	224	mut -> 40,amp -> 184
+TCGA-24-1423-01	135	mut -> 47,amp -> 84,del -> 4
+TCGA-13-2057-01	174	mut -> 109,del -> 65
+TCGA-24-1604-01	83	mut -> 49,amp -> 2,del -> 32
+TCGA-29-1762-01	140	mut -> 50,amp -> 88,del -> 2
+TCGA-24-1413-01	32	mut -> 31,del -> 1
+TCGA-23-2077-01	64	mut -> 42,amp -> 16,del -> 6
+TCGA-04-1337-01	66	mut -> 54,amp -> 4,del -> 8
+TCGA-24-2033-01	74	amp -> 51,del -> 23
+TCGA-13-1510-01	26	mut -> 17,amp -> 6,del -> 3
+TCGA-23-1032-01	115	mut -> 53,amp -> 26,del -> 36
+TCGA-24-2030-01	125	mut -> 38,amp -> 87
+TCGA-23-1026-01	89	mut -> 24,amp -> 1,del -> 64
+TCGA-13-1491-01	52	mut -> 31,amp -> 21
+TCGA-09-2044-01	233	mut -> 70,amp -> 162,del -> 1
+TCGA-25-1625-01	46	mut -> 30,amp -> 16
+TCGA-72-4232-01	19	amp -> 17,del -> 2
+TCGA-29-2429-01	189	mut -> 56,amp -> 72,del -> 61
+TCGA-23-1809-01	102	mut -> 44,amp -> 26,del -> 32
+TCGA-25-1316-01	77	mut -> 13,amp -> 64
+TCGA-61-2612-01	115	mut -> 27,amp -> 56,del -> 32
+TCGA-23-1113-01	61	amp -> 61
+TCGA-09-0367-01	351	amp -> 245,del -> 106
+TCGA-61-1728-01	99	mut -> 7,amp -> 18,del -> 74
+TCGA-31-1950-01	58	mut -> 19,del -> 39
+TCGA-23-1028-01	307	mut -> 38,amp -> 267,del -> 2
+TCGA-13-1512-01	96	mut -> 42,amp -> 53,del -> 1
+TCGA-13-1484-01	28	mut -> 27,amp -> 1
+TCGA-20-1687-01	125	mut -> 52,amp -> 73
+TCGA-61-2009-01	61	mut -> 51,amp -> 9,del -> 1
+TCGA-25-2398-01	93	mut -> 22,amp -> 71
+TCGA-13-1482-01	74	mut -> 46,amp -> 27,del -> 1
+TCGA-13-0894-01	47	mut -> 47
+TCGA-61-1725-01	62	mut -> 44,amp -> 18
+TCGA-20-0996-01	14	del -> 14
+TCGA-04-1338-01	275	mut -> 114,amp -> 123,del -> 38
+TCGA-13-0897-01	44	mut -> 39,amp -> 1,del -> 4
+TCGA-20-1682-01	294	mut -> 64,amp -> 144,del -> 86
+TCGA-24-1463-01	102	mut -> 52,amp -> 50
+TCGA-61-2008-01	159	mut -> 42,amp -> 63,del -> 54
+TCGA-36-2540-01	6	mut -> 5,del -> 1
+TCGA-13-0765-01	20	mut -> 20
+TCGA-04-1371-01	31	amp -> 31
+TCGA-61-2088-01	14	mut -> 14
+TCGA-25-1634-01	82	mut -> 20,amp -> 62
+TCGA-13-0764-01	30	amp -> 17,del -> 13
+TCGA-29-1784-01	233	mut -> 82,amp -> 151
+TCGA-20-0990-01	57	mut -> 56,amp -> 1
+TCGA-13-1498-01	273	mut -> 85,amp -> 188
+TCGA-61-2018-01	53	amp -> 50,del -> 3
+TCGA-29-2428-01	23	amp -> 23
+TCGA-61-1914-01	284	mut -> 75,amp -> 181,del -> 28
+TCGA-61-2109-01	204	amp -> 203,del -> 1
+TCGA-13-0799-01	54	amp -> 30,del -> 24
+TCGA-24-1436-01	97	mut -> 32,amp -> 42,del -> 23
+TCGA-29-1774-01	31	mut -> 31
+TCGA-04-1353-01	71	mut -> 14,amp -> 29,del -> 28
+TCGA-23-2643-01	147	mut -> 31,amp -> 113,del -> 3
+TCGA-13-0887-01	428	mut -> 78,amp -> 276,del -> 74
+TCGA-24-1614-01	76	mut -> 29,amp -> 2,del -> 45
+TCGA-13-0888-01	99	amp -> 99
+TCGA-04-1360-01	63	amp -> 63
+TCGA-09-1674-01	242	mut -> 98,amp -> 69,del -> 75
+TCGA-61-1727-01	238	mut -> 100,amp -> 47,del -> 91
+TCGA-13-2059-01	152	mut -> 59,amp -> 93
+TCGA-36-2551-01	69	mut -> 20,amp -> 48,del -> 1
+TCGA-29-1771-01	44	mut -> 12,amp -> 32
+TCGA-24-1426-01	44	mut -> 17,amp -> 27
+TCGA-29-1690-01	97	mut -> 32,del -> 65
+TCGA-23-2084-01	209	amp -> 208,del -> 1
+TCGA-61-2016-01	25	mut -> 14,amp -> 8,del -> 3
+TCGA-23-1029-01	72	mut -> 59,amp -> 1,del -> 12
+TCGA-20-1685-01	67	mut -> 45,amp -> 22
+TCGA-13-1500-01	13	amp -> 2,del -> 11
+TCGA-09-1667-01	50	amp -> 26,del -> 24
+TCGA-24-1920-01	62	amp -> 62
+TCGA-13-0804-01	51	mut -> 28,amp -> 20,del -> 3
+TCGA-13-1407-01	64	mut -> 21,del -> 43
+TCGA-13-0714-01	215	mut -> 59,amp -> 156
+TCGA-25-1633-01	40	mut -> 11,amp -> 29
+TCGA-24-1560-01	21	mut -> 21
+TCGA-24-1927-01	111	amp -> 72,del -> 39
+TCGA-29-1711-01	104	mut -> 46,amp -> 58
+TCGA-29-1705-01	104	mut -> 31,amp -> 70,del -> 3
+TCGA-29-1697-01	40	mut -> 29,amp -> 11
+TCGA-13-0903-01	150	mut -> 51,amp -> 96,del -> 3
+TCGA-42-2582-01	214	mut -> 71,amp -> 130,del -> 13
+TCGA-23-1023-01	32	mut -> 30,amp -> 2
+TCGA-13-1481-01	129	mut -> 87,amp -> 31,del -> 11
+TCGA-72-4233-01	111	amp -> 85,del -> 26
+TCGA-29-1761-01	125	mut -> 124,del -> 1
+TCGA-59-2363-01	118	mut -> 57,amp -> 58,del -> 3
+TCGA-61-2102-01	102	mut -> 45,amp -> 53,del -> 4
+TCGA-24-2293-01	202	mut -> 31,amp -> 167,del -> 4
+TCGA-13-0910-01	122	mut -> 21,amp -> 97,del -> 4
+TCGA-36-2539-01	244	mut -> 46,amp -> 198
+TCGA-13-1819-01	40	amp -> 38,del -> 2
+TCGA-24-2023-01	191	amp -> 190,del -> 1
+TCGA-23-1022-01	280	mut -> 153,amp -> 127
+TCGA-24-1105-01	20	mut -> 19,amp -> 1
+TCGA-13-0717-01	54	mut -> 30,amp -> 18,del -> 6
+TCGA-25-1323-01	110	amp -> 78,del -> 32
+TCGA-24-1557-01	230	mut -> 41,amp -> 189
+TCGA-23-1107-01	7	mut -> 7
+TCGA-25-1319-01	102	mut -> 44,amp -> 58
+TCGA-29-1696-01	41	mut -> 41
+TCGA-72-4231-01	92	amp -> 89,del -> 3
+TCGA-24-2281-01	99	mut -> 28,amp -> 45,del -> 26
+TCGA-23-1120-01	233	mut -> 98,amp -> 135
+TCGA-25-1314-01	80	amp -> 80
+TCGA-29-1768-01	40	mut -> 39,del -> 1
+TCGA-13-0801-01	93	mut -> 19,amp -> 59,del -> 15
+TCGA-23-1122-01	146	mut -> 69,amp -> 72,del -> 5
+TCGA-30-1859-01	23	amp -> 23
+TCGA-30-1714-01	243	mut -> 58,amp -> 185
+TCGA-13-1489-01	72	mut -> 43,amp -> 29
+TCGA-42-2588-01	51	mut -> 24,amp -> 25,del -> 2
+TCGA-13-1496-01	174	mut -> 43,amp -> 108,del -> 23
+TCGA-13-0905-01	143	mut -> 43,amp -> 98,del -> 2
+TCGA-13-1483-01	48	mut -> 45,amp -> 2,del -> 1
+TCGA-13-0906-01	87	mut -> 82,amp -> 3,del -> 2
+TCGA-61-1730-01	129	mut -> 38,del -> 91
+TCGA-13-1411-01	103	mut -> 36,amp -> 66,del -> 1
+TCGA-24-1549-01	148	mut -> 27,amp -> 116,del -> 5
+TCGA-25-2404-01	65	mut -> 31,amp -> 33,del -> 1
+TCGA-59-2354-01	50	mut -> 33,amp -> 9,del -> 8
+TCGA-23-2649-01	97	mut -> 97
+TCGA-30-1880-01	9	amp -> 7,del -> 2
+TCGA-25-1628-01	27	mut -> 15,amp -> 12
+TCGA-24-2019-01	73	mut -> 23,amp -> 50
+TCGA-25-1627-01	160	mut -> 24,amp -> 14,del -> 122
+TCGA-24-1546-01	42	mut -> 10,amp -> 32
+TCGA-24-1558-01	48	mut -> 19,amp -> 29
+TCGA-57-1584-01	55	mut -> 26,amp -> 25,del -> 4
+TCGA-61-2087-01	74	amp -> 74
+TCGA-36-2545-01	174	mut -> 46,amp -> 118,del -> 10
+TCGA-13-1506-01	52	mut -> 20,amp -> 32
+TCGA-30-1853-01	30	mut -> 24,amp -> 6
+TCGA-13-1497-01	246	mut -> 105,amp -> 141
+TCGA-72-4236-01	134	amp -> 133,del -> 1
+TCGA-13-0883-01	75	mut -> 47,amp -> 6,del -> 22
+TCGA-13-1505-01	156	mut -> 37,amp -> 61,del -> 58
+TCGA-72-4240-01	95	amp -> 95
+TCGA-09-0369-01	131	mut -> 52,amp -> 30,del -> 49
+TCGA-36-1581-01	31	amp -> 19,del -> 12
+TCGA-13-0921-01	147	amp -> 83,del -> 64
+TCGA-61-2092-01	43	mut -> 18,amp -> 24,del -> 1
+TCGA-24-1616-01	137	mut -> 49,amp -> 23,del -> 65
+TCGA-13-1501-01	149	mut -> 58,amp -> 91
+TCGA-25-2408-01	30	mut -> 7,del -> 23
+TCGA-24-0970-01	48	mut -> 19,amp -> 27,del -> 2
+TCGA-29-1785-01	65	mut -> 52,amp -> 8,del -> 5
+TCGA-13-1499-01	101	mut -> 49,amp -> 1,del -> 51
+TCGA-04-1644-01	40	mut -> 36,amp -> 3,del -> 1
+TCGA-29-1702-01	48	mut -> 40,amp -> 8
+TCGA-29-1695-01	78	mut -> 47,amp -> 31
+TCGA-36-1574-01	43	mut -> 16,amp -> 25,del -> 2
+TCGA-09-0366-01	47	mut -> 31,amp -> 16
+TCGA-OY-A56P-01	20	del -> 20
+TCGA-29-1776-01	46	mut -> 45,del -> 1
+TCGA-61-2002-01	129	mut -> 32,amp -> 96,del -> 1
+TCGA-23-1118-01	251	mut -> 61,amp -> 167,del -> 23
+TCGA-25-1623-01	36	mut -> 9,amp -> 27
+TCGA-29-2431-01	121	mut -> 25,amp -> 40,del -> 56
+TCGA-61-1903-01	78	mut -> 42,amp -> 35,del -> 1
+TCGA-25-1318-01	73	mut -> 44,amp -> 26,del -> 3
+TCGA-13-0913-01	95	mut -> 63,amp -> 32
+TCGA-04-1654-01	3	amp -> 1,del -> 2
+TCGA-29-A5NZ-01	39	amp -> 14,del -> 25
+TCGA-09-2056-01	83	mut -> 62,amp -> 21
+TCGA-24-2295-01	25	del -> 25
+TCGA-23-1030-01	315	mut -> 30,amp -> 163,del -> 122
+TCGA-24-1425-01	115	mut -> 23,amp -> 92
+TCGA-24-2280-01	117	mut -> 3,amp -> 70,del -> 44
+TCGA-24-1555-01	38	mut -> 37,del -> 1
+TCGA-04-1514-01	43	mut -> 24,amp -> 19
+TCGA-24-2027-01	9	amp -> 8,del -> 1
+TCGA-36-2544-01	251	mut -> 49,amp -> 175,del -> 27
+TCGA-24-2267-01	185	mut -> 73,amp -> 111,del -> 1
+TCGA-61-2613-01	115	mut -> 56,amp -> 55,del -> 4
+TCGA-09-2051-01	84	mut -> 4,amp -> 33,del -> 47
+TCGA-25-1321-01	35	mut -> 26,amp -> 9
+TCGA-61-1743-01	69	amp -> 38,del -> 31
+TCGA-04-1332-01	90	mut -> 23,amp -> 67
+TCGA-30-1860-01	341	amp -> 334,del -> 7
+TCGA-61-2003-01	79	mut -> 18,amp -> 40,del -> 21
+TCGA-24-1850-01	180	mut -> 56,amp -> 98,del -> 26
+TCGA-10-0936-01	25	amp -> 25
+TCGA-24-1550-01	258	amp -> 256,del -> 2
+TCGA-61-2096-01	28	amp -> 28
+TCGA-24-1418-01	110	mut -> 36,amp -> 73,del -> 1
+TCGA-59-A5PD-01	94	amp -> 94
+TCGA-24-1417-01	206	mut -> 42,amp -> 88,del -> 76
+TCGA-25-2401-01	127	mut -> 46,amp -> 78,del -> 3
+TCGA-23-1021-01	93	mut -> 60,amp -> 11,del -> 22
+TCGA-04-1346-01	56	mut -> 32,amp -> 7,del -> 17
+TCGA-09-1659-01	214	mut -> 14,amp -> 59,del -> 141
+TCGA-13-0724-01	160	mut -> 33,amp -> 98,del -> 29
+TCGA-24-1845-01	305	mut -> 104,amp -> 139,del -> 62
+TCGA-13-1405-01	162	mut -> 24,amp -> 135,del -> 3
+TCGA-13-0911-01	57	mut -> 17,amp -> 39,del -> 1
+TCGA-13-1492-01	28	mut -> 28
+TCGA-13-2066-01	41	mut -> 41
+TCGA-13-1487-01	103	mut -> 25,amp -> 78
+TCGA-24-1846-01	211	mut -> 84,amp -> 126,del -> 1
+TCGA-61-1741-01	61	mut -> 26,amp -> 33,del -> 2
+TCGA-24-2035-01	56	mut -> 53,del -> 3
+TCGA-04-1365-01	78	mut -> 30,amp -> 45,del -> 3
+TCGA-10-0927-01	48	mut -> 20,amp -> 28
+TCGA-20-0991-01	100	mut -> 46,amp -> 31,del -> 23
+TCGA-13-0923-01	135	mut -> 100,amp -> 6,del -> 29
+TCGA-23-2645-01	122	mut -> 94,del -> 28
+TCGA-10-0935-01	99	mut -> 38,amp -> 21,del -> 40
+TCGA-25-1328-01	7	mut -> 7
+TCGA-59-2350-01	13	mut -> 6,amp -> 5,del -> 2
+TCGA-30-1855-01	424	mut -> 77,amp -> 117,del -> 230
+TCGA-29-1769-01	267	mut -> 60,amp -> 206,del -> 1
+TCGA-25-2397-01	287	amp -> 286,del -> 1
+TCGA-24-2262-01	143	mut -> 33,amp -> 105,del -> 5
+TCGA-09-1670-01	28	mut -> 24,del -> 4
+TCGA-24-1104-01	103	mut -> 44,amp -> 59
+TCGA-24-1548-01	169	mut -> 25,amp -> 144
+TCGA-24-2024-01	155	mut -> 62,amp -> 90,del -> 3
+TCGA-61-1737-01	70	mut -> 63,amp -> 4,del -> 3
+TCGA-61-1995-01	42	mut -> 16,amp -> 24,del -> 2
+TCGA-09-1668-01	64	amp -> 62,del -> 2
+TCGA-29-1707-01	31	mut -> 31
+TCGA-24-2254-01	160	mut -> 32,amp -> 128
+TCGA-10-0938-01	114	mut -> 42,amp -> 24,del -> 48
+TCGA-57-1585-01	11	amp -> 11
+TCGA-61-1911-01	113	mut -> 21,amp -> 91,del -> 1
+TCGA-25-2042-01	34	mut -> 34
+TCGA-04-1341-01	28	amp -> 28
+TCGA-13-0901-01	116	mut -> 3,amp -> 113
+TCGA-13-0890-01	53	mut -> 49,del -> 4
+TCGA-57-1583-01	112	mut -> 7,amp -> 105
+TCGA-29-1777-01	355	mut -> 94,amp -> 247,del -> 14
+TCGA-13-2061-01	98	mut -> 68,amp -> 30
+TCGA-25-1635-01	117	mut -> 17,amp -> 75,del -> 25
+TCGA-24-1466-01	233	mut -> 38,amp -> 195
+TCGA-24-1474-01	138	mut -> 33,amp -> 83,del -> 22
+TCGA-09-1673-01	113	mut -> 36,amp -> 76,del -> 1
+TCGA-24-1416-01	36	mut -> 11,amp -> 25
+TCGA-29-1778-01	113	mut -> 24,del -> 89
+TCGA-13-0730-01	93	mut -> 27,amp -> 65,del -> 1
+TCGA-61-1899-01	71	mut -> 41,del -> 30
+TCGA-3P-A9WA-01	55	amp -> 27,del -> 28
+TCGA-24-1603-01	170	mut -> 22,amp -> 143,del -> 5
+TCGA-13-0912-01	24	mut -> 24
+TCGA-61-2012-01	95	mut -> 68,amp -> 27
+TCGA-29-1699-01	219	mut -> 61,amp -> 58,del -> 100
+TCGA-04-1516-01	195	mut -> 55,amp -> 140
+TCGA-25-2392-01	124	mut -> 65,amp -> 9,del -> 50
+TCGA-13-0884-01	136	mut -> 74,amp -> 1,del -> 61
+TCGA-23-1111-01	130	mut -> 39,amp -> 63,del -> 28
+TCGA-57-1586-01	69	mut -> 11,amp -> 13,del -> 45
+TCGA-09-1669-01	62	mut -> 40,amp -> 17,del -> 5
+TCGA-29-1710-01	33	mut -> 27,amp -> 2,del -> 4
+TCGA-24-1464-01	58	mut -> 37,amp -> 13,del -> 8
+TCGA-13-0794-01	61	amp -> 53,del -> 8
+TCGA-04-1651-01	228	mut -> 41,amp -> 186,del -> 1
+TCGA-25-1870-01	79	amp -> 78,del -> 1
+TCGA-23-1119-01	57	mut -> 15,amp -> 42
+TCGA-36-1569-01	21	mut -> 7,amp -> 1,del -> 13
+TCGA-VG-A8LO-01	135	amp -> 134,del -> 1
+TCGA-13-0803-01	153	amp -> 81,del -> 72
+TCGA-24-1849-01	130	mut -> 70,amp -> 15,del -> 45
+TCGA-25-1312-01	5	del -> 5
+TCGA-04-1350-01	178	mut -> 32,amp -> 146
+TCGA-13-1477-01	4	mut -> 4
+TCGA-24-1847-01	194	mut -> 65,amp -> 92,del -> 37
+TCGA-24-1842-01	102	mut -> 29,amp -> 68,del -> 5
+TCGA-04-1362-01	56	mut -> 56
+TCGA-24-1422-01	213	mut -> 64,amp -> 74,del -> 75
+TCGA-72-4237-01	8	amp -> 8
+TCGA-36-1571-01	18	mut -> 8,amp -> 10
+TCGA-09-2050-01	153	mut -> 85,amp -> 66,del -> 2
+TCGA-24-1427-01	81	mut -> 45,amp -> 12,del -> 24
+TCGA-13-1511-01	119	amp -> 119
+TCGA-13-0885-01	124	mut -> 123,amp -> 1
+TCGA-29-1703-01	56	mut -> 54,amp -> 2
+TCGA-42-2591-01	141	mut -> 51,amp -> 90
+TCGA-25-2391-01	93	mut -> 1,amp -> 88,del -> 4
+TCGA-36-2538-01	96	mut -> 38,amp -> 57,del -> 1
+TCGA-36-2549-01	423	amp -> 396,del -> 27
+TCGA-13-0802-01	67	mut -> 8,amp -> 59
+TCGA-29-1781-01	211	mut -> 75,amp -> 136
+TCGA-29-1783-01	138	mut -> 50,amp -> 37,del -> 51
+TCGA-36-1577-01	119	mut -> 56,amp -> 63
+TCGA-04-1542-01	75	mut -> 52,amp -> 12,del -> 11
+TCGA-25-1326-01	90	mut -> 90
+TCGA-24-0968-01	93	mut -> 17,amp -> 11,del -> 65
+TCGA-25-1317-01	45	mut -> 36,amp -> 9
+TCGA-61-1900-01	105	mut -> 70,amp -> 35
+TCGA-72-4241-01	119	amp -> 56,del -> 63
+TCGA-25-1313-01	311	mut -> 78,amp -> 149,del -> 84
+TCGA-24-1843-01	126	mut -> 62,amp -> 40,del -> 24
+TCGA-10-0934-01	369	mut -> 13,amp -> 72,del -> 284
+TCGA-04-1357-01	47	mut -> 32,amp -> 11,del -> 4
+TCGA-13-0725-01	4	amp -> 1,del -> 3
+TCGA-23-1031-01	154	mut -> 62,amp -> 92
+TCGA-59-2348-01	239	mut -> 51,amp -> 136,del -> 52
+TCGA-13-0904-01	442	mut -> 72,amp -> 304,del -> 66
+TCGA-25-1329-01	36	mut -> 29,amp -> 7
+TCGA-24-2271-01	14	mut -> 14
+TCGA-42-2589-01	152	mut -> 65,amp -> 85,del -> 2
+TCGA-25-2409-01	42	mut -> 16,amp -> 26
+TCGA-25-1871-01	76	amp -> 76
+TCGA-09-1664-01	11	mut -> 11
+TCGA-04-1342-01	109	mut -> 21,amp -> 88
+TCGA-04-1525-01	22	mut -> 17,amp -> 2,del -> 3
+TCGA-31-1953-01	251	mut -> 33,amp -> 213,del -> 5
+TCGA-13-2071-01	72	mut -> 42,amp -> 29,del -> 1
+TCGA-24-0982-01	80	mut -> 34,amp -> 4,del -> 42
+TCGA-29-1770-01	147	mut -> 65,amp -> 1,del -> 81
+TCGA-13-0800-01	35	mut -> 35
+TCGA-61-2110-01	57	mut -> 20,amp -> 36,del -> 1
+TCGA-24-1564-01	126	mut -> 26,amp -> 1,del -> 99
+TCGA-25-2399-01	58	mut -> 28,amp -> 2,del -> 28
+TCGA-24-0979-01	210	mut -> 69,amp -> 141
+TCGA-24-0975-01	32	mut -> 14,amp -> 18
+TCGA-29-1693-01	127	mut -> 69,amp -> 37,del -> 21
+TCGA-13-1504-01	63	mut -> 27,amp -> 5,del -> 31
+TCGA-61-1907-01	227	mut -> 85,amp -> 79,del -> 63
+TCGA-20-1683-01	189	mut -> 60,amp -> 51,del -> 78
+TCGA-24-2289-01	66	mut -> 4,amp -> 61,del -> 1
+TCGA-24-1924-01	179	amp -> 91,del -> 88
+TCGA-23-2647-01	42	mut -> 42
+TCGA-04-1638-01	134	mut -> 41,amp -> 71,del -> 22
+TCGA-36-2543-01	243	mut -> 52,amp -> 191
+TCGA-04-1356-01	224	mut -> 37,amp -> 187
+TCGA-20-0987-01	93	mut -> 15,amp -> 76,del -> 2
+TCGA-13-0919-01	53	mut -> 47,amp -> 1,del -> 5
+TCGA-29-1763-01	220	mut -> 77,amp -> 138,del -> 5
+TCGA-24-1544-01	80	mut -> 18,amp -> 50,del -> 12
+TCGA-61-1913-01	137	mut -> 42,amp -> 95
+TCGA-13-0886-01	59	mut -> 36,amp -> 22,del -> 1
+TCGA-13-0720-01	283	mut -> 43,amp -> 239,del -> 1
+TCGA-25-2400-01	59	mut -> 36,del -> 23
+TCGA-24-2298-01	86	mut -> 44,amp -> 27,del -> 15
+TCGA-23-1116-01	43	mut -> 10,amp -> 33
+TCGA-36-1580-01	109	mut -> 12,amp -> 70,del -> 27
+TCGA-24-2261-01	27	mut -> 26,del -> 1
+TCGA-29-2432-01	62	mut -> 62
+TCGA-29-2425-01	25	amp -> 2,del -> 23
+TCGA-25-1315-01	127	mut -> 42,amp -> 85
+TCGA-61-1910-01	246	mut -> 84,amp -> 162
+TCGA-36-2533-01	175	mut -> 59,amp -> 1,del -> 115
+TCGA-09-2043-01	109	amp -> 109
+TCGA-04-1349-01	29	mut -> 29
+TCGA-04-1351-01	12	del -> 12
+TCGA-29-2414-01	144	amp -> 31,del -> 113
+TCGA-09-2045-01	172	mut -> 28,amp -> 143,del -> 1
+TCGA-29-1698-01	91	mut -> 46,amp -> 22,del -> 23
+TCGA-24-1428-01	70	mut -> 12,amp -> 54,del -> 4
+TCGA-09-2053-01	37	mut -> 25,amp -> 10,del -> 2
+TCGA-13-0723-01	167	mut -> 32,amp -> 112,del -> 23
+TCGA-36-2537-01	32	mut -> 27,amp -> 1,del -> 4
+TCGA-61-1915-01	72	mut -> 65,amp -> 7
+TCGA-24-2038-01	9	mut -> 9
+TCGA-24-2290-01	82	mut -> 39,amp -> 29,del -> 14
+TCGA-31-1944-01	117	amp -> 115,del -> 2
+TCGA-25-1626-01	5	mut -> 5
+TCGA-30-1856-01	98	mut -> 48,amp -> 13,del -> 37
+TCGA-24-1562-01	93	mut -> 23,amp -> 70
+TCGA-23-1124-01	325	mut -> 121,amp -> 75,del -> 129
+TCGA-10-0930-01	212	mut -> 126,amp -> 86
+TCGA-57-1992-01	78	amp -> 78
+TCGA-04-1361-01	96	mut -> 49,amp -> 47
+TCGA-13-1488-01	181	mut -> 91,amp -> 29,del -> 61
+TCGA-24-0966-01	145	mut -> 29,amp -> 116
+TCGA-13-1408-01	77	mut -> 75,del -> 2
+TCGA-61-1724-01	14	amp -> 13,del -> 1
+TCGA-24-2020-01	50	amp -> 20,del -> 30
+TCGA-23-1117-01	209	mut -> 75,amp -> 83,del -> 51
+TCGA-36-1575-01	102	mut -> 31,amp -> 71
+TCGA-25-1322-01	141	mut -> 28,amp -> 113
+TCGA-24-1928-01	9	amp -> 9
+TCGA-42-2590-01	69	mut -> 41,amp -> 27,del -> 1
+TCGA-13-0792-01	175	mut -> 56,amp -> 34,del -> 85
+TCGA-29-1694-01	34	mut -> 27,amp -> 4,del -> 3
+TCGA-24-1430-01	80	amp -> 79,del -> 1
+TCGA-61-2113-01	92	mut -> 25,amp -> 65,del -> 2
+TCGA-36-2534-01	121	mut -> 95,amp -> 26
+TCGA-23-1024-01	76	mut -> 29,amp -> 45,del -> 2
+TCGA-31-1959-01	120	mut -> 38,amp -> 81,del -> 1
+TCGA-10-0926-01	29	mut -> 29
+TCGA-13-1507-01	136	mut -> 71,amp -> 30,del -> 35
+TCGA-57-1994-01	33	amp -> 30,del -> 3
+TCGA-23-2079-01	48	mut -> 40,amp -> 7,del -> 1
+TCGA-61-2104-01	100	mut -> 3,amp -> 97
+TCGA-13-1409-01	149	mut -> 37,amp -> 112
+TCGA-04-1536-01	51	amp -> 26,del -> 25
+TCGA-24-1469-01	235	mut -> 110,amp -> 79,del -> 46
+TCGA-30-1718-01	241	mut -> 83,amp -> 99,del -> 59
+TCGA-13-A5FU-01	83	amp -> 82,del -> 1
+TCGA-61-1734-01	9	amp -> 9
+TCGA-29-2427-01	44	mut -> 40,amp -> 1,del -> 3
+TCGA-04-1364-01	30	mut -> 30
+TCGA-24-1419-01	48	mut -> 27,amp -> 21
+TCGA-30-1887-01	5	amp -> 5
+TCGA-23-2072-01	101	mut -> 38,amp -> 58,del -> 5
+TCGA-23-1027-01	262	mut -> 32,amp -> 230
+TCGA-13-0760-01	304	mut -> 147,amp -> 154,del -> 3
+TCGA-5X-AA5U-01	47	amp -> 44,del -> 3
+TCGA-13-0900-01	204	mut -> 87,amp -> 117
+TCGA-13-1404-01	105	mut -> 45,amp -> 58,del -> 2
+TCGA-13-1410-01	187	mut -> 48,amp -> 9,del -> 130
+TCGA-61-2097-01	165	mut -> 35,amp -> 129,del -> 1
+TCGA-09-1672-01	15	mut -> 15
+TCGA-13-A5FT-01	348	amp -> 348
+TCGA-24-1424-01	102	mut -> 35,amp -> 44,del -> 23
+TCGA-13-1509-01	126	mut -> 68,amp -> 58
+TCGA-13-0791-01	423	mut -> 57,amp -> 366
+TCGA-29-2436-01	6	mut -> 5,amp -> 1
+TCGA-04-1649-01	133	mut -> 46,amp -> 87
+TCGA-29-1701-01	77	mut -> 32,amp -> 44,del -> 1
+TCGA-04-1655-01	42	mut -> 42
+TCGA-20-1684-01	176	mut -> 25,amp -> 143,del -> 8

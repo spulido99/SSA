@@ -614,16 +614,19 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
     println("Reading Pancancer: Done!")
   }
 
-  def loadMutationMatrixFiles(input: String): HashMap[PolimorphismKey, Polimorphism] = {
+  def loadMutationMatrixFiles(input: String, hyperMutators:Int=400): HashMap[PolimorphismKey, Polimorphism] = {
 
     val genePatientMatrix = new HashMap[PolimorphismKey, Polimorphism]
     new CSVReader(new FileReader(input), '\t').readAll().foreach { fields =>
-      val sample = fields(0)
-      fields.drop(1).foreach { gene =>
-        val key = PolimorphismKey(Gene(gene), sample)
-        val value = Polimorphism(gene)
-
-        genePatientMatrix.put(key, value)
+      
+      if (fields.length < hyperMutators) {
+        val sample = fields(0)
+        fields.drop(1).foreach { gene =>
+          val key = PolimorphismKey(Gene(gene), sample)
+          val value = Polimorphism(gene)
+    
+          genePatientMatrix.put(key, value)
+        }
       }
     }
 
@@ -745,6 +748,10 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
       opt[String]("subtype") action { (x, c) =>
         c.copy(subtype = Some(x))
       } text ("subtype to analyse")
+      
+      opt[Seq[String]]("excludeGenes") action { (x, c) =>
+        c.copy(excludeGenes = Some(x.map { Gene(_) }))
+      } text ("Genes to remove from the network analysis (e.g. --excludeGenes TP53,MYC)")
 
       opt[Seq[String]]("debug") action { (x, c) =>
         c.copy(debug = Some(x))
@@ -778,7 +785,11 @@ class CancerHelper(translateGenesToEntrez: Map[String, String] = Map()) {
   }
 
   def loadData(config: Config) = {
-    val interactions = this.loadNetwork(config.refNetwork)
+    var interactions = this.loadNetwork(config.refNetwork)
+    if (config.excludeGenes.isDefined) {
+    	interactions = interactions.filter { i => !config.excludeGenes.get.contains(i.from) && !config.excludeGenes.get.contains(i.to) }
+    }
+    
     val network = new Network(interactions)
 
     println("Interactions: " + interactions.size)
@@ -982,6 +993,7 @@ case class Config(
   subtype: Option[String] = None,
   subtypeFile: Option[File] = None,
   debug: Option[Seq[String]] = None,
+  excludeGenes: Option[Seq[Gene]] = None,
   processors: Int = Runtime.getRuntime().availableProcessors() / 2,
   randomizeData: Boolean = false,
 

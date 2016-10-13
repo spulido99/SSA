@@ -1,5 +1,6 @@
 package be.cmpg.cancer.pcawg
 
+@Deprecated
 object FunSeq2Bootstrap {
 
   /*

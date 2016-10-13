@@ -1,0 +1,19 @@
+VAV2, 2 SNV's, guanine nucleotide exchange factor (GEF) that link the EphA2 receptor to Rho family GTPase activation and angiogenesis. A lot of papers describe role of VAV2 in cancer via VAV2/Rac1 signaling. Ook is VAV2 activator van RHOA en DCD42 die ook gevonden zijn in de analyse (beiden known cancer genes; J Biol Chem. 2000 Apr 7;275(14):10141-9.). Vaak gekoppeld aan kanker door zijn rol in de pathway, niet door rechtstreeks mutaties te screenen. Daarom niet in CGC/ncg
+
+EPHA2, 7 mut => 3 SNV's 1 amp 3 del, ephrin receptor (membrane bound protein). Beschreven dat het metastase en cell migratie in de hand kan werken in meerder soorten tumoren (Oncotarget. 2016 Aug 11. doi: 10.18632/oncotarget.11219. [Epub ahead of print];Clin Cancer Res. 2016 Jul 11. pii: clincanres.0709.2016. [Epub ahead of print]). Vaak gecorreleerd aan kanker door zijn expressiewaarde, vandaar wellicht niet in CGC
+
+CRK, 1 SNV, Adapter protein that binds to tyrosine-phosphorylated proteins. Involved in several signaling pathways. Reeds geassocieerd met veschillende soorten kankers (vooral op basis van expressie, vandaar niet in CGC) en mode of action lijkt opgehelderd in longkanker (Oncotarget. 2016 May 10;7(19):27094-107. doi: 10.18632/oncotarget.8314.)
+
+GAB2, 62 mut => 3 SNV's 58 amp 1 del, GRB2-asosciated binding protein. Involved in signaling pathways in response to stimuli through cytokine and growth factor receptors and T- and B cell antigen receptors. Geassocieerd met zeer veel kankers (vooral BRCA, leukemia en melanoma. Mol Med Rep. 2015 Sep;12(3):4007-14. doi: 10.3892/mmr.2015.3951. Epub 2015 Jun 17.)
+
+RPS6KB1, 79 mut => 2 SNV's, 77 amp. Serine/threoinin-protein kinase that acts downstream of mTOR signaling (mTOR was also selected and has 13 SNV's in the dataset but did not survive PPV cutoff) in response to growth factors and nutrients to promote cell proliferation. Associated with lung cancer and colorectal cancer in malacards. Amplification/overexpression of RPS6KB1 has been associated with a worse outcome in breast cancer (Breast Cancer Res Treat. 2011 Aug;128(3):713-23. doi: 10.1007/s10549-010-1058-x. Epub 2010 Oct 16.)
+
+BCL2L1 (malacards only), linker gene, BCL-2 proteine family. Acts as anti- or pro-apoptotic regulators that are involved in a wide variety of cellular activities. BCL2L1 is altijd geassocieerd met TP53/PIK3CA en wordt dus wel "binnengetrokken" (known oncogene in lung cancer and colorectal cancer (geneCards)). Lots of articles can be found about BCL2L1 and its role in cancer in general.
+
+UFD1L, 1 SNV, Involved in nesessary complex to degrade ubiquitinated proteins. Also controls disassembly of mitotic spindle and formation of closed nuclear envelope after mitosis. No association with cancer found in literature. Always associated with PIK3CA and TP53 => probably false positive
+
+NGFR, 1 SNV, nerve growth factor receptor. Overexpression/amplification has some limited backup for cancer driving in literature (Elife. 2016 Jun 10;5. pii: e15099. doi: 10.7554/eLife.15099.) => probably false positive
+
+MCL1, 65 mut => 1 SNV 64 amp. Anti-apoptotic protein. Associated with leukemia. Also associated with many more cancers in literature but often through expression profile/ phosphorylation state or epigenetics, did not find paper linking it directly to mutations (probably why it is not in CGC/NCG)
+
+PAK1 (malacards only), 64 mut => 1 SNV 61 amp 2 del, serine/threoine P21-activating kinases. Target for CDC42 and Rac. Involved in cytoskeleton reorganization and nuclear signaling. Plays a role in breast cancer according to malacards. Mentioned in relationship to cell motility/migration and invasion in breast cancer cells (BMC Cell Biol. 2016 Aug 20;17(1):31. doi: 10.1186/s12860-016-0109-5.)
