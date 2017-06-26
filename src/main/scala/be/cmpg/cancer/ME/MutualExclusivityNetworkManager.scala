@@ -91,8 +91,20 @@ class MutualExclusivityNetworkManager(network: Network,
      * Calculate a score:
      */
     
-    // Order genes by to analyse those with more mutations first
-    val orderedGenes = genes.toList.sortBy( g => -1*mutatedSamplesByGene(g).size )
+    // Calculate number of mutations per gene
+    val numberOfMutationsPerGenes = genes.toList.map(gene => mutatedSamplesByGene(gene).size)
+    // Check if ambiguous ordering of the genes is possible (when multiple genes have the same number of mutations in patients). If it is possible,
+    // permutations have to be calculated.
+    val combinations = if(numberOfMutationsPerGenes.distinct.size == numberOfMutationsPerGenes.size) {
+      // Sort genes based on their number of mutations in patients.
+      List(genes.toList.sortBy( g => -1*mutatedSamplesByGene(g).size))
+    }
+    else{
+      // Calculate all possible combinations but only retain the ones in which the genes are ordered by the number of times they are mutated in a sample.
+      genes.toList.permutations.toList.filter(permutation => {
+      val numberOfMutations = permutation.map(gene => mutatedSamplesByGene(gene).size)
+      numberOfMutations.equals(numberOfMutationsPerGenes)})
+    }
     
     // Obtain a score per gene
     /*
@@ -118,7 +130,8 @@ class MutualExclusivityNetworkManager(network: Network,
        * HyperGeometric test
        */
       //println("********")
-      val scorePerGeneHyperTest = orderedGenes.map {
+      val scorePerGeneHyperTest = combinations.map(possibility =>{
+        possibility.map {
         gene => {
           val otherGenes = genes - gene
           
@@ -132,18 +145,20 @@ class MutualExclusivityNetworkManager(network: Network,
           //println(gene.name + " => PS: "+totalSamples+ " SuccP: "+noMutatedSamplesInOtherGenes+" Sample: "+geneMutatedSamples +" SuccS: " + samplesOnlyMutatedInGene + " => P: "+test.cumulativeProbability(samplesOnlyMutatedInGene))
           
           1.0 - test.cumulativeProbability(samplesOnlyMutatedInGene)
-        }
-      }
-      return scorePerGeneHyperTest.min
+        }}}) 
+     
+        return scorePerGeneHyperTest.flatten.min
       
     } else {
       /*
        * Similar to Dendrix
        */
-      // Make a list of samples to be analysed (samples with mutations in those genes)
-      val pendingSamples = new HashSet ++ genes.map { g => mutatedSamplesByGene(g) }.reduceLeft(_ ++ _)
       
-      val scorePerGene = orderedGenes.map {
+      
+      val scorePerGene = combinations.map(possibility => {
+        possibility.map {
+// Make a list of samples to be analysed (samples with mutations in those genes)
+        val pendingSamples = new HashSet ++ genes.map { g => mutatedSamplesByGene(g) }.reduceLeft(_ ++ _)
         gene => {
           var geneScore = 0.0
           val usedSamples = new HashSet[String]
@@ -151,7 +166,7 @@ class MutualExclusivityNetworkManager(network: Network,
             // Mutated samples should be 1 for perfect mutual exclusivity
             // The number samples that have the gene mutated
             if (mutatedSamplesByGene(gene).contains(sample)) {
-          	  val mutatedSamples = orderedGenes.map { otherGene => if (mutatedSamplesByGene(otherGene).contains(sample)) 1.0 else 0.0 }.reduceLeft(_ + _)
+          	  val mutatedSamples = possibility.map { otherGene => if (mutatedSamplesByGene(otherGene).contains(sample)) 1.0 else 0.0 }.reduceLeft(_ + _)
               usedSamples += sample
               //geneScore += (genes.size - mutatedSamples) / genes.size
               geneScore += 1.0/mutatedSamples
@@ -159,9 +174,9 @@ class MutualExclusivityNetworkManager(network: Network,
           }
           pendingSamples --= usedSamples
           (gene, geneScore)
-        }}
-        .toMap
-       return scorePerGene.map {sg => math.sqrt(sg._2)}.sum / allGenes.size
+        }}})
+       val scores = scorePerGene.map(score => score.map {sg => math.sqrt(sg._2)}.sum / allGenes.size)
+       return scores.sum/scores.size
     }
   }
   

@@ -37,20 +37,20 @@ class MutualExclusivityNetworkManagerSpecification extends Specification {
      */
 
       val genePatientMatrix: Map[PolymorphismKey, Polymorphism] = Map(
-        PolymorphismKey(Gene("g1"), "S_1",0) -> Polymorphism("g1"),
-        PolymorphismKey(Gene("g1"), "S_2",0) -> Polymorphism("g1"),
-        PolymorphismKey(Gene("g3"), "S_2",0) -> Polymorphism("g3"),
-        PolymorphismKey(Gene("g4"), "S_2",0) -> Polymorphism("g4"),
-        PolymorphismKey(Gene("g1"), "S_3",0) -> Polymorphism("g1"),
-        PolymorphismKey(Gene("g1"), "S_4",0) -> Polymorphism("g1"),
-        PolymorphismKey(Gene("g1"), "S_5",0) -> Polymorphism("g1"),
-        PolymorphismKey(Gene("g2"), "S_5",0) -> Polymorphism("g2"),
-        PolymorphismKey(Gene("g2"), "S_6",0) -> Polymorphism("g2"),
-        PolymorphismKey(Gene("g3"), "S_6",0) -> Polymorphism("g3"),
-        PolymorphismKey(Gene("g2"), "S_7",0) -> Polymorphism("g2"),
-        PolymorphismKey(Gene("g2"), "S_8",0) -> Polymorphism("g2"),
-        PolymorphismKey(Gene("g3"), "S_9",0) -> Polymorphism("g3"),
-        PolymorphismKey(Gene("g4"), "S_10",0) -> Polymorphism("g4")) ++ (11 to 30).map {id => PolymorphismKey(Gene("gOther"), "S_"+id,0) -> Polymorphism("gOther")}.toMap
+        PolymorphismKey(Gene("g1"), "S_1", 0) -> Polymorphism("g1"),
+        PolymorphismKey(Gene("g1"), "S_2", 0) -> Polymorphism("g1"),
+        PolymorphismKey(Gene("g3"), "S_2", 0) -> Polymorphism("g3"),
+        PolymorphismKey(Gene("g4"), "S_2", 0) -> Polymorphism("g4"),
+        PolymorphismKey(Gene("g1"), "S_3", 0) -> Polymorphism("g1"),
+        PolymorphismKey(Gene("g1"), "S_4", 0) -> Polymorphism("g1"),
+        PolymorphismKey(Gene("g1"), "S_5", 0) -> Polymorphism("g1"),
+        PolymorphismKey(Gene("g2"), "S_5", 0) -> Polymorphism("g2"),
+        PolymorphismKey(Gene("g2"), "S_6", 0) -> Polymorphism("g2"),
+        PolymorphismKey(Gene("g3"), "S_6", 0) -> Polymorphism("g3"),
+        PolymorphismKey(Gene("g2"), "S_7", 0) -> Polymorphism("g2"),
+        PolymorphismKey(Gene("g2"), "S_8", 0) -> Polymorphism("g2"),
+        PolymorphismKey(Gene("g3"), "S_9", 0) -> Polymorphism("g3"),
+        PolymorphismKey(Gene("g4"), "S_10", 0) -> Polymorphism("g4")) ++ (11 to 30).map { id => PolymorphismKey(Gene("gOther"), "S_" + id, 0) -> Polymorphism("gOther") }.toMap
 
       /* Scores:
        *            S1    S2  S3  S4   S5  S6  S7  S8  S9  S10
@@ -79,9 +79,66 @@ class MutualExclusivityNetworkManagerSpecification extends Specification {
         Interaction(Gene("g2"), Gene("g3")),
         Interaction(Gene("g3"), Gene("g4")))
 
-      val expectedScore = (math.sqrt(1.0 + 1.0/3.0 + 1.0 + 1.0 + 1.0/2.0) + math.sqrt(1.0 + 1.0 + 1.0/2.0) + math.sqrt(1.0) + math.sqrt(1.0)) /4
-      
+      val expectedScore = (math.sqrt(1.0 + 1.0 / 3.0 + 1.0 + 1.0 + 1.0 / 2.0) + math.sqrt(1.0 + 1.0 + 1.0 / 2.0) + math.sqrt(1.0) + math.sqrt(1.0)) / 4
+
       networkManager.scoreSubnetwork(subnetwork) must beEqualTo(expectedScore)
+    }
+
+    /*
+     * In cases where the ordering is ambigeous, a mean value should be calulated. Example:
+     * 
+     * Mutation matrix
+     *      g1   g2   g3   g4
+     * S_1   x             x                          
+     * S_2   x                                
+     * S_3   x         x  
+     * S_4   x    x    x              
+     * S_5   x    x              
+     * S_6        x              
+     * S_7        x             
+     * S_8        x      
+     * 
+     * 
+     * g1 and g2 have 5 mutations but the order matters!
+     *    
+     * g1 => g2 => g3 => g4: sqrt(1/2 + 1 + 1/2 + 1/3 + 1/2) + sqrt(1 + 1 + 1) + sqrt(0) + sqrt(0) = 3.415
+     * g2 => g1 => g3 => g4: sqrt(1/3 + 1/2 + 1 + 1 + 1) + sqrt(1/2 + 1 + 1/2) + sqrt(0) + sqrt(0) = 3.372
+     * 
+     * here a mean score is adequate
+     * 
+     */
+    "Calculate a mean score in amigeous cases" in {
+      val network = new Network(interactions = Set())
+
+      val genePatientMatrix: Map[PolymorphismKey, Polymorphism] = Map(
+        PolymorphismKey(Gene("g1"), "S_1", 0) -> Polymorphism("g1"),
+        PolymorphismKey(Gene("g1"), "S_2", 0) -> Polymorphism("g1"),
+        PolymorphismKey(Gene("g1"), "S_3", 0) -> Polymorphism("g1"),
+        PolymorphismKey(Gene("g1"), "S_4", 0) -> Polymorphism("g1"),
+        PolymorphismKey(Gene("g1"), "S_5", 0) -> Polymorphism("g1"),
+        PolymorphismKey(Gene("g2"), "S_5", 0) -> Polymorphism("g2"),
+        PolymorphismKey(Gene("g2"), "S_7", 0) -> Polymorphism("g2"),
+        PolymorphismKey(Gene("g2"), "S_8", 0) -> Polymorphism("g2"),
+        PolymorphismKey(Gene("g2"), "S_4", 0) -> Polymorphism("g3"),
+        PolymorphismKey(Gene("g2"), "S_6", 0) -> Polymorphism("g2"),
+        PolymorphismKey(Gene("g3"), "S_4", 0) -> Polymorphism("g3"),
+        PolymorphismKey(Gene("g3"), "S_3", 0) -> Polymorphism("g3"),
+        PolymorphismKey(Gene("g4"), "S_1", 0) -> Polymorphism("g4")).toMap
+
+      val networkManager = new MutualExclusivityNetworkManager(
+        network = network,
+        genePatientMatrix = genePatientMatrix,
+        minimumSamplesAltered = 0,
+        evaporation = 0.996)
+
+      val subnetwork = Set(
+        Interaction(Gene("g1"), Gene("g2")),
+        Interaction(Gene("g2"), Gene("g3")),
+        Interaction(Gene("g3"), Gene("g4")))
+      val expectedScore = ((Math.sqrt(1d/2d + 1d + 1d/2d + 1d/3d + 1d/2d) + Math.sqrt(1d + 1d + 1d) + Math.sqrt(0) + Math.sqrt(0)) / 4d + (Math.sqrt(1d/3d + 1d/2d + 1d + 1d + 1d) + Math.sqrt(1d/2d + 1d + 1d/2d) + Math.sqrt(0) + Math.sqrt(0)) / 4d)/2d
+
+      networkManager.scoreSubnetwork(subnetwork) must beEqualTo(expectedScore)
+
     }
     /*
     "better distributed networks should have better scores" in {
