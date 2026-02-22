@@ -1,0 +1,58 @@
+============================================================
+SMOKE TEST: SSA-ME v2 Pipeline with Real Data
+============================================================
+
+[1/5] Loading mutation data (first 100 samples)...
+  Selected 100 samples
+  AlterationMatrix: 3419 genes x 98 samples
+  Density: 0.0305
+  Time: 33.8s
+
+[2/5] Building multi-view network...
+  PIONEER: 15926 nodes, 140800 edges
+  MultiViewGraph: 15926 nodes, views=['pioneer']
+  Time: 10.8s
+
+[3/5] Building consensus ground truth...
+  Consensus: 1040 drivers (>=2 sources)
+  High confidence: 347 (all 3 sources)
+  Labeled genes in matrix: 374/3419
+  Time: 1.6s
+
+[4/5] Running Pipeline (encoder_level=0, XGBoost)...
+  Ranked genes: 3419
+  Modules found: 500
+  Module scores: 500
+  Time: 45.9s
+
+[5/5] Validating output...
+  Known drivers in top 100: 31/100
+  Total known drivers ranked: 374
+
+  Top 20 ranked genes:
+      1. * FLG          score=0.9407
+      2. * TP53         score=0.9198
+      3. * CSMD3        score=0.9150
+      4. * LRP1B        score=0.9150
+      5.   SPTA1        score=0.9150
+      6. * MUC16        score=0.9108
+      7.   TTN          score=0.9077
+      8.   CSMD2        score=0.8837
+      9.   DST          score=0.8837
+     10. * KRAS         score=0.8837
+     11. * MXRA5        score=0.8837
+     12. * FAT3         score=0.8749
+     13.   ZFHX4        score=0.8749
+     14.   RYR2         score=0.8533
+     15. * COL6A3       score=0.8182
+     16. * EGFR         score=0.8182
+     17.   OBSCN        score=0.8182
+     18.   USH2A        score=0.8182
+     19.   XIRP2        score=0.8182
+     20.   ADAMTS2      score=0.7688
+
+  (* = known driver in consensus ground truth)
+
+============================================================
+SMOKE TEST PASSED in 92.0s
+============================================================

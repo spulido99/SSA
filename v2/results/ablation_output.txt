@@ -1,0 +1,69 @@
+============================================================
+ABLATION STUDY: SSA-ME v2 with Real Data
+============================================================
+
+[1/4] Loading mutation data (first 200 samples)...
+  6962 genes x 198 samples
+  Time: 35.4s
+
+[2/4] Loading PIONEER network...
+  15926 nodes, 140800 edges
+  Time: 10.8s
+
+[3/4] Building consensus ground truth...
+  1040 consensus drivers
+  Time: 1.6s
+  Loading DepMap essentiality...
+    18443 genes with DepMap scores
+  Loading gnomAD constraint...
+    17975 genes with gnomAD LOEUF scores
+
+[4/4] Running ablation experiments...
+  Feature matrix: 6962 genes x 6 features
+  Features: ['mutation_frequency', 'log_mutation_count', 'depmap_essentiality', 'gnomad_loeuf', 'pioneer_degree', 'pioneer_betweenness']
+  Positives: 599/6962
+
+  Running: mut_freq_only (2 features)...
+    AUPRC=0.1718  AUROC=0.6154  P@10=0.7000  P@50=0.3800  Time: 2.2s
+
+  Running: + topology (4 features)...
+    AUPRC=0.1718  AUROC=0.6154  P@10=0.7000  P@50=0.3800  Time: 0.3s
+
+  Running: + depmap (3 features)...
+    AUPRC=0.2088  AUROC=0.6241  P@10=0.9000  P@50=0.5800  Time: 0.4s
+
+  Running: + depmap + topo (5 features)...
+    AUPRC=0.2088  AUROC=0.6241  P@10=0.9000  P@50=0.5800  Time: 0.4s
+
+  Running: + gnomad (3 features)...
+    AUPRC=0.2745  AUROC=0.6950  P@10=1.0000  P@50=0.6000  Time: 0.4s
+
+  Running: + gnomad + topo (5 features)...
+    AUPRC=0.2745  AUROC=0.6950  P@10=1.0000  P@50=0.6000  Time: 0.4s
+
+  Running: full_model (6 features)...
+    AUPRC=0.3107  AUROC=0.7264  P@10=0.9000  P@50=0.6600  Time: 0.4s
+
+  Running: full_n_est=50...
+    AUPRC=0.2976  AUROC=0.7304  P@10=0.9000  P@50=0.6800  Time: 0.3s
+
+  Running: full_n_est=200...
+    AUPRC=0.3254  AUROC=0.7159  P@10=0.9000  P@50=0.8200  Time: 0.7s
+
+============================================================
+ABLATION RESULTS SUMMARY
+============================================================
+Name                    AUPRC    AUROC     P@10     P@50     R@50
+-----------------------------------------------------------------
+mut_freq_only          0.1718   0.6154   0.7000   0.3800   0.0317
++ topology             0.1718   0.6154   0.7000   0.3800   0.0317
++ depmap               0.2088   0.6241   0.9000   0.5800   0.0484
++ depmap + topo        0.2088   0.6241   0.9000   0.5800   0.0484
++ gnomad               0.2745   0.6950   1.0000   0.6000   0.0501
++ gnomad + topo        0.2745   0.6950   1.0000   0.6000   0.0501
+full_model             0.3107   0.7264   0.9000   0.6600   0.0551
+full_n_est=50          0.2976   0.7304   0.9000   0.6800   0.0568
+full_n_est=200         0.3254   0.7159   0.9000   0.8200   0.0684
+
+Total time: 114.7s
+============================================================
