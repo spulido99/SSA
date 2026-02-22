@@ -1,0 +1,35 @@
+# SSA-ME v2 pipeline configuration
+cancer_type: BRCA
+seed: 42
+
+data:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  cache_dir: data/cache
+  networks:
+    - hi_union
+    - reactome
+    - alphafold_baker
+
+encoder:
+  level: 0          # 0=XGBoost, 1=Graph Transformer, 2=+biological priors
+  pu_prior: 0.05    # estimated fraction of true drivers among unlabeled
+  hidden_dim: 128
+  n_heads: 8
+  n_layers: 3
+  learning_rate: 0.001
+  epochs: 100
+  dropout: 0.1
+
+search:
+  strategy: ant_colony  # ant_colony, beam_search, hybrid
+  n_iterations: 1000
+  n_ants: 50
+  subnetwork_size: 3
+  beam_width: 10
+  evaporation_rate: 0.1
+
+scorer:
+  scorers:
+    - me
+  aggregation: weighted_sum  # weighted_sum, min, vote

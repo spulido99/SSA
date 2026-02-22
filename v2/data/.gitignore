@@ -1,0 +1,8 @@
+# Exclude all raw/processed/cache data files
+raw/
+processed/
+cache/
+
+# Keep directory structure
+!.gitignore
+!README.md

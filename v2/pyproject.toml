@@ -1,0 +1,117 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ssame"
+version = "2.0.0-dev"
+description = "Cancer driver gene discovery with structural priors and ablation-validated evaluation"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [
+    { name = "SSA Team" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.1",
+    "polars>=0.20",
+    "scipy>=1.12",
+    "statsmodels>=0.14",
+    "networkx>=3.2",
+    "scikit-learn>=1.4",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+ml = [
+    "torch>=2.2",
+    "torch-geometric>=2.5",
+    "xgboost>=2.0",
+    "lightgbm>=4.2",
+]
+bio = [
+    "biopython>=1.83",
+]
+viz = [
+    "matplotlib>=3.8",
+    "plotly>=5.18",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
+    "ruff>=0.3",
+    "mypy>=1.8",
+]
+optional = [
+    "cobrapy>=0.29",
+    "captum>=0.7",
+    "transformers>=4.37",
+    "stable-baselines3>=2.2",
+]
+all = [
+    "ssame[ml,bio,viz,dev,optional]",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks integration tests requiring real data",
+    "gpu: marks tests requiring GPU",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "TCH",  # flake8-type-checking
+    "RUF",  # ruff-specific rules
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "N806",  # variable in function should be lowercase (G for NetworkX, X for matrices)
+    "N803",  # argument name should be lowercase (X for matrices)
+    "TC001", # move application import into type-checking block
+    "TC002", # move third-party import into type-checking block
+    "TC003", # move stdlib import into type-checking block
+    "N812",  # lowercase imported as non-lowercase (F for torch.nn.functional)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ssame"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["ssame"]
