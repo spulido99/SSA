@@ -8,6 +8,7 @@ import pytest
 from ssame.data.alteration_matrix import (
     export_m2,
     load_m2,
+    load_tcga_cancer_map,
     parse_maf_to_matrix,
 )
 from ssame.types import AlterationMatrix
@@ -205,3 +206,97 @@ class TestParseMafToMatrix:
         matrix = parse_maf_to_matrix(maf_file, sample_barcodes=set())
         assert matrix.n_genes == 0
         assert matrix.n_samples == 0
+
+
+class TestPyArrowMafParser:
+    """Test that PyArrow fast path produces identical results to pandas."""
+
+    @pytest.fixture
+    def synthetic_maf(self, tmp_path: Path) -> Path:
+        maf_content = (
+            "Hugo_Symbol\tTumor_Sample_Barcode\tVariant_Classification\t"
+            "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\t"
+            "Tumor_Seq_Allele2\n"
+            "TP53\tTCGA-A1-0001\tMissense_Mutation\tchr17\t7577120\t7577120\tC\tT\n"
+            "PIK3CA\tTCGA-A1-0001\tMissense_Mutation\tchr3\t178936091\t178936091\tA\tG\n"
+            "TP53\tTCGA-A1-0002\tNonsense_Mutation\tchr17\t7578190\t7578190\tG\tA\n"
+            "CDH1\tTCGA-A1-0002\tFrame_Shift_Del\tchr16\t68811195\t68811195\tA\t-\n"
+            "TP53\tTCGA-A1-0003\tSplice_Site\tchr17\t7577019\t7577019\tG\tT\n"
+            "SILENT_GENE\tTCGA-A1-0003\tSilent\tchr1\t100\t100\tA\tG\n"
+        )
+        maf_file = tmp_path / "test.maf"
+        maf_file.write_text(maf_content)
+        return maf_file
+
+    def test_pyarrow_same_genes(self, synthetic_maf: Path) -> None:
+        """PyArrow parser should produce same gene list as pandas."""
+        pandas_result = parse_maf_to_matrix(synthetic_maf, use_pyarrow=False)
+        arrow_result = parse_maf_to_matrix(synthetic_maf, use_pyarrow=True)
+        assert arrow_result.genes == pandas_result.genes
+
+    def test_pyarrow_same_samples(self, synthetic_maf: Path) -> None:
+        pandas_result = parse_maf_to_matrix(synthetic_maf, use_pyarrow=False)
+        arrow_result = parse_maf_to_matrix(synthetic_maf, use_pyarrow=True)
+        assert arrow_result.samples == pandas_result.samples
+
+    def test_pyarrow_same_matrix(self, synthetic_maf: Path) -> None:
+        pandas_result = parse_maf_to_matrix(synthetic_maf, use_pyarrow=False)
+        arrow_result = parse_maf_to_matrix(synthetic_maf, use_pyarrow=True)
+        np.testing.assert_array_equal(arrow_result.data, pandas_result.data)
+
+    def test_pyarrow_filters_silent(self, synthetic_maf: Path) -> None:
+        result = parse_maf_to_matrix(synthetic_maf, use_pyarrow=True)
+        assert "SILENT_GENE" not in result.genes
+
+    def test_pyarrow_sample_barcodes_filter(self, synthetic_maf: Path) -> None:
+        subset = {"TCGA-A1-0001", "TCGA-A1-0003"}
+        result = parse_maf_to_matrix(synthetic_maf, sample_barcodes=subset, use_pyarrow=True)
+        assert result.n_samples == 2
+        assert "TCGA-A1-0002" not in result.samples
+
+    def test_pyarrow_min_samples(self, synthetic_maf: Path) -> None:
+        result = parse_maf_to_matrix(synthetic_maf, min_samples=2, use_pyarrow=True)
+        assert "TP53" in result.genes
+        # PIK3CA only in 1 sample
+        assert "PIK3CA" not in result.genes
+
+    def test_auto_mode_selects_backend(self, synthetic_maf: Path) -> None:
+        """Default (use_pyarrow=None) should auto-select and produce valid result."""
+        result = parse_maf_to_matrix(synthetic_maf)
+        assert isinstance(result, AlterationMatrix)
+        assert "TP53" in result.genes
+
+
+class TestTcgaCancerMap:
+    """Test TCGA barcode → cancer type mapping loader."""
+
+    @pytest.fixture
+    def cancer_map_tsv(self, tmp_path: Path) -> Path:
+        content = (
+            "barcode\tcancer_type\n"
+            "TCGA-A1-0001\tTCGA-BRCA\n"
+            "TCGA-A1-0002\tTCGA-BRCA\n"
+            "TCGA-B2-0001\tTCGA-LUAD\n"
+            "TCGA-C3-0001\tTCGA-COAD\n"
+        )
+        tsv_file = tmp_path / "tcga_barcode_cancer_map.tsv"
+        tsv_file.write_text(content)
+        return tsv_file
+
+    def test_load_returns_dict(self, cancer_map_tsv: Path) -> None:
+        mapping = load_tcga_cancer_map(cancer_map_tsv)
+        assert isinstance(mapping, dict)
+
+    def test_correct_mapping(self, cancer_map_tsv: Path) -> None:
+        mapping = load_tcga_cancer_map(cancer_map_tsv)
+        assert mapping["TCGA-A1-0001"] == "TCGA-BRCA"
+        assert mapping["TCGA-B2-0001"] == "TCGA-LUAD"
+        assert mapping["TCGA-C3-0001"] == "TCGA-COAD"
+
+    def test_all_barcodes_present(self, cancer_map_tsv: Path) -> None:
+        mapping = load_tcga_cancer_map(cancer_map_tsv)
+        assert len(mapping) == 4
+
+    def test_missing_file_raises(self, tmp_path: Path) -> None:
+        with pytest.raises(FileNotFoundError):
+            load_tcga_cancer_map(tmp_path / "nonexistent.tsv")
