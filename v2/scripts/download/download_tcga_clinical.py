@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Download TCGA barcode → cancer type mapping via GDC API.
+"""Download TCGA barcode-to-cancer-type mapping via GDC API.
 
 Queries the GDC API to map TCGA sample barcodes (e.g. TCGA-A1-0001-01A-...)
 to their project/cancer type (e.g. TCGA-BRCA, TCGA-LUAD).
@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import time
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -32,14 +33,14 @@ def fetch_gdc_cases(offset: int = 0, size: int = BATCH_SIZE) -> dict:
         ],
     }
     params = {
-        "filters": json.dumps(filters),
+        "filters": json.dumps(filters, separators=(",", ":")),
         "fields": "submitter_id,project.project_id",
         "size": str(size),
         "from": str(offset),
         "format": "JSON",
     }
 
-    query_string = "&".join(f"{k}={v}" for k, v in params.items())
+    query_string = urllib.parse.urlencode(params)
     url = f"{GDC_CASES_URL}?{query_string}"
 
     req = urllib.request.Request(url)
@@ -50,16 +51,20 @@ def fetch_gdc_cases(offset: int = 0, size: int = BATCH_SIZE) -> dict:
 def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+    # Delete empty file from previous failed run
+    if OUTPUT_FILE.exists() and OUTPUT_FILE.stat().st_size < 50:
+        OUTPUT_FILE.unlink()
+
     if OUTPUT_FILE.exists():
         print(f"Already exists: {OUTPUT_FILE}")
         return
 
-    print("Querying GDC API for TCGA barcode → cancer type mapping...")
+    print("Querying GDC API for TCGA barcode-to-cancer-type mapping...")
     barcode_to_cancer: dict[str, str] = {}
     offset = 0
 
     while offset < MAX_CASES:
-        print(f"  Fetching cases {offset}–{offset + BATCH_SIZE}...")
+        print(f"  Fetching cases {offset}-{offset + BATCH_SIZE}...")
         try:
             data = fetch_gdc_cases(offset=offset, size=BATCH_SIZE)
         except Exception as e:
@@ -88,6 +93,10 @@ def main() -> None:
         time.sleep(0.5)  # Rate-limit
 
     print(f"\nTotal mappings: {len(barcode_to_cancer)}")
+
+    if not barcode_to_cancer:
+        print("ERROR: No mappings fetched. Check network/API access.")
+        return
 
     # Save as TSV
     with open(OUTPUT_FILE, "w") as f:

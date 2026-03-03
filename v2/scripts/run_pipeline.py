@@ -34,7 +34,29 @@ def main() -> None:
     parser.add_argument("--n-iterations", type=int, default=1000)
     parser.add_argument("--subnetwork-size", type=int, default=3)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--n-workers", type=int, default=0, help="Thread limit (0=auto)")
+    parser.add_argument(
+        "--resume", nargs="?", const="", default=None, metavar="STEP",
+        help="Resume from checkpoints. Optional step name to fork from "
+             "(keeps steps before STEP, re-runs from STEP onward).",
+    )
+    parser.add_argument(
+        "--fresh", action="store_true",
+        help="Clear all checkpoints before running.",
+    )
+    parser.add_argument(
+        "--mode", choices=["lite", "standard", "full"], default=None,
+        help="Apply parameter preset (overrides --n-ants/--n-iterations/etc.)",
+    )
     args = parser.parse_args()
+
+    # Apply preset if given
+    from ssame.config import PRESETS
+    if args.mode:
+        preset = PRESETS[args.mode]
+        args.n_ants = preset.get("n_ants", args.n_ants)
+        args.n_iterations = preset.get("n_iter", args.n_iterations)
+        args.n_estimators = preset.get("n_estimators", args.n_estimators)
 
     # Load data
     print(f"Loading alteration matrix from {args.alteration_matrix}...")
@@ -52,6 +74,20 @@ def main() -> None:
             if len(parts) >= 2:
                 labels[parts[0]] = int(parts[1])
 
+    # Checkpoint setup
+    checkpoint_dir = None
+    if args.resume is not None:
+        checkpoint_dir = Path(args.output).parent / ".checkpoints"
+        if args.resume:
+            from ssame.utils.checkpoint import CheckpointManager
+            ckpt = CheckpointManager(checkpoint_dir)
+            ckpt.invalidate_from(args.resume)
+            print(f"Forking: invalidated from '{args.resume}' onward")
+    if args.fresh and checkpoint_dir and checkpoint_dir.exists():
+        import shutil
+        shutil.rmtree(checkpoint_dir)
+        print("Cleared all checkpoints")
+
     # Run pipeline
     print("Running pipeline...")
     pipeline = Pipeline(
@@ -63,6 +99,8 @@ def main() -> None:
         search_n_iterations=args.n_iterations,
         search_subnetwork_size=args.subnetwork_size,
         seed=args.seed,
+        checkpoint_dir=checkpoint_dir,
+        n_workers=args.n_workers,
     )
     result = pipeline.run()
 

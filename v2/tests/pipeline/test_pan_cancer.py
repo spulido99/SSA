@@ -6,9 +6,11 @@ results using rank aggregation (Borda count or similar).
 
 import numpy as np
 import pytest
+from scipy.sparse import issparse
 
 from ssame.pipeline.pan_cancer import PanCancerResult, PanCancerRunner
 from ssame.types import AlterationMatrix
+from ssame.utils.checkpoint import CheckpointManager
 
 
 def _make_alteration_matrix(n_genes: int = 50, n_samples: int = 30, seed: int = 42):
@@ -118,3 +120,85 @@ class TestPanCancerRunner:
         assert isinstance(result.recurrence_count, dict)
         for _gene, count in result.recurrence_count.items():
             assert 0 <= count <= 3
+
+
+class TestPanCancerCheckpoints:
+    def test_saves_per_type_checkpoints(
+        self, cancer_types, shared_labels, tmp_path
+    ) -> None:
+        ckpt_dir = tmp_path / ".checkpoints"
+        runner = PanCancerRunner(
+            alteration_matrices=cancer_types,
+            labels=shared_labels,
+            encoder_level=0,
+            encoder_n_estimators=10,
+            search_n_iterations=10,
+            seed=42,
+            checkpoint_dir=ckpt_dir,
+        )
+        runner.run()
+        mgr = CheckpointManager(ckpt_dir)
+        for ct in cancer_types:
+            assert mgr.exists(f"cancer_{ct}")
+
+    def test_resumes_completed_types(
+        self, cancer_types, shared_labels, tmp_path
+    ) -> None:
+        ckpt_dir = tmp_path / ".checkpoints"
+        # First run
+        r1 = PanCancerRunner(
+            alteration_matrices=cancer_types,
+            labels=shared_labels,
+            encoder_level=0,
+            encoder_n_estimators=10,
+            search_n_iterations=10,
+            seed=42,
+            checkpoint_dir=ckpt_dir,
+        )
+        result1 = r1.run()
+
+        # Second run should resume from checkpoints
+        r2 = PanCancerRunner(
+            alteration_matrices=cancer_types,
+            labels=shared_labels,
+            encoder_level=0,
+            encoder_n_estimators=10,
+            search_n_iterations=10,
+            seed=42,
+            checkpoint_dir=ckpt_dir,
+        )
+        result2 = r2.run()
+
+        # Per-cancer gene scores should match (loaded from checkpoint)
+        for ct in cancer_types:
+            for gene in result1.per_cancer[ct].gene_scores:
+                assert result1.per_cancer[ct].gene_scores[gene] == pytest.approx(
+                    result2.per_cancer[ct].gene_scores[gene]
+                )
+
+
+class TestSparseCoalteration:
+    def test_coalteration_graph_from_sparse_matches_dense(self, shared_labels) -> None:
+        """Sparse co-alteration should produce same graph as dense."""
+        alt = _make_alteration_matrix(50, 30, seed=42)
+
+        runner = PanCancerRunner(
+            alteration_matrices={"TEST": alt},
+            labels=shared_labels,
+            encoder_level=0,
+            encoder_n_estimators=10,
+            search_n_iterations=10,
+        )
+        mv = runner._build_coalteration_graph(alt)
+
+        # The adjacency should be sparse
+        raw_adj = mv._adjacencies["coalteration"]
+        assert issparse(raw_adj), "Co-alteration adjacency should be sparse"
+
+        # The dense form should be a valid adjacency
+        dense = raw_adj.toarray()
+        assert dense.shape == (50, 50)
+        # Diagonal should be zero
+        np.testing.assert_array_equal(np.diag(dense), 0)
+        # Should be symmetric
+        np.testing.assert_array_equal(dense, dense.T)

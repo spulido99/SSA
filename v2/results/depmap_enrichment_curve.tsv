@@ -1,0 +1,6 @@
+k	n_essential_in_top_k	fraction_essential	n_genes_evaluated
+10	0	0.0	6460
+25	0	0.0	6460
+50	0	0.0	6460
+100	1	0.01	6460
+200	6	0.03	6460

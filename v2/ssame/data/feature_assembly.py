@@ -109,10 +109,15 @@ class FeatureAssembler:
             self._feature_names.append(f"{view_name}_degree")
             col_idx += 1
 
-            # Betweenness centrality (approximate for large graphs)
+            # Betweenness centrality (approximate for large graphs, skip for very large)
             n_nodes = G.number_of_nodes()
-            k = min(500, n_nodes) if n_nodes > 500 else None
-            betweenness = nx.betweenness_centrality(G, k=k)
+            n_edges = G.number_of_edges()
+            if n_edges > 500_000:
+                # Too many edges for betweenness — use zeros
+                betweenness = {}
+            else:
+                k = min(500, n_nodes) if n_nodes > 500 else None
+                betweenness = nx.betweenness_centrality(G, k=k)
             betw_vals = np.array([
                 betweenness.get(g, 0.0) for g in common_genes
             ])

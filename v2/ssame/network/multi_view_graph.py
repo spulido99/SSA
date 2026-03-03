@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 
 import networkx as nx
 import numpy as np
+from scipy.sparse import issparse
 
 
 @dataclass
@@ -35,7 +36,10 @@ class MultiViewGraph:
         return len(self.view_names)
 
     def get_adjacency(self, view: str) -> np.ndarray:
-        """Get adjacency matrix for a specific view (built lazily)."""
+        """Get adjacency matrix for a specific view (built lazily).
+
+        Returns a dense or sparse matrix depending on how the view was created.
+        """
         if view not in self._adjacencies:
             G = self._graphs[view]
             n = len(self.node_list)
@@ -53,15 +57,31 @@ class MultiViewGraph:
         """Get NetworkX graph for a specific view.
 
         Uses stored original graph if available, otherwise reconstructs
-        from adjacency matrix (for views created without build_multi_view).
+        from adjacency matrix (supports both dense and sparse).
+        For sparse matrices, builds graph directly from COO format to
+        avoid memory-intensive full triple materialization.
         """
         if view in self._graphs:
             return self._graphs[view]
         # Reconstruct from adjacency
         adj = self._adjacencies[view]
-        G = nx.from_numpy_array(adj)
-        node_map = dict(enumerate(self.node_list))
-        G = nx.relabel_nodes(G, node_map)
+        if issparse(adj):
+            G = nx.Graph()
+            G.add_nodes_from(self.node_list)
+            coo = adj.tocoo()
+            # Only upper triangle to avoid duplicate edges
+            mask = coo.row < coo.col
+            rows = coo.row[mask]
+            cols = coo.col[mask]
+            edges = [
+                (self.node_list[r], self.node_list[c])
+                for r, c in zip(rows, cols)
+            ]
+            G.add_edges_from(edges)
+        else:
+            G = nx.from_numpy_array(adj)
+            node_map = dict(enumerate(self.node_list))
+            G = nx.relabel_nodes(G, node_map)
         self._graphs[view] = G
         return G
 
@@ -69,8 +89,12 @@ class MultiViewGraph:
         """Get edge index in COO format (2 x n_edges) for a specific view.
 
         Returns directed edges (both directions for each undirected edge).
+        Supports both dense and sparse adjacency matrices.
         """
         adj = self.get_adjacency(view)
+        if issparse(adj):
+            coo = adj.tocoo()
+            return np.stack([coo.row, coo.col], axis=0)
         rows, cols = np.nonzero(adj)
         return np.stack([rows, cols], axis=0)
 

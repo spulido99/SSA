@@ -1,6 +1,7 @@
 """Tests for ant colony search (WP5.3). Written FIRST per TDD."""
 
 import networkx as nx
+import numpy as np
 import pytest
 
 from ssame.search.ant_colony import AntColonySearch
@@ -98,9 +99,10 @@ class TestAntColonySearch:
             graph=toy_graph, n_ants=10, n_iterations=10,
             subnetwork_size=3, seed=42,
         )
-        # After initialization, pheromone should reflect gene scores
         search._init_pheromone(gene_scores)
-        assert search._pheromone["TP53"] > search._pheromone["NOISE3"]
+        tp53_idx = search._node_to_idx["TP53"]
+        noise3_idx = search._node_to_idx["NOISE3"]
+        assert search._pheromone[tp53_idx] > search._pheromone[noise3_idx]
 
     def test_evaporation_reduces_pheromone(
         self, toy_graph: nx.Graph
@@ -110,9 +112,10 @@ class TestAntColonySearch:
             subnetwork_size=3, seed=42,
         )
         search._init_pheromone({"TP53": 0.9, "MDM2": 0.8})
-        before = search._pheromone["TP53"]
+        tp53_idx = search._node_to_idx["TP53"]
+        before = search._pheromone[tp53_idx]
         search._evaporate()
-        after = search._pheromone["TP53"]
+        after = search._pheromone[tp53_idx]
         assert after < before
 
     def test_reproducible_with_seed(
@@ -133,3 +136,40 @@ class TestAntColonySearch:
         symbols1 = {frozenset(g.symbol for g in s.genes) for s in results1}
         symbols2 = {frozenset(g.symbol for g in s.genes) for s in results2}
         assert symbols1 == symbols2
+
+
+class TestVectorizedPheromone:
+    def test_pheromone_is_numpy_array(
+        self, toy_graph: nx.Graph, gene_scores: dict[str, float]
+    ) -> None:
+        """After init, internal pheromone should be numpy array."""
+        search = AntColonySearch(
+            graph=toy_graph, n_ants=10, n_iterations=10,
+            subnetwork_size=3, seed=42,
+        )
+        search._node_list = list(toy_graph.nodes())
+        search._init_pheromone(gene_scores)
+        assert isinstance(search._pheromone, np.ndarray)
+
+    def test_vectorized_evaporation_matches_original(
+        self, toy_graph: nx.Graph, gene_scores: dict[str, float]
+    ) -> None:
+        """Vectorized evaporation should match dict-based."""
+        search = AntColonySearch(
+            graph=toy_graph, n_ants=10, n_iterations=10,
+            subnetwork_size=3, seed=42,
+        )
+        search._node_list = list(toy_graph.nodes())
+        search._init_pheromone(gene_scores)
+
+        # Capture pre-evaporation values
+        before = search._pheromone.copy()
+
+        search._evaporate()
+
+        # Each value should be: val * evap_rate * 0.99 + initial * 0.01, clamped
+        for i, node in enumerate(search._node_list):
+            expected = before[i] * search.evaporation_rate
+            expected = expected * 0.99 + search.initial_prob * 0.01
+            expected = max(search.min_prob, expected)
+            assert search._pheromone[i] == pytest.approx(expected, abs=1e-10)

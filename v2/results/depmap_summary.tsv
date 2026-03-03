@@ -1,0 +1,7 @@
+metric	value
+spearman_correlation	0.058960
+p_value	2.12e-06
+enrichment_top_25pct	-0.037945
+mean_essentiality_top_25pct	-0.083076
+mean_essentiality_bottom_25pct	-0.121021
+n_genes_evaluated	6460

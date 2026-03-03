@@ -12,6 +12,13 @@ VALID_SEARCH_STRATEGIES = {"ant_colony", "beam_search", "hybrid"}
 VALID_SCORERS = {"me", "functional", "structural", "metabolic"}
 VALID_AGGREGATIONS = {"weighted_sum", "min", "vote"}
 
+# Parameter presets for memory/speed trade-off
+PRESETS: dict[str, dict[str, int]] = {
+    "lite": {"n_iter": 50, "n_ants": 10, "n_estimators": 50},
+    "standard": {"n_iter": 200, "n_ants": 20, "n_estimators": 100},
+    "full": {"n_iter": 1000, "n_ants": 50, "n_estimators": 200},
+}
+
 
 @dataclass
 class DataConfig:

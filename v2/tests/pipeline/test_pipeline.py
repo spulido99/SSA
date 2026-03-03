@@ -7,6 +7,7 @@ import pytest
 from ssame.network.multi_view_graph import build_multi_view
 from ssame.pipeline.pipeline import Pipeline, PipelineResult
 from ssame.types import AlterationMatrix
+from ssame.utils.checkpoint import CheckpointManager
 
 
 @pytest.fixture
@@ -155,3 +156,76 @@ class TestPipeline:
                 assert gene.symbol in toy_alteration_matrix.genes, (
                     f"Module contains gene {gene.symbol} not in alteration matrix"
                 )
+
+
+class TestPipelineCheckpoints:
+    def test_pipeline_saves_checkpoints(
+        self, toy_alteration_matrix, toy_network, toy_labels, tmp_path
+    ) -> None:
+        ckpt_dir = tmp_path / ".checkpoints"
+        pipeline = Pipeline(
+            alteration_matrix=toy_alteration_matrix,
+            multi_view=toy_network,
+            labels=toy_labels,
+            encoder_n_estimators=10,
+            search_n_ants=5,
+            search_n_iterations=20,
+            checkpoint_dir=ckpt_dir,
+        )
+        pipeline.run()
+
+        mgr = CheckpointManager(ckpt_dir)
+        assert mgr.exists("features")
+        assert mgr.exists("scores")
+
+    def test_pipeline_resumes_from_checkpoint(
+        self, toy_alteration_matrix, toy_network, toy_labels, tmp_path
+    ) -> None:
+        ckpt_dir = tmp_path / ".checkpoints"
+
+        # First run: produces checkpoints
+        p1 = Pipeline(
+            alteration_matrix=toy_alteration_matrix,
+            multi_view=toy_network,
+            labels=toy_labels,
+            encoder_n_estimators=10,
+            search_n_ants=5,
+            search_n_iterations=20,
+            checkpoint_dir=ckpt_dir,
+        )
+        result1 = p1.run()
+
+        # Second run: should resume from checkpoints and produce same scores
+        p2 = Pipeline(
+            alteration_matrix=toy_alteration_matrix,
+            multi_view=toy_network,
+            labels=toy_labels,
+            encoder_n_estimators=10,
+            search_n_ants=5,
+            search_n_iterations=20,
+            checkpoint_dir=ckpt_dir,
+        )
+        result2 = p2.run()
+
+        # Gene scores should be identical (loaded from checkpoint)
+        for gene in result1.gene_scores:
+            assert result1.gene_scores[gene] == pytest.approx(
+                result2.gene_scores[gene]
+            )
+
+    def test_pipeline_fresh_ignores_checkpoints(
+        self, toy_alteration_matrix, toy_network, toy_labels, tmp_path
+    ) -> None:
+        """Without checkpoint_dir, no checkpoints are created."""
+        pipeline = Pipeline(
+            alteration_matrix=toy_alteration_matrix,
+            multi_view=toy_network,
+            labels=toy_labels,
+            encoder_n_estimators=10,
+            search_n_ants=5,
+            search_n_iterations=20,
+        )
+        result = pipeline.run()
+        assert isinstance(result, PipelineResult)
+        # No checkpoint files should exist anywhere in tmp_path
+        assert not list(tmp_path.rglob("*.pkl"))

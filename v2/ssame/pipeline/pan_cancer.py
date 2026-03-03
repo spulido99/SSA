@@ -7,13 +7,20 @@ recurrent driver genes across cancers.
 
 from __future__ import annotations
 
+import gc
+import logging
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
+from scipy.sparse import csr_matrix
 
 from ssame.network.multi_view_graph import MultiViewGraph
 from ssame.pipeline.pipeline import Pipeline, PipelineResult
 from ssame.types import AlterationMatrix
+from ssame.utils.checkpoint import CheckpointManager
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -48,6 +55,7 @@ class PanCancerRunner:
         search_n_iterations: int = 1000,
         seed: int = 42,
         top_k_fraction: float = 0.1,
+        checkpoint_dir: Path | None = None,
     ) -> None:
         self._matrices = alteration_matrices
         self._labels = labels
@@ -56,13 +64,22 @@ class PanCancerRunner:
         self._search_n_iterations = search_n_iterations
         self._seed = seed
         self._top_k_fraction = top_k_fraction
+        self._ckpt = CheckpointManager(
+            checkpoint_dir or Path(), enabled=checkpoint_dir is not None
+        )
 
     def run(self) -> PanCancerResult:
         """Run pipeline for each cancer type and aggregate."""
+        ckpt = self._ckpt
         per_cancer: dict[str, PipelineResult] = {}
 
         for cancer_type, alt_matrix in self._matrices.items():
-            # Build a minimal single-view graph from the alteration matrix genes
+            ckpt_key = f"cancer_{cancer_type}"
+            if ckpt.exists(ckpt_key):
+                logger.info("Resuming %s from checkpoint", cancer_type)
+                per_cancer[cancer_type] = ckpt.load(ckpt_key)
+                continue
+
             multi_view = self._build_coalteration_graph(alt_matrix)
             pipeline = Pipeline(
                 alteration_matrix=alt_matrix,
@@ -73,7 +90,12 @@ class PanCancerRunner:
                 search_n_iterations=self._search_n_iterations,
                 seed=self._seed,
             )
-            per_cancer[cancer_type] = pipeline.run()
+            result = pipeline.run()
+            per_cancer[cancer_type] = result
+            ckpt.save(ckpt_key, result)
+
+            del result, pipeline, multi_view
+            gc.collect()
 
         aggregated = self._borda_aggregate(per_cancer)
         recurrence = self._compute_recurrence(per_cancer)
@@ -87,12 +109,50 @@ class PanCancerRunner:
     def _build_coalteration_graph(self, alt_matrix: AlterationMatrix) -> MultiViewGraph:
         """Build a co-alteration network from the alteration matrix.
 
-        Two genes are connected if they are co-altered in >= 2 samples.
+        Two genes are connected if they are co-altered in >= threshold samples.
+        Threshold is adaptive: max(2, n_samples // 50) to prevent extremely
+        dense graphs when sample count is high (1000+ samples → threshold=20).
+
+        For large gene sets (>8000), computes co-alteration in row chunks
+        to avoid materializing the full N×N matrix at once.
         """
-        data = alt_matrix.data.astype(np.float32)
-        co_occur = data @ data.T
-        np.fill_diagonal(co_occur, 0)
-        adj = (co_occur >= 2).astype(np.float32)
+        n_genes = alt_matrix.n_genes
+        n_samples = alt_matrix.n_samples
+        threshold = max(2, n_samples // 50)
+        logger.info(
+            "Building co-alteration graph: %d genes, %d samples, threshold=%d",
+            n_genes, n_samples, threshold,
+        )
+
+        sparse_data = csr_matrix(alt_matrix.data.astype(np.float32))
+
+        if n_genes <= 8000:
+            # Small enough to compute in one shot
+            co_occur = sparse_data @ sparse_data.T
+            co_occur.setdiag(0)
+            co_occur.eliminate_zeros()
+            adj = (co_occur >= threshold).astype(np.float32)
+            adj.eliminate_zeros()
+            del co_occur
+        else:
+            # Chunked: compute rows in blocks, threshold vectorized
+            from scipy.sparse import vstack
+            chunk_size = 2000
+            blocks = []
+            for start in range(0, n_genes, chunk_size):
+                end = min(start + chunk_size, n_genes)
+                block = sparse_data[start:end] @ sparse_data.T
+                # Vectorized threshold — no Python loop
+                block = (block >= threshold).astype(np.float32)
+                block.eliminate_zeros()
+                blocks.append(block.tocsr())
+                del block
+                gc.collect()
+            adj = vstack(blocks, format="csr")
+            adj.setdiag(0)
+            adj.eliminate_zeros()
+
+        logger.info("Co-alteration graph: %d edges", adj.nnz // 2)
 
         node_to_index = {g: i for i, g in enumerate(alt_matrix.genes)}
         return MultiViewGraph(

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """Pan-cancer per-type analysis: run SSA-ME pipeline per cancer type + Borda aggregate.
 
-Uses TCGA barcode → cancer type mapping to split MC3 MAF by cancer type,
-then runs PanCancerRunner to produce per-cancer and aggregated rankings.
+Uses barcode master cache for cancer-type splitting and uncompressed MAF
+with PyArrow for fast per-type parsing.
 
 Usage:
     python scripts/run_pan_cancer.py [--n-samples 100] [--n-types 10]
@@ -21,10 +21,8 @@ import pandas as pd
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from ssame.data.alteration_matrix import load_tcga_cancer_map, parse_maf_to_matrix
+from ssame.data.alteration_matrix import parse_maf_to_matrix
 from ssame.data.open_ground_truth import build_consensus_ground_truth
-from ssame.network.multi_view_graph import build_multi_view
-from ssame.network.pioneer_oncoppi import load_pioneer
 from ssame.pipeline.pan_cancer import PanCancerRunner
 
 RESULTS_DIR = PROJECT_ROOT / "results"
@@ -49,7 +47,30 @@ def parse_args() -> argparse.Namespace:
         "--n-iter", type=int, default=50,
         help="Number of ACO iterations",
     )
+    parser.add_argument("--n-workers", type=int, default=0, help="Thread limit (0=auto)")
+    parser.add_argument(
+        "--resume", action="store_true",
+        help="Resume from checkpoints (skip completed cancer types).",
+    )
+    parser.add_argument(
+        "--fresh", action="store_true",
+        help="Clear all checkpoints before running.",
+    )
+    parser.add_argument(
+        "--mode", choices=["lite", "standard", "full"], default=None,
+        help="Apply parameter preset (overrides --n-ants/--n-iter).",
+    )
     return parser.parse_args()
+
+
+def load_barcode_master(path: Path) -> pd.DataFrame:
+    """Load barcode master cache (barcode, patient_id, cancer_type)."""
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Barcode master not found: {path}\n"
+            "Run: python -c \"...\" to generate it (see run_pan_cancer.py header)"
+        )
+    return pd.read_csv(path, sep="\t")
 
 
 def main() -> None:
@@ -57,56 +78,29 @@ def main() -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     t_start = time.time()
 
+    # Apply preset if given
+    from ssame.config import PRESETS
+    if args.mode:
+        preset = PRESETS[args.mode]
+        args.n_ants = preset.get("n_ants", args.n_ants)
+        args.n_iter = preset.get("n_iter", args.n_iter)
+
     print("=" * 60)
     print("PAN-CANCER PER-TYPE ANALYSIS")
     print("=" * 60)
 
-    # ── Load barcode → cancer mapping ─────────────────────────────
-    map_path = DATA_DIR / "tcga" / "tcga_barcode_cancer_map.tsv"
-    if not map_path.exists():
-        print(f"SKIP: Cancer map not found at {map_path}")
-        print("Run: python scripts/download/download_tcga_clinical.py")
+    # ── Load barcode master cache ─────────────────────────────────
+    master_path = DATA_DIR / "tcga" / "barcode_master.tsv"
+    if not master_path.exists():
+        print(f"SKIP: Barcode master not found at {master_path}")
+        print("Generate it first (see docs).")
         return
 
-    barcode_to_cancer = load_tcga_cancer_map(map_path)
-    print(f"Loaded {len(barcode_to_cancer)} barcode→cancer mappings")
+    master_df = load_barcode_master(master_path)
+    print(f"Loaded barcode master: {len(master_df)} barcodes")
 
-    # ── Load MAF barcodes and assign cancer types ─────────────────
-    maf_path = DATA_DIR / "tcga" / "mc3.v0.2.8.PUBLIC.maf.gz"
-    if not maf_path.exists():
-        print(f"SKIP: MC3 MAF not found at {maf_path}")
-        return
-
-    print("Reading MAF sample barcodes...")
-    # Read just barcodes column to determine sample→cancer mapping
-    barcodes_df = pd.read_csv(
-        maf_path, sep="\t", comment="#",
-        usecols=["Tumor_Sample_Barcode"], nrows=5_000_000,
-    )
-    maf_barcodes = set(barcodes_df["Tumor_Sample_Barcode"].unique())
-    print(f"  {len(maf_barcodes)} unique barcodes in MAF")
-
-    # Map barcodes: MAF uses full barcode (TCGA-XX-XXXX-01A-01D-XXXX-XX)
-    # while GDC mapping uses patient ID (TCGA-XX-XXXX).
-    # Extract patient ID prefix for matching.
-    cancer_barcodes: dict[str, set[str]] = {}
-    unmatched = 0
-    for barcode in maf_barcodes:
-        # Extract patient portion: first 3 segments (TCGA-XX-XXXX)
-        parts = barcode.split("-")
-        if len(parts) >= 3:
-            patient_id = "-".join(parts[:3])
-        else:
-            patient_id = barcode
-
-        cancer_type = barcode_to_cancer.get(patient_id)
-        if cancer_type is None:
-            unmatched += 1
-            continue
-
-        cancer_barcodes.setdefault(cancer_type, set()).add(barcode)
-
-    print(f"  Mapped to {len(cancer_barcodes)} cancer types ({unmatched} unmatched)")
+    # Group barcodes by cancer type (vectorized)
+    cancer_barcodes = master_df.groupby("cancer_type")["barcode"].apply(set).to_dict()
 
     # Select top N cancer types by sample count
     type_counts = {ct: len(bcs) for ct, bcs in cancer_barcodes.items()}
@@ -115,6 +109,20 @@ def main() -> None:
     print(f"\nTop {len(top_types)} cancer types:")
     for ct in top_types:
         print(f"  {ct}: {type_counts[ct]} samples")
+
+    # ── Resolve MAF path (prefer uncompressed for PyArrow) ────────
+    maf_uncompressed = DATA_DIR / "tcga" / "mc3.v0.2.8.PUBLIC.maf"
+    maf_compressed = DATA_DIR / "tcga" / "mc3.v0.2.8.PUBLIC.maf.gz"
+
+    if maf_uncompressed.exists():
+        maf_path = maf_uncompressed
+        print(f"\nUsing uncompressed MAF (PyArrow fast path)")
+    elif maf_compressed.exists():
+        maf_path = maf_compressed
+        print(f"\nUsing compressed MAF (pandas, slower)")
+    else:
+        print("SKIP: MC3 MAF not found")
+        return
 
     # ── Load ground truth ─────────────────────────────────────────
     gt_dir = DATA_DIR / "ground_truth"
@@ -140,21 +148,32 @@ def main() -> None:
         if args.n_samples > 0 and len(barcodes) > args.n_samples:
             barcodes = set(sorted(barcodes)[:args.n_samples])
 
-        print(f"\nParsing MAF for {cancer_type} ({len(barcodes)} samples)...")
+        t_parse = time.time()
+        print(f"\nParsing MAF for {cancer_type} ({len(barcodes)} samples)...", end=" ", flush=True)
         matrix = parse_maf_to_matrix(
             maf_path,
             min_samples=2,
             sample_barcodes=barcodes,
         )
+        dt = time.time() - t_parse
         if matrix.n_genes > 0 and matrix.n_samples > 0:
             alt_matrices[cancer_type] = matrix
-            print(f"  {matrix.n_genes} genes x {matrix.n_samples} samples")
+            print(f"{matrix.n_genes} genes x {matrix.n_samples} samples ({dt:.1f}s)")
         else:
-            print(f"  SKIP: empty matrix")
+            print(f"SKIP: empty matrix ({dt:.1f}s)")
 
     if not alt_matrices:
         print("ERROR: No valid cancer-type matrices produced.")
         return
+
+    # ── Checkpoint setup ──────────────────────────────────────────
+    checkpoint_dir = None
+    if args.resume:
+        checkpoint_dir = RESULTS_DIR / ".checkpoints_pan_cancer"
+    if args.fresh and checkpoint_dir and checkpoint_dir.exists():
+        import shutil
+        shutil.rmtree(checkpoint_dir)
+        print("Cleared all checkpoints")
 
     # ── Run pan-cancer ────────────────────────────────────────────
     print(f"\nRunning PanCancerRunner on {len(alt_matrices)} cancer types...")
@@ -165,6 +184,7 @@ def main() -> None:
         encoder_n_estimators=100,
         search_n_iterations=args.n_iter,
         seed=42,
+        checkpoint_dir=checkpoint_dir,
     )
     result = runner.run()
 

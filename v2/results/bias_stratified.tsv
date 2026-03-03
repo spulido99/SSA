@@ -1,0 +1,9 @@
+proxy	stratum	n_genes	n_positives	mean_study_bias	mean_score	precision_at_k
+gnomAD_LOEUF_inverse	0	1547	75	0.61	0.462899	0.1733
+gnomAD_LOEUF_inverse	1	1544	70	0.90	0.465896	0.1000
+gnomAD_LOEUF_inverse	2	1550	109	1.28	0.483947	0.1743
+gnomAD_LOEUF_inverse	3	1551	313	2.97	0.495554	0.3099
+mutation_frequency_rank	0	1741	98	871.00	0.392082	0.1122
+mutation_frequency_rank	1	1740	99	2611.50	0.399959	0.0202
+mutation_frequency_rank	2	1740	145	4351.50	0.493300	0.0759
+mutation_frequency_rank	3	1741	257	6092.00	0.618845	0.2374

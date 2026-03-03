@@ -1,0 +1,6 @@
+metric	value
+score_bias_correlation	0.935078
+score_bias_pvalue	0.00e+00
+n_genes	6962
+n_strata	4
+bias_proxies_used	gnomAD_LOEUF_inverse,mutation_frequency_rank

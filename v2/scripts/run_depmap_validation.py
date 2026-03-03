@@ -33,7 +33,7 @@ DATA_DIR = PROJECT_ROOT / "data" / "raw"
 
 
 def load_ranked_genes(path: Path) -> dict[str, float]:
-    """Load ranked_genes.tsv → dict[gene, score]."""
+    """Load ranked_genes.tsv -> dict[gene, score]."""
     df = pd.read_csv(path, sep="\t")
     return dict(zip(df["gene"], df["score"].astype(float)))
 

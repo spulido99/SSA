@@ -19,6 +19,8 @@ class AntColonySearch:
 
     Key v2 addition: pheromone can be initialized from neural encoder scores
     (= "neural pheromone initialization").
+
+    Pheromone is stored as a numpy array for vectorized evaporation.
     """
 
     def __init__(
@@ -43,30 +45,31 @@ class AntColonySearch:
         self.min_prob = min_prob
         self.seed = seed
         self._rng = np.random.default_rng(seed)
-        self._pheromone: dict[str, float] = {}
+        self._node_list: list[str] = list(graph.nodes())
+        self._node_to_idx: dict[str, int] = {n: i for i, n in enumerate(self._node_list)}
+        self._neighbors: dict[str, list[str]] = {}
+        self._pheromone: np.ndarray = np.array([])
         self._best_subnetworks: dict[str, tuple[set[str], float]] = {}
 
     def _init_pheromone(self, gene_scores: dict[str, float]) -> None:
         """Initialize pheromone from external gene scores (neural encoder)."""
-        for node in self.graph.nodes():
+        n = len(self._node_list)
+        self._pheromone = np.full(n, self.initial_prob)
+        self._node_to_idx = {node: i for i, node in enumerate(self._node_list)}
+
+        for node in self._node_list:
             if node in gene_scores:
-                # Scale score to pheromone range
-                self._pheromone[node] = max(
+                idx = self._node_to_idx[node]
+                self._pheromone[idx] = max(
                     self.min_prob,
                     min(1.0, gene_scores[node]),
                 )
-            else:
-                self._pheromone[node] = self.initial_prob
 
     def _evaporate(self) -> None:
-        """Evaporate pheromone (v1: multiply by evaporation factor, re-center)."""
-        for gene in self._pheromone:
-            self._pheromone[gene] *= self.evaporation_rate
-            # Re-center toward initial probability
-            self._pheromone[gene] = (
-                self._pheromone[gene] * 0.99 + self.initial_prob * 0.01
-            )
-            self._pheromone[gene] = max(self.min_prob, self._pheromone[gene])
+        """Evaporate pheromone (vectorized numpy)."""
+        self._pheromone *= self.evaporation_rate
+        self._pheromone = self._pheromone * 0.99 + self.initial_prob * 0.01
+        np.maximum(self._pheromone, self.min_prob, out=self._pheromone)
 
     def _random_walk(self) -> set[str]:
         """Single ant random walk (v1 Fungus.selectSubNetwork logic).
@@ -76,8 +79,8 @@ class AntColonySearch:
         """
         nodes = self._node_list
         # Weight start node by pheromone
-        probs = np.array([self._pheromone.get(n, self.initial_prob) for n in nodes])
-        probs = probs / probs.sum()
+        probs = self._pheromone.copy()
+        probs /= probs.sum()
         start_idx = self._rng.choice(len(nodes), p=probs)
         start = nodes[start_idx]
 
@@ -85,24 +88,24 @@ class AntColonySearch:
 
         while len(visited) < self.subnetwork_size:
             # Find frontier: neighbors of visited nodes not yet visited
-            frontier: dict[str, float] = {}
+            frontier_nodes: list[str] = []
+            frontier_weights: list[float] = []
             for v in visited:
                 for neighbor in self._neighbors[v]:
                     if neighbor not in visited:
-                        frontier[neighbor] = self._pheromone.get(
-                            neighbor, self.initial_prob
-                        )
+                        idx = self._node_to_idx[neighbor]
+                        frontier_nodes.append(neighbor)
+                        frontier_weights.append(self._pheromone[idx])
 
-            if not frontier:
+            if not frontier_nodes:
                 break
 
             # Weighted random selection
-            candidates = list(frontier.keys())
-            weights = np.array([frontier[c] for c in candidates])
-            weights = np.maximum(weights, self.min_prob)
-            weights = weights / weights.sum()
+            weights = np.array(frontier_weights)
+            np.maximum(weights, self.min_prob, out=weights)
+            weights /= weights.sum()
 
-            chosen = candidates[self._rng.choice(len(candidates), p=weights)]
+            chosen = frontier_nodes[self._rng.choice(len(frontier_nodes), p=weights)]
             visited.add(chosen)
 
         return visited
@@ -121,9 +124,9 @@ class AntColonySearch:
         for subnet, score in zip(subnetworks, scores, strict=True):
             scaled = (score - min_score) / score_range
             for gene in subnet:
-                old = self._pheromone.get(gene, self.initial_prob)
-                new = old * (1.0 + self.pheromone_strength * scaled)
-                self._pheromone[gene] = min(1.0, max(self.min_prob, new))
+                idx = self._node_to_idx[gene]
+                new = self._pheromone[idx] * (1.0 + self.pheromone_strength * scaled)
+                self._pheromone[idx] = min(1.0, max(self.min_prob, new))
 
     def search(
         self,
@@ -141,10 +144,10 @@ class AntColonySearch:
         Returns:
             List of discovered subnetworks, ranked by score.
         """
-        self._init_pheromone(gene_scores)
         # Cache node list and neighbor lookup for hot loop
         self._node_list = list(self.graph.nodes())
         self._neighbors = {n: list(self.graph.neighbors(n)) for n in self._node_list}
+        self._init_pheromone(gene_scores)
         all_discovered: dict[frozenset[str], float] = {}
 
         for _ in range(self.n_iterations):

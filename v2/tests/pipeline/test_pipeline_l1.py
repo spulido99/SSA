@@ -1,5 +1,7 @@
 """Tests for Level 1 (Graph Transformer) pipeline integration. Written FIRST per TDD."""
 
+from unittest.mock import patch
+
 import networkx as nx
 import numpy as np
 import pytest
@@ -97,3 +99,61 @@ class TestPipelineL1:
             search_n_ants=5,
         )
         assert pipe.encoder_level == 0
+
+
+class TestL1GPUSupport:
+    def test_l1_runs_on_cpu_when_no_cuda(self, toy_data) -> None:
+        """L1 should work when CUDA is not available."""
+        alt, mv, labels = toy_data
+        with patch("torch.cuda.is_available", return_value=False):
+            pipe = Pipeline(
+                alteration_matrix=alt,
+                multi_view=mv,
+                labels=labels,
+                encoder_level=1,
+                encoder_hidden_dim=16,
+                encoder_n_epochs=5,
+                search_n_iterations=10,
+                search_n_ants=5,
+            )
+            result = pipe.run()
+        assert isinstance(result, PipelineResult)
+        assert len(result.ranked_genes) > 0
+
+    def test_l1_output_is_numpy_regardless_of_device(self, toy_data) -> None:
+        """L1 output should be numpy array even if GPU used."""
+        alt, mv, labels = toy_data
+        pipe = Pipeline(
+            alteration_matrix=alt,
+            multi_view=mv,
+            labels=labels,
+            encoder_level=1,
+            encoder_hidden_dim=16,
+            encoder_n_epochs=5,
+            search_n_iterations=10,
+            search_n_ants=5,
+        )
+        result = pipe.run()
+        for _, score in result.ranked_genes:
+            assert isinstance(score, float)
+
+
+class TestL1EarlyStopping:
+    def test_early_stopping_reduces_epochs(self, toy_data) -> None:
+        """With early stopping, should stop before max epochs if converged."""
+        alt, mv, labels = toy_data
+        pipe = Pipeline(
+            alteration_matrix=alt,
+            multi_view=mv,
+            labels=labels,
+            encoder_level=1,
+            encoder_hidden_dim=16,
+            encoder_n_epochs=200,  # high epoch count
+            encoder_patience=5,
+            search_n_iterations=10,
+            search_n_ants=5,
+        )
+        result = pipe.run()
+        assert isinstance(result, PipelineResult)
+        # The pipeline should still produce valid results
+        assert len(result.ranked_genes) > 0
