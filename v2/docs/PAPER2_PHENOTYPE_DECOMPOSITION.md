@@ -794,6 +794,19 @@ The `explain()` method is essentially free: all causal paths, variant impacts, a
 16. **Subtype concordance**: Modules should differ between molecular subtypes within the same cancer type (e.g., MSI-high vs MSS in COAD, HPV+ vs HPV- in HNSC).
 17. **Pan-cancer pleiotropic hubs**: Genes in ≥3 hallmarks across ≥5 types should be enriched in known master regulators (e.g., TP53, MYC, PIK3CA).
 
+### Tier 5b: Low-Mutation Cancer Ablation (motivation from Paper 1)
+
+**Key insight from Paper 1 pan-cancer results**: Low-mutation cancers (THCA: 1,411 genes, PRAD: 4,772 genes, LGG: 5,944 genes) show lower P@50 (36%, 54%, 68% respectively) compared to high-mutation types (UCEC: 98%, LUSC: 98%). Mutation frequency alone is insufficient for these cancers.
+
+Per-type feature ablation should demonstrate that mechanistic features (gnomAD constraint, DepMap essentiality, and especially the multi-layer molecular features from Paper 2) provide the largest relative AUPRC lift in precisely these low-mutation cancers:
+
+- **Hypothesis**: lift_full_vs_mut_only ∝ 1/mutation_load (inverse relationship)
+- **Script**: `scripts/run_per_type_ablation.py` (already implemented)
+- **Expected figure**: scatter plot of mutation load (x) vs AUPRC lift (y), showing mechanistic features matter most where mutations are few
+- **Narrative**: "In mutationally quiet cancers, Paper 2's multi-layer molecular features (variant-level ΔΔG, splice disruption, methylation silencing) fill the information gap that mutation frequency cannot, enabling driver discovery even in THCA/PRAD"
+
+This directly motivates Paper 2's raison d'être: when mutations alone don't discriminate, you need mechanistic explanation.
+
 ### Tier 6: Comparative Benchmarks
 
 18. **Benchmark vs. PhenoDriver**: Direct comparison on BRCA dataset using PhenoDriver's evaluation framework (988 patients).
