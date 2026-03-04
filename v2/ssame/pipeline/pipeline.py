@@ -181,11 +181,24 @@ class Pipeline:
         topo_features = torch.from_numpy(X[:, topo_idx]).float().to(device)
         labels_tensor = torch.from_numpy(y).float().to(device)
 
-        # Build edge indices for each view
+        # Build edge indices for each view, remapped to gene_list indices
+        gene_set = set(gene_list)
+        gene_to_local = {g: i for i, g in enumerate(gene_list)}
         edge_indices = []
         for view_name in self.multi_view.view_names:
-            edge_index = self.multi_view.get_edge_index(view_name)
-            edge_indices.append(torch.from_numpy(edge_index).long().to(device))
+            G = self.multi_view.get_graph(view_name)
+            src_list, dst_list = [], []
+            for u, v in G.edges():
+                if u in gene_to_local and v in gene_to_local:
+                    src_list.append(gene_to_local[u])
+                    dst_list.append(gene_to_local[v])
+                    src_list.append(gene_to_local[v])
+                    dst_list.append(gene_to_local[u])
+            if src_list:
+                ei = np.array([src_list, dst_list], dtype=np.int64)
+            else:
+                ei = np.zeros((2, 0), dtype=np.int64)
+            edge_indices.append(torch.from_numpy(ei).long().to(device))
 
         # Build alteration tensor for biological priors
         alt_data = np.zeros(
